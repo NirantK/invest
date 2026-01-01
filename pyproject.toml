@@ -8,6 +8,8 @@ dependencies = [
     "numpy",
     "jupyter",
     "loguru",
+    "yfinance",
+    "click",
 ]
 
 [build-system]
