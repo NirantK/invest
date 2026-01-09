@@ -237,6 +237,58 @@ Royalty weighting (40%) limits downside while capturing 70-80% of upside in bull
 
 ---
 
+## 11. Current State (Jan 2026)
+
+**As of:** 2026-01-09
+
+### Price Comparison vs Dec 31, 2025 Reference
+
+| Ticker | Current | Reference | Change | Within 20% Range |
+|--------|---------|-----------|--------|------------------|
+| PAAS | $54.24 | $54.89 | -1.2% | Yes |
+| HL | $22.30 | $19.50 | +14.4% | Yes |
+| AEM | $190.51 | $182.04 | +4.7% | Yes |
+| WPM | $125.76 | $120.90 | +4.0% | Yes |
+| FNV | $234.20 | $213.11 | +9.9% | Yes |
+| XOM | $123.41 | $134.09 | -8.0% | Yes |
+| SU | $46.14 | $49.97 | -7.7% | Yes |
+| AVDV | $96.49 | $105.53 | -8.6% | Yes |
+| DFIV | $50.52 | $56.13 | -10.0% | Yes |
+| IVAL | $32.11 | $35.62 | -9.9% | Yes |
+| MSTR | $156.00 | $151.95 | +2.7% | Yes |
+
+### Momentum Status
+
+| Ticker | 3M Return | 6M Return | Combined Momentum |
+|--------|-----------|-----------|-------------------|
+| PAAS | +40.8% | +82.2% | Positive |
+| HL | +78.2% | +264.6% | Positive |
+| AEM | +15.6% | +59.0% | Positive |
+| WPM | +19.2% | +37.6% | Positive |
+| FNV | +14.4% | +47.7% | Positive |
+| XOM | +11.2% | +8.1% | Positive |
+| SU | +16.7% | +15.7% | Positive |
+| AVDV | +9.7% | +21.3% | Positive |
+| DFIV | +10.8% | +18.4% | Positive |
+| IVAL | +7.0% | +17.3% | Positive |
+| MSTR | -48.7% | -65.3% | **NEGATIVE** |
+
+### Alerts
+
+- **MOMENTUM ALERT:** MSTR has negative momentum (3M: -48.7%, 6M: -65.3%). Per DCA rules, continue $100/month DCA but do not increase allocation until momentum turns positive.
+
+### Status Summary
+
+All 10 core positions (precious metals, energy, ex-US value) have positive momentum and are within 20% of reference prices. DCA can proceed as planned.
+
+**Notable observations:**
+- Silver miners (PAAS, HL) showing exceptional strength: HL up 264% over 6 months
+- Energy (XOM, SU) lagging but still positive momentum
+- Ex-US value ETFs (AVDV, DFIV, IVAL) down 8-10% from reference but within range
+- MSTR in significant drawdown (-65% 6M) - per plan, continue minimal $100/month DCA
+
+---
+
 ## Open Items
 
 - [ ] **Confirm deployment**: Did you actually execute these trades? IBKR setup discussed but no buy confirmation found.

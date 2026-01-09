@@ -10,6 +10,8 @@ dependencies = [
     "loguru",
     "yfinance",
     "click",
+    "python-dotenv",
+    "requests",
 ]
 
 [build-system]
