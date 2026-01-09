@@ -61,11 +61,13 @@ TICKERS = [
     # Bitcoin proxy (special DCA rules)
     "MSTR",
 ]
-TOTAL_CAPITAL = 60_000
+TOTAL_CAPITAL = 60_000  # Default, can be overridden via --capital flag
 PRECIOUS_METALS_CAP = 18_242  # WPM + PAAS + FNV combined cap (30% of total portfolio)
 BITCOIN_CAP = 4_378  # MSTR (5% of total portfolio)
 BITCOIN_MONTHLY_DCA_PCT = 0.001  # 0.1% per month when momentum is negative
 DCA_MONTHS = 3  # Reach target allocation in 3 months
+DCA_WEEKS = 12  # 3 months = 12 weeks
+ROUND_TO = 100  # Round allocations to nearest $100
 LOOKBACK_3M = 63   # ~3 months
 LOOKBACK_6M = 126  # ~6 months
 RISK_FREE_RATE = 0.05  # ~5% for Sortino calculation
@@ -425,12 +427,23 @@ def calculate_shares(allocation: pd.Series, prices: pd.DataFrame) -> pd.DataFram
     help="Maximum allocation percentage (0.12 = 12%). Positions above this get capped.",
 )
 @click.option(
+    "--capital",
+    "-c",
+    type=int,
+    default=60000,
+    help="Total capital to allocate (default: 60000).",
+)
+@click.option(
     "--quiet",
     "-q",
     is_flag=True,
     help="Suppress detailed output, show only summary.",
 )
-def main(min_allocation: float, max_allocation: float, quiet: bool):
+def main(min_allocation: float, max_allocation: float, capital: int, quiet: bool):
+    global TOTAL_CAPITAL, PRECIOUS_METALS_CAP, BITCOIN_CAP
+    TOTAL_CAPITAL = capital
+    PRECIOUS_METALS_CAP = int(capital * 0.304)  # 30.4% of total
+    BITCOIN_CAP = int(capital * 0.073)  # 7.3% of total
     print("=" * 60)
     print("US PORTFOLIO ALLOCATION - COMBINED MOMENTUM SCORE")
     print("=" * 60)
@@ -555,36 +568,38 @@ def main(min_allocation: float, max_allocation: float, quiet: bool):
         print(f"  - Months to reach 5% cap: {int(BITCOIN_CAP / monthly_dca_amount)}")
         print(f"  - Accelerate if momentum turns positive")
 
-    # 3-Month DCA Plan
+    # Weekly DCA Plan (12 weeks = 3 months)
     print(f"\n" + "=" * 60)
-    print(f"3-MONTH DCA PLAN (Monthly Buys to Reach Target)")
+    print(f"WEEKLY DCA PLAN ({DCA_WEEKS} weeks)")
     print("=" * 60)
-    print(f"\nTarget: Deploy ${TOTAL_CAPITAL:,.0f} over {DCA_MONTHS} months")
-    print(f"Monthly investment: ${TOTAL_CAPITAL / DCA_MONTHS:,.0f}\n")
+    print(f"\nTarget: Deploy ${TOTAL_CAPITAL:,.0f} over {DCA_WEEKS} weeks")
+    print(f"Weekly investment: ${TOTAL_CAPITAL / DCA_WEEKS:,.0f} (rounded to ${ROUND_TO})\n")
 
-    print(f"{'Ticker':<6} {'Target':>10} {'Month 1':>10} {'Month 2':>10} {'Month 3':>10} {'Then':>12}")
-    print("-" * 60)
+    print(f"{'Ticker':<6} {'Target':>10} {'Weekly':>10} {'12-Week':>12}")
+    print("-" * 40)
 
+    weekly_allocations = {}
     for ticker in shares.index:
         target = shares.loc[ticker, "Allocation_USD"]
         if target > 0:
-            monthly = round_to_nearest(target / DCA_MONTHS, 100)
-            # After 3 months, taper to small maintenance amount or stop
-            maintenance = round_to_nearest(target * 0.01, 100) if target > 1000 else 0
-            print(f"{ticker:<6} ${target:>8,.0f} ${monthly:>8,.0f} ${monthly:>8,.0f} ${monthly:>8,.0f}  ${maintenance:>6,.0f}/mo")
+            weekly = round_to_nearest(target / DCA_WEEKS, ROUND_TO)
+            weekly_allocations[ticker] = weekly
+            actual_12wk = weekly * DCA_WEEKS
+            print(f"{ticker:<6} ${target:>8,.0f} ${weekly:>8,.0f} ${actual_12wk:>10,.0f}")
 
     # MSTR special case
     if mstr_combined_momentum <= 0:
-        mstr_monthly = round_to_nearest(monthly_dca_amount, 100)
-        print(f"{'MSTR':<6} ${'(DCA)':>7} ${mstr_monthly:>8,.0f} ${mstr_monthly:>8,.0f} ${mstr_monthly:>8,.0f}  ${mstr_monthly:>6,.0f}/mo")
+        mstr_weekly = round_to_nearest(monthly_dca_amount / 4, ROUND_TO)  # Monthly / 4 weeks
+        if mstr_weekly < ROUND_TO:
+            mstr_weekly = ROUND_TO  # Minimum $100/week if DCA active
+        weekly_allocations["MSTR"] = mstr_weekly
+        print(f"{'MSTR':<6} ${'(DCA)':>7} ${mstr_weekly:>8,.0f} ${mstr_weekly * DCA_WEEKS:>10,.0f}")
 
-    total_allocated = shares["Allocation_USD"].sum()
-    monthly_total = sum(round_to_nearest(shares.loc[t, "Allocation_USD"] / DCA_MONTHS, 100) for t in shares.index if shares.loc[t, "Allocation_USD"] > 0)
-    if mstr_combined_momentum <= 0:
-        monthly_total += round_to_nearest(monthly_dca_amount, 100)
+    weekly_total = sum(weekly_allocations.values())
+    total_12wk = weekly_total * DCA_WEEKS
 
-    print("-" * 60)
-    print(f"{'TOTAL':<6} ${total_allocated:>8,.0f} ${monthly_total:>8,.0f} ${monthly_total:>8,.0f} ${monthly_total:>8,.0f}")
+    print("-" * 40)
+    print(f"{'TOTAL':<6} ${total_12wk:>8,.0f} ${weekly_total:>8,.0f} ${total_12wk:>10,.0f}")
 
     # Portfolio Risk Metrics
     metrics = calculate_portfolio_metrics(shares, returns, score, mom_3m, mom_6m, downside_vol)
@@ -631,8 +646,8 @@ def main(min_allocation: float, max_allocation: float, quiet: bool):
     print(f"\n" + "-" * 40)
     print("NOTES")
     print("-" * 40)
-    print("- After Month 3: Stop or taper to maintenance amounts shown")
-    print("- MSTR: Continue $60/mo DCA until momentum turns positive")
+    print("- After 12 weeks: Stop or rerun script with new capital")
+    print("- MSTR: Continue weekly DCA until momentum turns positive")
     print("- Rerun this script quarterly to rebalance based on Sortino")
     print("- If any position momentum turns negative, pause that DCA")
 
