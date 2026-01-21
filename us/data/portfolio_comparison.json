@@ -1,0 +1,45 @@
+{
+  "current": {
+    "weights": {
+      "PAAS": 15.25,
+      "HL": 15.25,
+      "AEM": 10.17,
+      "WPM": 8.47,
+      "FNV": 5.08,
+      "XOM": 6.78,
+      "SU": 6.78,
+      "AVDV": 11.86,
+      "DFIV": 11.86,
+      "IVAL": 8.47
+    },
+    "metrics": {
+      "annual_return": 37.41,
+      "annual_volatility": 24.24,
+      "sharpe_ratio": 1.543,
+      "sortino_ratio": 2.249,
+      "max_drawdown": -19.79
+    }
+  },
+  "proposed": {
+    "weights": {
+      "PAAS": 8.7,
+      "HL": 7.61,
+      "AEM": 10.87,
+      "WPM": 8.7,
+      "FNV": 5.43,
+      "XOM": 13.04,
+      "SU": 10.87,
+      "AVDV": 9.78,
+      "DFIV": 9.78,
+      "IVAL": 6.52,
+      "VNQ": 8.7
+    },
+    "metrics": {
+      "annual_return": 30.63,
+      "annual_volatility": 19.41,
+      "sharpe_ratio": 1.578,
+      "sortino_ratio": 2.215,
+      "max_drawdown": -14.81
+    }
+  }
+}

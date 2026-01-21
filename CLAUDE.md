@@ -1,6 +1,8 @@
-# US C-Corp Portfolio Allocation Project
+# Investment Portfolio Management
 
-Systematic portfolio allocation using Sortino-weighted momentum with sector diversification constraints. Quarterly rebalancing with tax-efficient capital additions.
+This repo manages two portfolios:
+1. **US C-Corp** (via IBKR) - US equities with Sortino-weighted momentum
+2. **INR Personal** (India) - Mutual funds and Indian equities
 
 ## Project Context
 
@@ -11,15 +13,15 @@ Systematic portfolio allocation using Sortino-weighted momentum with sector dive
 - 1099 C-corps only (avoid K-1 complexity)
 
 **Current State (Q1 2026):**
-- 10 positions deployed
-- $60,000 initial capital allocated
+- **⚠️ NOTHING DEPLOYED YET** - all amounts are targets
+- $60,000 initial capital to be allocated via 12-week DCA
 - Quarterly rebalancing planned with $20,000 new capital each quarter
 
 ## Development Setup
 
 - **Python:** 3.11+ required
 - **Package Manager:** `uv` (use `uv run` instead of `python`)
-- **Key Dependencies:** yfinance, pandas, numpy, click
+- **Key Dependencies:** yfinance, pandas, numpy, click, ib-async, httpx
 
 Install:
 ```bash
@@ -37,16 +39,51 @@ uv sync
 
 ```
 .
-├── nbs/                              # Analysis scripts
-│   ├── us_portfolio_allocation.py    # Main allocation engine
-│   ├── portfolio_simulation.py       # Monte Carlo risk analysis
-│   └── oil_gas_comprehensive.py      # Sector analysis
+├── us/                               # US C-Corp Portfolio (IBKR)
+│   ├── scripts/
+│   │   ├── us_portfolio_allocation.py    # Main allocation engine
+│   │   ├── portfolio_simulation.py       # Monte Carlo risk analysis
+│   │   ├── oil_gas_comprehensive.py      # Sector analysis
+│   │   ├── ibkr_client.py                # IBKR API wrapper
+│   │   └── correlation_analysis.py       # Correlation analysis
+│   └── data/
+│       ├── correlation_matrix.csv
+│       └── portfolio_comparison.json
+│
+├── india/                            # INR Personal Portfolio
+│   ├── scripts/
+│   │   ├── fetch_mf_nav.py               # mfapi.in integration
+│   │   └── *.ipynb                       # Analysis notebooks
+│   └── data/
+│       ├── kasliwal_holdings_flat.csv
+│       └── 2026-01-21-*.csv              # Portfolio snapshots
+│
 ├── docs/
-│   └── investment_decision_log.md    # Complete decision history (783 lines)
-├── data/
-│   └── kasliwal_holdings_flat.csv    # INR portfolio context
-└── README.md                         # User-facing documentation
+│   └── investment_decision_log.md    # Complete decision history
+└── README.md
 ```
+
+## Data Sources
+
+| Source | Purpose | Module |
+|--------|---------|--------|
+| IBKR API | Real-time US portfolio | `us/scripts/ibkr_client.py` |
+| yfinance | US stock prices | `us/scripts/us_portfolio_allocation.py` |
+| mfapi.in | Indian MF NAV data | `india/scripts/fetch_mf_nav.py` |
+
+### IBKR Setup
+
+Requires TWS or IB Gateway running with API enabled:
+1. TWS: Edit > Global Configuration > API > Settings
+2. Enable "ActiveX and Socket Clients"
+3. Port: 7497 (TWS) or 4001 (Gateway)
+4. Set in `.env`: `IBKR_PORT=7497` and `IBKR_CLIENT_ID=1`
+
+### mfapi.in
+
+Free API for Indian mutual fund NAV data. No auth required.
+- Docs: https://www.mfapi.in/
+- Example: `uv run python india/scripts/fetch_mf_nav.py`
 
 ## Key Assumptions & Constraints
 
@@ -71,8 +108,7 @@ When activating in Q2 2026 (approximately April 2026), follow this sequence:
 
 ### 1. Data Refresh
 ```bash
-cd nbs
-uv run python us_portfolio_allocation.py --min-allocation 0.03 --max-allocation 0.15
+uv run python us/scripts/us_portfolio_allocation.py --min-allocation 0.03 --max-allocation 0.15
 ```
 
 This will:
@@ -84,23 +120,28 @@ This will:
 
 ### 2. Rebalancing Analysis
 
-**Current Holdings (Q1 baseline):**
-| Ticker | Q1 Amount | Q1 Weight |
-|--------|-----------|-----------|
-| PAAS | $9,000 | 15.25% |
-| HL | $9,000 | 15.25% |
-| AVDV | $7,000 | 11.86% |
-| DFIV | $7,000 | 11.86% |
-| AEM | $6,000 | 10.17% |
-| WPM | $5,000 | 8.47% |
-| IVAL | $5,000 | 8.47% |
-| XOM | $4,000 | 6.78% |
-| SU | $4,000 | 6.78% |
-| FNV | $3,000 | 5.08% |
+**Target Allocation (nothing deployed yet):**
+| Ticker | Target | Weight | Category |
+|--------|--------|--------|----------|
+| PAAS | $9,000 | 15.25% | Silver miner |
+| HL | $9,000 | 15.25% | Silver miner |
+| AVDV | $7,000 | 11.86% | Ex-US Value |
+| DFIV | $7,000 | 11.86% | Ex-US Value |
+| AEM | $6,000 | 10.17% | Gold miner |
+| WPM | $5,000 | 8.47% | Streamer (mixed) |
+| IVAL | $5,000 | 8.47% | Ex-US Value |
+| XOM | $4,000 | 6.78% | Oil major |
+| SU | $4,000 | 6.78% | Canadian oil |
+| FNV | $3,000 | 5.08% | Streamer (gold) |
 
-**Calculate New Capital Deployment:**
+**Initial Deployment (if not yet invested):**
+1. Run allocation script to get fresh target weights
+2. Deploy $60,000 via 12-week DCA (~$5,000/week)
+3. Split weekly amount across positions per target weights
+
+**Subsequent Rebalancing (after initial deployment):**
 1. Run allocation script to get new target weights
-2. Calculate current portfolio value (Q1 holdings at current prices)
+2. Calculate current portfolio value at current prices
 3. For each underweight position:
    ```
    buy_amount = (new_target_weight × total_value) - current_holding_value
@@ -119,7 +160,7 @@ Questions to answer:
 
 Check this with:
 ```bash
-uv run python nbs/portfolio_simulation.py
+uv run python us/scripts/portfolio_simulation.py
 ```
 
 Look for:
@@ -157,7 +198,7 @@ Consider adding to universe if:
 
 Run comprehensive analysis:
 ```bash
-uv run python nbs/oil_gas_comprehensive.py  # For energy sector
+uv run python us/scripts/oil_gas_comprehensive.py  # For energy sector
 ```
 
 ### 7. Execution Plan
@@ -239,7 +280,7 @@ If targets hit:
    - Update price target table
    - Check off completed items in "Next Quarter Checklist"
 
-3. **nbs/portfolio_simulation.py**
+3. **us/scripts/portfolio_simulation.py**
    - Update PORTFOLIO dict with current holdings (if changed)
    - Verify total capital matches deployed amount
 
@@ -255,16 +296,16 @@ If targets hit:
 
 ```bash
 # Run full allocation with current constraints
-uv run python nbs/us_portfolio_allocation.py --min-allocation 0.03 --max-allocation 0.15
+uv run python us/scripts/us_portfolio_allocation.py --min-allocation 0.03 --max-allocation 0.15
 
 # Monte Carlo simulation (10k paths, 3-month horizon)
-uv run python nbs/portfolio_simulation.py
+uv run python us/scripts/portfolio_simulation.py
 
 # Comprehensive energy sector analysis (26 stocks)
-uv run python nbs/oil_gas_comprehensive.py
+uv run python us/scripts/oil_gas_comprehensive.py
 
 # Canadian energy NYSE-only (no OTC)
-uv run python nbs/canadian_nyse_only.py
+uv run python us/scripts/canadian_nyse_only.py
 
 # Check dependencies
 uv sync

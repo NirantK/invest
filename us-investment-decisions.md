@@ -157,6 +157,7 @@ Based on late-2025 momentum data:
 ## 7. Execution Checklist
 
 - [ ] Open IBKR account for C-Corp (if not already done)
+- [ ] **Change default tax lot method to Highest Cost** (see Section 7a below)
 - [ ] Enable DRIP for dividend reinvestment
 - [ ] Deploy capital per starting allocation
 - [ ] Set calendar reminders for quarterly reviews
@@ -167,6 +168,40 @@ Based on late-2025 momentum data:
 | Q1 2025 | | | | | | Initial deploy |
 | Q2 2026 | | | | | | |
 | Q4 2026 | | | | | | |
+
+---
+
+## 7a. IBKR Tax Lot Settings (Critical for Tax Loss Harvesting)
+
+**Problem**: IBKR defaults to FIFO (First In, First Out), which sells your oldest (often lowest cost) shares first. This maximizes capital gains taxes.
+
+**Solution**: Change default to **Highest Cost** — automatically sells lots with highest cost basis first, minimizing gains or maximizing losses.
+
+### How to Change
+
+1. Log into IBKR Client Portal
+2. Go to **Reports → Tax Optimizer**
+3. Click **Default Match Method**
+4. Change from FIFO to **Highest Cost**
+5. Save
+
+### Available Methods
+
+| Method | Use Case |
+|--------|----------|
+| **Highest Cost** | Best default — minimizes capital gains |
+| Maximize Long-Term Loss | Prioritizes selling long-term losses |
+| Maximize Short-Term Loss | Prioritizes selling short-term losses |
+| Specific Lot | Manual selection per trade (more work) |
+| LIFO | Last in, first out |
+| FIFO | First in, first out (default, worst for taxes) |
+
+### Notes
+
+- You can override per-trade using Tax Optimizer until 8:30 PM ET on trade day
+- Setting Highest Cost as default means you don't have to think about it
+- IRS-compliant under "Specific Identification" rules
+- Also enable **Tax Loss Harvesting Tool** (Reports → Tax Loss Harvester) for automated loss identification
 
 ---
 
@@ -239,25 +274,58 @@ Royalty weighting (40%) limits downside while capturing 70-80% of upside in bull
 
 ## 11. Current State (Jan 2026)
 
-**As of:** 2026-01-09
+**As of:** 2026-01-15
 
-### Price Comparison vs Dec 31, 2025 Reference
+### Deployment Status
 
-| Ticker | Current | Reference | Change | Within 20% Range |
-|--------|---------|-----------|--------|------------------|
-| PAAS | $54.24 | $54.89 | -1.2% | Yes |
-| HL | $22.30 | $19.50 | +14.4% | Yes |
-| AEM | $190.51 | $182.04 | +4.7% | Yes |
-| WPM | $125.76 | $120.90 | +4.0% | Yes |
-| FNV | $234.20 | $213.11 | +9.9% | Yes |
-| XOM | $123.41 | $134.09 | -8.0% | Yes |
-| SU | $46.14 | $49.97 | -7.7% | Yes |
-| AVDV | $96.49 | $105.53 | -8.6% | Yes |
-| DFIV | $50.52 | $56.13 | -10.0% | Yes |
-| IVAL | $32.11 | $35.62 | -9.9% | Yes |
-| MSTR | $156.00 | $151.95 | +2.7% | Yes |
+**⚠️ NOTHING DEPLOYED YET** - All amounts below are TARGET allocations, not actual holdings.
 
-### Momentum Status
+### Target Allocation (When Ready to Deploy)
+
+**Miners (Precious Metals):** $32,000 target
+| Ticker | Target | Category |
+|--------|--------|----------|
+| PAAS | $9,000 | Silver miner |
+| HL | $9,000 | Silver miner |
+| AEM | $6,000 | Gold miner |
+| WPM | $5,000 | Streamer (mixed) |
+| FNV | $3,000 | Streamer (gold) |
+
+**Energy (Oil & Gas):** $8,000 target
+| Ticker | Target | Category |
+|--------|--------|----------|
+| XOM | $4,000 | Integrated major |
+| SU | $4,000 | Canadian integrated |
+
+**Ex-US Value:** $19,000 target
+| Ticker | Target | Category |
+|--------|--------|----------|
+| AVDV | $7,000 | Avantis Intl Small Cap Value |
+| DFIV | $7,000 | DFA International Value |
+| IVAL | $5,000 | Alpha Architect Intl Quant Value |
+
+**Bitcoin:** $100/month DCA (while momentum negative)
+| Ticker | Monthly | Category |
+|--------|---------|----------|
+| MSTR | $100 | Bitcoin proxy |
+
+### Reference Prices (Dec 31, 2025)
+
+| Ticker | Reference Price |
+|--------|-----------------|
+| PAAS | $54.89 |
+| HL | $19.50 |
+| AEM | $182.04 |
+| WPM | $120.90 |
+| FNV | $213.11 |
+| XOM | $134.09 |
+| SU | $49.97 |
+| AVDV | $105.53 |
+| DFIV | $56.13 |
+| IVAL | $35.62 |
+| MSTR | $151.95 |
+
+### Momentum Status (as of Jan 2026)
 
 | Ticker | 3M Return | 6M Return | Combined Momentum |
 |--------|-----------|-----------|-------------------|
@@ -273,19 +341,12 @@ Royalty weighting (40%) limits downside while capturing 70-80% of upside in bull
 | IVAL | +7.0% | +17.3% | Positive |
 | MSTR | -48.7% | -65.3% | **NEGATIVE** |
 
-### Alerts
+### Next Steps
 
-- **MOMENTUM ALERT:** MSTR has negative momentum (3M: -48.7%, 6M: -65.3%). Per DCA rules, continue $100/month DCA but do not increase allocation until momentum turns positive.
-
-### Status Summary
-
-All 10 core positions (precious metals, energy, ex-US value) have positive momentum and are within 20% of reference prices. DCA can proceed as planned.
-
-**Notable observations:**
-- Silver miners (PAAS, HL) showing exceptional strength: HL up 264% over 6 months
-- Energy (XOM, SU) lagging but still positive momentum
-- Ex-US value ETFs (AVDV, DFIV, IVAL) down 8-10% from reference but within range
-- MSTR in significant drawdown (-65% 6M) - per plan, continue minimal $100/month DCA
+1. **Open IBKR account** for C-Corp (if not done)
+2. **Run allocation script** with fresh data before deploying
+3. **Deploy via 12-week DCA** - $5,000/week across positions
+4. **MSTR:** Start $100/month DCA separately
 
 ---
 

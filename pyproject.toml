@@ -4,14 +4,17 @@ version = "0.1.0"
 description = "Investment analysis and research tools"
 requires-python = ">=3.12"
 dependencies = [
-    "pandas",
-    "numpy",
+    "pandas>=2.2.0",
+    "numpy>=2.0.0",
     "jupyter",
     "loguru",
-    "yfinance",
+    "yfinance>=0.2.50",
     "click",
     "python-dotenv",
-    "requests",
+    "matplotlib>=3.10.0",
+    "seaborn>=0.13.2",
+    "ib-async>=1.0.0",
+    "httpx>=0.28.0",
 ]
 
 [build-system]
