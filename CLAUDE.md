@@ -159,6 +159,11 @@ This will:
 **Current:** $3,341 deployed (5 positions)
 **Target:** ~$6,800 total (9 positions)
 
+**Swing Trade (separate from core allocation):**
+| Ticker | Qty | Category | Horizon | Exit Rule |
+|--------|-----|----------|---------|-----------|
+| NU | 111 | Nubank (Brazil fintech) | 6 months | Sell July 2026 regardless of performance |
+
 **Initial Deployment (if not yet invested):**
 1. Run allocation script to get fresh target weights
 2. Deploy $60,000 via 12-week DCA (~$5,000/week)
