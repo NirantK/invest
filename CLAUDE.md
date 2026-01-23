@@ -106,6 +106,8 @@ Free API for Indian mutual fund NAV data. No auth required.
 3. **Filters:** Positive momentum only, 1099 only
 
 ### Investment Themes (10-Position Portfolio)
+
+**CORE (8 positions)** — Momentum-driven, rebalanced quarterly
 | Theme | Ticker | Thesis |
 |-------|--------|--------|
 | Copper | COPX | Electrification: EVs (80kg/car), grid upgrades, AI data centers |
@@ -115,8 +117,12 @@ Free API for Indian mutual fund NAV data. No auth required.
 | Ex-US Momentum | IMTM | Factor diversification, non-US winners |
 | Ex-US Value | AVDV | US overvaluation hedge, small cap value tilt |
 | LatAm Equity | ILF | Commodity beta, EM discount to DM |
+
+**SATELLITE (2 positions)** — Discretionary, excluded from momentum math
+| Theme | Ticker | Thesis |
+|-------|--------|--------|
 | LatAm Fintech | NU | Nubank: 33% ROE, 40% growth, disrupting Brazil banking oligopoly |
-| Bitcoin | MSTR | Digital gold, asymmetric upside (small position) |
+| Bitcoin | MSTR | Digital gold, asymmetric upside |
 
 ### Exclusions (Do Not Buy)
 | Ticker | Reason |
@@ -142,70 +148,72 @@ This will:
 - Apply sector caps (33% max per sector)
 - Output new recommended allocation
 
-### 2. Current Holdings & Target Allocation
+### 2. Current Holdings (Jan 23, 2026)
 
-**Current Portfolio (Jan 23, 2026):**
+Portfolio split into **CORE** (momentum-driven) and **SATELLITE** (discretionary).
 
-| Ticker | Qty | Avg Cost | Value | Current % | Target % | Status |
-|--------|-----|----------|-------|-----------|----------|--------|
-| NU | 111 | $18.01 | $1,995 | 24.7% | 15% | ⚠️ Overweight |
-| PPLT | 6 | $246.17 | $1,498 | 18.6% | 12% | ⚠️ Overweight |
-| COPX | 12 | $83.08 | $1,017 | 12.6% | 12% | ✓ At target |
-| WPM | 6 | $138.62 | $878 | 10.9% | 12% | → Buy more |
-| FNV | 3 | $252.73 | $779 | 9.6% | 10% | ✓ Near target |
-| ILF | 15 | $34.62 | $520 | 6.4% | 8% | → Buy more |
-| IMTM | 9 | $50.11 | $452 | 5.6% | 8% | → Buy more |
-| URA | 6 | $57.42 | $342 | 4.2% | 8% | → Buy more |
-| AVDV | 3 | $101.40 | $304 | 3.8% | 8% | → Buy more |
-| MSTR | 1.77 | $171.03 | $287 | 3.6% | 7% | → Buy more |
-| **TOTAL** | | | **$8,071** | **100%** | **100%** | |
+**CORE Portfolio** — Target allocation computed by momentum script
+| Ticker | Qty | Avg Cost | Value | % of Core | Category |
+|--------|-----|----------|-------|-----------|----------|
+| PPLT | 6 | $246.17 | $1,498 | 25.9% | Platinum ETF |
+| COPX | 12 | $83.08 | $1,017 | 17.6% | Copper miners |
+| WPM | 6 | $138.62 | $878 | 15.2% | Gold/Silver streamer |
+| FNV | 3 | $252.73 | $779 | 13.5% | Gold streamer |
+| ILF | 15 | $34.62 | $520 | 9.0% | LatAm equity |
+| IMTM | 9 | $50.11 | $452 | 7.8% | Ex-US Momentum |
+| URA | 6 | $57.42 | $342 | 5.9% | Uranium miners |
+| AVDV | 3 | $101.40 | $304 | 5.3% | Ex-US Value |
+| **CORE TOTAL** | | | **$5,789** | **100%** | |
 
-**Sector Allocation:**
-| Sector | Tickers | Current % | Target % | Status |
-|--------|---------|-----------|----------|--------|
-| Precious Metals | WPM + FNV | 20.5% | 22% | ✓ OK |
-| Energy Transition | COPX + URA + PPLT | 35.4% | 32% | ⚠️ Slightly over |
-| Ex-US Equity | IMTM + AVDV + ILF | 15.8% | 24% | → Underweight |
-| LatAm Fintech | NU | 24.7% | 15% | ⚠️ Overweight |
-| Bitcoin | MSTR | 3.6% | 7% | → Underweight |
+**SATELLITE Portfolio** — Discretionary, excluded from rebalancing math
+| Ticker | Qty | Avg Cost | Value | Category | Notes |
+|--------|-----|----------|-------|----------|-------|
+| NU | 111 | $18.01 | $1,995 | LatAm Fintech | High-conviction growth |
+| MSTR | 1.77 | $171.03 | $287 | Bitcoin proxy | Asymmetric upside |
+| **SATELLITE TOTAL** | | | **$2,282** | | |
 
-### 3. Rebalancing Logic (Next Order)
+**Portfolio Summary:**
+| Segment | Value | % of Total |
+|---------|-------|------------|
+| Core | $5,789 | 71.7% |
+| Satellite | $2,282 | 28.3% |
+| **TOTAL** | **$8,071** | **100%** |
+| Cash | $12,115 | |
+| Net Liquidation | $20,178 | |
 
-**Rule: Add capital to underweight positions only. Never sell.**
+### 3. Rebalancing Logic
 
-When placing next order, calculate buy amounts:
+**CORE positions:** Run momentum script to compute target allocation
+```bash
+uv run python us/scripts/us_portfolio_allocation.py --min-allocation 0.03 --max-allocation 0.15
 ```
-For each position where Current % < Target %:
-  gap = Target % - Current %
-  buy_amount = gap × total_portfolio_value
+
+The script outputs new target weights based on:
+- 3M + 6M momentum scores (Sortino-weighted)
+- Sector caps (33% max per sector)
+- Position limits (3% min, 15% max)
+
+**Rebalancing rule:** Add capital to underweight CORE positions only. Never sell.
+```
+For each CORE position where Current % < Target %:
+  buy_amount = (Target % - Current %) × core_portfolio_value
 ```
 
-**Priority order for new capital:**
-1. **MSTR** (3.6% → 7%) - most underweight
-2. **AVDV** (3.8% → 8%) - underweight
-3. **URA** (4.2% → 8%) - underweight
-4. **IMTM** (5.6% → 8%) - underweight
-5. **ILF** (6.4% → 8%) - underweight
-6. **WPM** (10.9% → 12%) - slightly under
-
-**DO NOT BUY (overweight):**
-- NU (24.7% vs 15% target)
-- PPLT (18.6% vs 12% target)
-- COPX (12.6% vs 12% target)
+**SATELLITE positions (NU, MSTR):**
+- Excluded from momentum math
+- Size at discretion (current: ~28% of total)
+- No automatic rebalancing — hold or add based on conviction
 
 **Example: Adding $2,000 new capital**
 ```bash
-# Check current positions
+# 1. Check current state
 uv run ~/.claude/skills/ibkr/ibkr.py positions
 
-# Calculate underweight gaps, buy proportionally:
-# MSTR: ~$300 (biggest gap)
-# AVDV: ~$350
-# URA: ~$300
-# IMTM: ~$200
-# ILF: ~$150
-# WPM: ~$100
-# Remainder to most underweight
+# 2. Run allocation script for CORE targets
+uv run python us/scripts/us_portfolio_allocation.py
+
+# 3. Buy underweight CORE positions to close gaps
+# 4. Optionally add to SATELLITE if high conviction
 ```
 
 ### 3. Momentum Regime Check
@@ -241,13 +249,14 @@ If any converted to K-1: Exclude from new allocation, reallocate capital.
 
 ### 5. Sector Cap Review
 
-After running allocation, verify:
-- [ ] No sector exceeds 33% of total portfolio
-- [ ] Precious metals (WPM + FNV) ≤ 33%
-- [ ] Energy transition (COPX + URA + PPLT) ≤ 33%
-- [ ] Ex-US equity (AVDV + IMTM + ILF) ≤ 33%
-- [ ] LatAm fintech (NU) ≤ 15% — single stock risk
-- [ ] Bitcoin (MSTR) ≤ 10% — volatility management
+**CORE sector caps (33% max each):**
+- [ ] Precious metals (WPM + FNV) ≤ 33% of CORE
+- [ ] Energy transition (COPX + URA + PPLT) ≤ 33% of CORE
+- [ ] Ex-US equity (AVDV + IMTM + ILF) ≤ 33% of CORE
+
+**SATELLITE limits (discretionary):**
+- [ ] NU — single stock, monitor for position sizing
+- [ ] MSTR — high volatility, keep small
 
 ### 6. New Stock Candidates
 
