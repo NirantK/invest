@@ -224,6 +224,7 @@ Royalty weighting (40%) limits downside while capturing 70-80% of upside in bull
 
 | Excluded | Reason |
 |----------|--------|
+| **Vale (VALE)** | **80% iron ore exposure = China structural decline bet.** Simandou (120Mt/yr) coming 2025-26 crushes pricing power. Indonesian HPAL ($9,800/t cost) eroding Class 1 nickel moat. PT Vale Indonesia halted mining Jan 2026 (quota dispute). Dam liabilities (Brumadinho/Mariana: $30B+) + Lula political interference. Nickel is <10% of revenue—"free call option" isn't free if iron ore keeps falling. 5x more bearish than bullish analyst sentiment. |
 | Newmont (NEM) | $1,611 AISC vs $1,300 guidance; worst daily drop in 27 years. Execution risk. |
 | Barrick (GOLD) | AISCs among majors' highest. If you want gold, AEM is better. |
 | Sibanye-Stillwater | $2.6B writedowns, 60% capacity. Turnaround bet, not growth. |
@@ -358,4 +359,4 @@ Royalty weighting (40%) limits downside while capturing 70-80% of upside in bull
 
 ---
 
-*Document generated from past conversations (Jan 9, 2026). Review quarterly and update as positions/thesis evolve.*
+*Document generated from past conversations (Jan 9, 2026). Updated Jan 22, 2026: Added VALE to exclusions after bear case analysis (China structural decline, Simandou supply, Indonesian HPAL competition, dam liabilities, political risk). Review quarterly and update as positions/thesis evolve.*
