@@ -91,6 +91,8 @@ Free API for Indian mutual fund NAV data. No auth required.
 - Gold: $4,000/oz minimum
 - Silver: $50/oz minimum
 - Oil: Supply crunch 2027-2028 (deferred capex thesis)
+- Copper: Electrification supercycle (EVs, grid, AI data centers)
+- Uranium: Nuclear renaissance, supply deficit post-2025
 
 ### Tax Strategy
 - C-Corp @ 21% flat rate (dividends = capital gains)
@@ -99,8 +101,28 @@ Free API for Indian mutual fund NAV data. No auth required.
 
 ### Allocation Constraints
 1. **Position:** 3% min, 15% max
-2. **Sector:** 33% max per sector (gold/silver/mixed/oil&gas/ex-US)
+2. **Sector:** 33% max per sector (gold/silver/mixed/oil&gas/copper/uranium/ex-US)
 3. **Filters:** Positive momentum only, 1099 only
+
+### Investment Themes (9-Position Portfolio)
+| Theme | Ticker | Thesis |
+|-------|--------|--------|
+| Copper | COPX | Electrification: EVs (80kg/car), grid upgrades, AI data centers |
+| Gold/Silver | WPM, FNV | Streamers: 80% margins, no op risk, central bank buying |
+| Uranium | URA | Nuclear renaissance, 10-year supply deficit, SMR buildout |
+| Platinum | PPLT | Hydrogen fuel cells, automotive catalysts, supply deficit |
+| Ex-US Momentum | IMTM | Factor diversification, non-US winners |
+| Ex-US Value | AVDV | US overvaluation hedge, small cap value tilt |
+| LatAm | ILF | Commodity beta, EM discount to DM |
+| Bitcoin | MSTR | Digital gold, asymmetric upside (small position) |
+
+### Exclusions (Do Not Buy)
+| Ticker | Reason |
+|--------|--------|
+| VALE | China iron ore decline, Simandou supply, dam liabilities, Lula risk |
+| NEM | Execution issues, AISC overruns |
+| GOLD | High AISC vs peers |
+| K-1 issuers | Tax complexity for C-Corp |
 
 ## Next Quarter Activation (Q2 2026)
 
@@ -120,19 +142,22 @@ This will:
 
 ### 2. Rebalancing Analysis
 
-**Target Allocation (nothing deployed yet):**
-| Ticker | Target | Weight | Category |
-|--------|--------|--------|----------|
-| PAAS | $9,000 | 15.25% | Silver miner |
-| HL | $9,000 | 15.25% | Silver miner |
-| AVDV | $7,000 | 11.86% | Ex-US Value |
-| DFIV | $7,000 | 11.86% | Ex-US Value |
-| AEM | $6,000 | 10.17% | Gold miner |
-| WPM | $5,000 | 8.47% | Streamer (mixed) |
-| IVAL | $5,000 | 8.47% | Ex-US Value |
-| XOM | $4,000 | 6.78% | Oil major |
-| SU | $4,000 | 6.78% | Canadian oil |
-| FNV | $3,000 | 5.08% | Streamer (gold) |
+**Target Allocation (9 positions):**
+
+| Ticker | Qty | Avg Cost | Value | Category | Status |
+|--------|-----|----------|-------|----------|--------|
+| COPX | 12 | $83.08 | $997 | Copper miners ETF | ✓ Filled |
+| WPM | 6 | $138.62 | $832 | Streamer (gold/silver) | ✓ Filled |
+| FNV | 3 | $252.73 | $758 | Streamer (gold) | ✓ Filled |
+| IMTM | 9 | $50.11 | $451 | Ex-US Momentum ETF | ✓ Filled |
+| MSTR | 1.77 | $171.03 | $303 | Bitcoin proxy | ✓ Filled |
+| PPLT | 6 | — | ~$1,350 | Platinum ETF | Pending |
+| URA | 6 | — | ~$330 | Uranium miners ETF | Pending |
+| ILF | 15 | — | ~$495 | LatAm equity ETF | Pending |
+| AVDV | 3 | — | ~$297 | Ex-US Small Cap Value | Pending |
+
+**Current:** $3,341 deployed (5 positions)
+**Target:** ~$6,800 total (9 positions)
 
 **Initial Deployment (if not yet invested):**
 1. Run allocation script to get fresh target weights
@@ -170,13 +195,13 @@ Look for:
 
 ### 4. Tax Status Verification
 
-**Critical:** Verify no stocks converted to K-1 issuers.
+**Critical:** Verify no ETFs/stocks converted to K-1 issuers.
 
 Check each ticker:
-- [ ] PAAS, HL, AEM, FNV, WPM still issue 1099s
-- [ ] XOM, SU still issue 1099s
-- [ ] AVDV, DFIV, IVAL still issue 1099s
-- [ ] No new K-1 conversions (companies sometimes convert to MLP structure)
+- [ ] COPX, URA, PPLT, ILF, IMTM, AVDV still issue 1099s (ETFs)
+- [ ] WPM, FNV still issue 1099s (Canadian corps)
+- [ ] MSTR still issues 1099 (US corp)
+- [ ] No new K-1 conversions
 
 If any converted to K-1: Exclude from new allocation, reallocate capital.
 
@@ -184,19 +209,19 @@ If any converted to K-1: Exclude from new allocation, reallocate capital.
 
 After running allocation, verify:
 - [ ] No sector exceeds 33% of total portfolio
-- [ ] Gold sector (FNV + AEM) ≤ 33%
-- [ ] Silver sector (PAAS + HL) ≤ 33%
-- [ ] Oil & Gas (XOM + SU + any new) ≤ 33%
-- [ ] Ex-US Value (AVDV + DFIV + IVAL) ≤ 33%
+- [ ] Precious metals (WPM + FNV) ≤ 33%
+- [ ] Energy transition (COPX + URA + PPLT) ≤ 33%
+- [ ] Ex-US (AVDV + IMTM + ILF) ≤ 33%
+- [ ] Bitcoin (MSTR) — small allocation, no cap needed
 
 ### 6. New Stock Candidates
 
-Consider adding to universe if:
-- New 1099 C-corp energy stocks with strong momentum
-- New ex-US value ETFs from DFA/Avantis/Alpha Architect
-- New precious metals miners/streamers with positive momentum
+**Current 9-position allocation is final.** Only consider changes if:
+- Position momentum turns negative (pause DCA, don't sell)
+- Tax status changes (K-1 conversion)
+- Fundamental thesis breaks
 
-Run comprehensive analysis:
+Run comprehensive analysis if needed:
 ```bash
 uv run python us/scripts/oil_gas_comprehensive.py  # For energy sector
 ```
