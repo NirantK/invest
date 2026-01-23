@@ -12,10 +12,11 @@ This repo manages two portfolios:
 - Tax-efficient rebalancing (add capital, never sell)
 - 1099 C-corps only (avoid K-1 complexity)
 
-**Current State (Q1 2026):**
-- **⚠️ NOTHING DEPLOYED YET** - all amounts are targets
-- $60,000 initial capital to be allocated via 12-week DCA
-- Quarterly rebalancing planned with $20,000 new capital each quarter
+**Current State (Jan 2026):**
+- **$8,071 deployed** across 10 positions
+- $12,115 cash remaining
+- Net liquidation: $20,178
+- Overall P&L: +$87 (+1.1%)
 
 ## Development Setup
 
@@ -104,7 +105,7 @@ Free API for Indian mutual fund NAV data. No auth required.
 2. **Sector:** 33% max per sector (gold/silver/mixed/oil&gas/copper/uranium/ex-US)
 3. **Filters:** Positive momentum only, 1099 only
 
-### Investment Themes (9-Position Portfolio)
+### Investment Themes (10-Position Portfolio)
 | Theme | Ticker | Thesis |
 |-------|--------|--------|
 | Copper | COPX | Electrification: EVs (80kg/car), grid upgrades, AI data centers |
@@ -113,7 +114,8 @@ Free API for Indian mutual fund NAV data. No auth required.
 | Platinum | PPLT | Hydrogen fuel cells, automotive catalysts, supply deficit |
 | Ex-US Momentum | IMTM | Factor diversification, non-US winners |
 | Ex-US Value | AVDV | US overvaluation hedge, small cap value tilt |
-| LatAm | ILF | Commodity beta, EM discount to DM |
+| LatAm Equity | ILF | Commodity beta, EM discount to DM |
+| LatAm Fintech | NU | Nubank: 33% ROE, 40% growth, disrupting Brazil banking oligopoly |
 | Bitcoin | MSTR | Digital gold, asymmetric upside (small position) |
 
 ### Exclusions (Do Not Buy)
@@ -140,44 +142,71 @@ This will:
 - Apply sector caps (33% max per sector)
 - Output new recommended allocation
 
-### 2. Rebalancing Analysis
+### 2. Current Holdings & Target Allocation
 
-**Target Allocation (9 positions):**
+**Current Portfolio (Jan 23, 2026):**
 
-| Ticker | Qty | Avg Cost | Value | Category | Status |
-|--------|-----|----------|-------|----------|--------|
-| COPX | 12 | $83.08 | $997 | Copper miners ETF | ✓ Filled |
-| WPM | 6 | $138.62 | $832 | Streamer (gold/silver) | ✓ Filled |
-| FNV | 3 | $252.73 | $758 | Streamer (gold) | ✓ Filled |
-| IMTM | 9 | $50.11 | $451 | Ex-US Momentum ETF | ✓ Filled |
-| MSTR | 1.77 | $171.03 | $303 | Bitcoin proxy | ✓ Filled |
-| PPLT | 6 | — | ~$1,350 | Platinum ETF | Pending |
-| URA | 6 | — | ~$330 | Uranium miners ETF | Pending |
-| ILF | 15 | — | ~$495 | LatAm equity ETF | Pending |
-| AVDV | 3 | — | ~$297 | Ex-US Small Cap Value | Pending |
+| Ticker | Qty | Avg Cost | Value | Current % | Target % | Status |
+|--------|-----|----------|-------|-----------|----------|--------|
+| NU | 111 | $18.01 | $1,995 | 24.7% | 15% | ⚠️ Overweight |
+| PPLT | 6 | $246.17 | $1,498 | 18.6% | 12% | ⚠️ Overweight |
+| COPX | 12 | $83.08 | $1,017 | 12.6% | 12% | ✓ At target |
+| WPM | 6 | $138.62 | $878 | 10.9% | 12% | → Buy more |
+| FNV | 3 | $252.73 | $779 | 9.6% | 10% | ✓ Near target |
+| ILF | 15 | $34.62 | $520 | 6.4% | 8% | → Buy more |
+| IMTM | 9 | $50.11 | $452 | 5.6% | 8% | → Buy more |
+| URA | 6 | $57.42 | $342 | 4.2% | 8% | → Buy more |
+| AVDV | 3 | $101.40 | $304 | 3.8% | 8% | → Buy more |
+| MSTR | 1.77 | $171.03 | $287 | 3.6% | 7% | → Buy more |
+| **TOTAL** | | | **$8,071** | **100%** | **100%** | |
 
-**Current:** $3,341 deployed (5 positions)
-**Target:** ~$6,800 total (9 positions)
+**Sector Allocation:**
+| Sector | Tickers | Current % | Target % | Status |
+|--------|---------|-----------|----------|--------|
+| Precious Metals | WPM + FNV | 20.5% | 22% | ✓ OK |
+| Energy Transition | COPX + URA + PPLT | 35.4% | 32% | ⚠️ Slightly over |
+| Ex-US Equity | IMTM + AVDV + ILF | 15.8% | 24% | → Underweight |
+| LatAm Fintech | NU | 24.7% | 15% | ⚠️ Overweight |
+| Bitcoin | MSTR | 3.6% | 7% | → Underweight |
 
-**Swing Trade (separate from core allocation):**
-| Ticker | Qty | Category | Horizon | Exit Rule |
-|--------|-----|----------|---------|-----------|
-| NU | 111 | Nubank (Brazil fintech) | 6 months | Sell July 2026 regardless of performance |
+### 3. Rebalancing Logic (Next Order)
 
-**Initial Deployment (if not yet invested):**
-1. Run allocation script to get fresh target weights
-2. Deploy $60,000 via 12-week DCA (~$5,000/week)
-3. Split weekly amount across positions per target weights
+**Rule: Add capital to underweight positions only. Never sell.**
 
-**Subsequent Rebalancing (after initial deployment):**
-1. Run allocation script to get new target weights
-2. Calculate current portfolio value at current prices
-3. For each underweight position:
-   ```
-   buy_amount = (new_target_weight × total_value) - current_holding_value
-   ```
-4. Use $20,000 new capital to buy underweight positions only
-5. **DO NOT SELL** overweight positions
+When placing next order, calculate buy amounts:
+```
+For each position where Current % < Target %:
+  gap = Target % - Current %
+  buy_amount = gap × total_portfolio_value
+```
+
+**Priority order for new capital:**
+1. **MSTR** (3.6% → 7%) - most underweight
+2. **AVDV** (3.8% → 8%) - underweight
+3. **URA** (4.2% → 8%) - underweight
+4. **IMTM** (5.6% → 8%) - underweight
+5. **ILF** (6.4% → 8%) - underweight
+6. **WPM** (10.9% → 12%) - slightly under
+
+**DO NOT BUY (overweight):**
+- NU (24.7% vs 15% target)
+- PPLT (18.6% vs 12% target)
+- COPX (12.6% vs 12% target)
+
+**Example: Adding $2,000 new capital**
+```bash
+# Check current positions
+uv run ~/.claude/skills/ibkr/ibkr.py positions
+
+# Calculate underweight gaps, buy proportionally:
+# MSTR: ~$300 (biggest gap)
+# AVDV: ~$350
+# URA: ~$300
+# IMTM: ~$200
+# ILF: ~$150
+# WPM: ~$100
+# Remainder to most underweight
+```
 
 ### 3. Momentum Regime Check
 
@@ -205,7 +234,7 @@ Look for:
 Check each ticker:
 - [ ] COPX, URA, PPLT, ILF, IMTM, AVDV still issue 1099s (ETFs)
 - [ ] WPM, FNV still issue 1099s (Canadian corps)
-- [ ] MSTR still issues 1099 (US corp)
+- [ ] MSTR, NU still issue 1099s (US corps)
 - [ ] No new K-1 conversions
 
 If any converted to K-1: Exclude from new allocation, reallocate capital.
@@ -216,8 +245,9 @@ After running allocation, verify:
 - [ ] No sector exceeds 33% of total portfolio
 - [ ] Precious metals (WPM + FNV) ≤ 33%
 - [ ] Energy transition (COPX + URA + PPLT) ≤ 33%
-- [ ] Ex-US (AVDV + IMTM + ILF) ≤ 33%
-- [ ] Bitcoin (MSTR) — small allocation, no cap needed
+- [ ] Ex-US equity (AVDV + IMTM + ILF) ≤ 33%
+- [ ] LatAm fintech (NU) ≤ 15% — single stock risk
+- [ ] Bitcoin (MSTR) ≤ 10% — volatility management
 
 ### 6. New Stock Candidates
 
@@ -325,17 +355,30 @@ If targets hit:
 ## Quick Commands Reference
 
 ```bash
-# Run full allocation with current constraints
+# === IBKR Portfolio Management ===
+uv run ~/.claude/skills/ibkr/ibkr.py positions      # Current holdings with P&L
+uv run ~/.claude/skills/ibkr/ibkr.py value          # Portfolio value summary
+uv run ~/.claude/skills/ibkr/ibkr.py orders         # Open orders
+uv run ~/.claude/skills/ibkr/ibkr.py quote AAPL     # Real-time quote
+
+# Buy (dry-run by default, use --execute to place)
+uv run ~/.claude/skills/ibkr/ibkr.py buy SYMBOL AMOUNT --limit PRICE
+uv run ~/.claude/skills/ibkr/ibkr.py buy SYMBOL AMOUNT --limit PRICE --execute
+
+# Sell (dry-run by default)
+uv run ~/.claude/skills/ibkr/ibkr.py sell SYMBOL                    # Sell all
+uv run ~/.claude/skills/ibkr/ibkr.py sell SYMBOL --shares 10        # Sell 10 shares
+uv run ~/.claude/skills/ibkr/ibkr.py sell SYMBOL --execute          # Execute
+
+# Cancel orders
+uv run ~/.claude/skills/ibkr/ibkr.py cancel ORDER_ID
+uv run ~/.claude/skills/ibkr/ibkr.py cancel --symbol VALE
+uv run ~/.claude/skills/ibkr/ibkr.py cancel --all
+
+# === Analysis Scripts ===
 uv run python us/scripts/us_portfolio_allocation.py --min-allocation 0.03 --max-allocation 0.15
-
-# Monte Carlo simulation (10k paths, 3-month horizon)
-uv run python us/scripts/portfolio_simulation.py
-
-# Comprehensive energy sector analysis (26 stocks)
-uv run python us/scripts/oil_gas_comprehensive.py
-
-# Canadian energy NYSE-only (no OTC)
-uv run python us/scripts/canadian_nyse_only.py
+uv run python us/scripts/portfolio_simulation.py    # Monte Carlo simulation
+uv run python us/scripts/oil_gas_comprehensive.py   # Energy sector analysis
 
 # Check dependencies
 uv sync
@@ -345,9 +388,10 @@ uv sync
 
 This is a quarterly maintenance project. Each quarter:
 1. Review this file for activation instructions
-2. Run analysis scripts with fresh data
-3. Deploy new capital to underweight positions
-4. Update documentation
+2. Run `uv run ~/.claude/skills/ibkr/ibkr.py positions` to check current state
+3. Deploy new capital to **underweight positions only** (see rebalancing logic)
+4. Update holdings table in this file
 5. Set reminder for next quarter
 
-**Next Activation:** April 2026 (Q2 rebalancing)
+**Last Updated:** Jan 23, 2026
+**Next Rebalancing:** April 2026 (Q2)
