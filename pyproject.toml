@@ -15,6 +15,7 @@ dependencies = [
     "seaborn>=0.13.2",
     "ib-async>=1.0.0",
     "httpx>=0.28.0",
+    "polars>=1.37.1",
 ]
 
 [build-system]
@@ -41,3 +42,8 @@ select = [
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto" 
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.1",
+]

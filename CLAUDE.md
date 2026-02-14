@@ -118,11 +118,12 @@ Free API for Indian mutual fund NAV data. No auth required.
 | Ex-US Value | AVDV | US overvaluation hedge, small cap value tilt |
 | LatAm Equity | ILF | Commodity beta, EM discount to DM |
 
-**SATELLITE (2 positions)** — Discretionary, excluded from momentum math
+**SATELLITE (3 positions)** — Discretionary, can override momentum
 | Theme | Ticker | Thesis |
 |-------|--------|--------|
 | LatAm Fintech | NU | Nubank: 33% ROE, 40% growth, disrupting Brazil banking oligopoly |
 | Bitcoin | MSTR | Digital gold, asymmetric upside |
+| Software Compounder | CSU.TO | Constellation Software: serial acquirer, 30%+ IRR on VMS acquisitions, deep drawdown entry |
 
 ### Exclusions (Do Not Buy)
 | Ticker | Reason |
@@ -168,18 +169,19 @@ Portfolio split into **CORE** (momentum-driven) and **SATELLITE** (discretionary
 **SATELLITE Portfolio** — Discretionary, excluded from rebalancing math
 | Ticker | Qty | Avg Cost | Value | Category | Notes |
 |--------|-----|----------|-------|----------|-------|
-| NU | 111 | $18.01 | $1,995 | LatAm Fintech | High-conviction growth |
-| MSTR | 1.77 | $171.03 | $287 | Bitcoin proxy | Asymmetric upside |
-| **SATELLITE TOTAL** | | | **$2,282** | | |
+| NU | 111 | $18.01 | $1,861 | LatAm Fintech | High-conviction growth |
+| MSTR | 3.42 | $155.18 | $458 | Bitcoin proxy | Asymmetric upside |
+| VGSH | 345 | $58.10 | $20,045 | Short-term Treasury | 1-3yr duration, ~4.3% yield. **Do not revisit until Dec 1, 2026.** |
+| **SATELLITE TOTAL** | | | **$22,364** | | |
 
-**Portfolio Summary:**
+**Portfolio Summary (Feb 14, 2026):**
 | Segment | Value | % of Total |
 |---------|-------|------------|
-| Core | $5,789 | 71.7% |
-| Satellite | $2,282 | 28.3% |
-| **TOTAL** | **$8,071** | **100%** |
-| Cash | $12,115 | |
-| Net Liquidation | $20,178 | |
+| Core | $7,759 | 25.8% |
+| Satellite | $22,364 | 74.2% |
+| **TOTAL** | **$30,123** | **100%** |
+| Cash | ~$41,900 | |
+| Net Liquidation | ~$69,716 | |
 
 ### 3. Rebalancing Logic
 
@@ -243,6 +245,7 @@ Check each ticker:
 - [ ] COPX, URA, PPLT, ILF, IMTM, AVDV still issue 1099s (ETFs)
 - [ ] WPM, FNV still issue 1099s (Canadian corps)
 - [ ] MSTR, NU still issue 1099s (US corps)
+- [ ] CSU.TO issues T3/1099 equivalent (Canadian corp, check withholding)
 - [ ] No new K-1 conversions
 
 If any converted to K-1: Exclude from new allocation, reallocate capital.
@@ -257,6 +260,7 @@ If any converted to K-1: Exclude from new allocation, reallocate capital.
 **SATELLITE limits (discretionary):**
 - [ ] NU — single stock, monitor for position sizing
 - [ ] MSTR — high volatility, keep small
+- [ ] CSU.TO — deep drawdown entry, monitor recovery
 
 ### 6. New Stock Candidates
 
@@ -402,5 +406,6 @@ This is a quarterly maintenance project. Each quarter:
 4. Update holdings table in this file
 5. Set reminder for next quarter
 
-**Last Updated:** Jan 23, 2026
+**Last Updated:** Feb 14, 2026
 **Next Rebalancing:** April 2026 (Q2)
+**VGSH Review Date:** Dec 1, 2026 (do not touch until then)

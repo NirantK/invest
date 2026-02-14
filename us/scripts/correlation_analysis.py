@@ -24,26 +24,66 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # Current Holdings
 USD_HOLDINGS = {
     # Precious Metals - Miners/Streamers
-    "PAAS": {"name": "Pan American Silver", "category": "Silver Miner", "current_pct": 15.25},
-    "HL": {"name": "Hecla Mining", "category": "Silver Miner", "current_pct": 15.25},
-    "AEM": {"name": "Agnico Eagle", "category": "Gold Miner", "current_pct": 10.17},
-    "WPM": {"name": "Wheaton Precious Metals", "category": "PM Streamer", "current_pct": 8.47},
-    "FNV": {"name": "Franco-Nevada", "category": "PM Streamer", "current_pct": 5.08},
+    "PAAS": {
+        "name": "Pan American Silver",
+        "category": "Silver Miner",
+        "current_pct": 15.25,
+    },
+    "HL": {
+        "name": "Hecla Mining",
+        "category": "Silver Miner",
+        "current_pct": 15.25,
+    },
+    "AEM": {
+        "name": "Agnico Eagle",
+        "category": "Gold Miner",
+        "current_pct": 10.17,
+    },
+    "WPM": {
+        "name": "Wheaton Precious Metals",
+        "category": "PM Streamer",
+        "current_pct": 8.47,
+    },
+    "FNV": {
+        "name": "Franco-Nevada",
+        "category": "PM Streamer",
+        "current_pct": 5.08,
+    },
     # Oil/Energy
     "XOM": {"name": "Exxon Mobil", "category": "Oil", "current_pct": 6.78},
     "SU": {"name": "Suncor Energy", "category": "Oil", "current_pct": 6.78},
     # Ex-US Value
-    "AVDV": {"name": "Avantis Intl Small Cap Value", "category": "Ex-US Value", "current_pct": 11.86},
-    "DFIV": {"name": "DFA International Value", "category": "Ex-US Value", "current_pct": 11.86},
-    "IVAL": {"name": "Alpha Architect Intl Quant Value", "category": "Ex-US Value", "current_pct": 8.47},
+    "AVDV": {
+        "name": "Avantis Intl Small Cap Value",
+        "category": "Ex-US Value",
+        "current_pct": 11.86,
+    },
+    "DFIV": {
+        "name": "DFA International Value",
+        "category": "Ex-US Value",
+        "current_pct": 11.86,
+    },
+    "IVAL": {
+        "name": "Alpha Architect Intl Quant Value",
+        "category": "Ex-US Value",
+        "current_pct": 8.47,
+    },
 }
 
 # Proposed Additions
 PROPOSED_ADDITIONS = {
-    "VNQ": {"name": "Vanguard Real Estate ETF", "category": "REITs", "proposed_pct": 8.0},
-    "SCHH": {"name": "Schwab US REIT ETF", "category": "REITs", "proposed_pct": 0},  # alternative
-    "O": {"name": "Realty Income", "category": "REITs", "proposed_pct": 0},  # alternative
-    "CVX": {"name": "Chevron", "category": "Oil", "proposed_pct": 0},  # alternative to more XOM
+    "VNQ": {
+        "name": "Vanguard Real Estate ETF",
+        "category": "REITs",
+        "proposed_pct": 8.0,
+    },
+    "SCHH": {
+        "name": "Schwab US REIT ETF",
+        "category": "REITs",
+        "proposed_pct": 0,
+    },
+    "O": {"name": "Realty Income", "category": "REITs", "proposed_pct": 0},
+    "CVX": {"name": "Chevron", "category": "Oil", "proposed_pct": 0},
 }
 
 # Benchmarks/Proxies
@@ -113,14 +153,20 @@ def plot_correlation_heatmap(corr_matrix: pd.DataFrame, output_path: Path):
         annot_kws={"size": 8},
     )
 
-    plt.title("Portfolio Correlation Matrix (3-Year Daily Returns)", fontsize=14, pad=20)
+    plt.title(
+        "Portfolio Correlation Matrix (3-Year Daily Returns)",
+        fontsize=14,
+        pad=20,
+    )
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close()
     print(f"Saved heatmap to {output_path}")
 
 
-def calculate_portfolio_metrics(returns: pd.DataFrame, weights: dict[str, float]) -> dict:
+def calculate_portfolio_metrics(
+    returns: pd.DataFrame, weights: dict[str, float]
+) -> dict:
     """Calculate portfolio-level metrics."""
     # Filter to tickers we have weights for
     available_tickers = [t for t in weights.keys() if t in returns.columns]
@@ -141,7 +187,10 @@ def calculate_portfolio_metrics(returns: pd.DataFrame, weights: dict[str, float]
 
     # Downside volatility (Sortino)
     downside_returns = portfolio_daily[portfolio_daily < 0]
-    downside_vol = downside_returns.std() * np.sqrt(252) if len(downside_returns) > 0 else annual_vol
+    if len(downside_returns) > 0:
+        downside_vol = downside_returns.std() * np.sqrt(252)
+    else:
+        downside_vol = annual_vol
     sortino = annual_return / downside_vol if downside_vol > 0 else 0
 
     # Max drawdown
@@ -245,17 +294,27 @@ def main():
     proposed_metrics = calculate_portfolio_metrics(returns, proposed_weights)
 
     print("\nCURRENT PORTFOLIO:")
-    print(f"  Weights: {json.dumps({k: f'{v*100:.1f}%' for k, v in current_weights.items()}, indent=4)}")
+    current_weight_display = {k: f"{v * 100:.1f}%" for k, v in current_weights.items()}
+    print(f"  Weights: {json.dumps(current_weight_display, indent=4)}")
     print(f"  Metrics: {json.dumps(current_metrics, indent=4)}")
 
     print("\nPROPOSED PORTFOLIO:")
-    print(f"  Weights: {json.dumps({k: f'{v*100:.1f}%' for k, v in proposed_weights.items()}, indent=4)}")
+    proposed_weight_display = {
+        k: f"{v * 100:.1f}%" for k, v in proposed_weights.items()
+    }
+    print(f"  Weights: {json.dumps(proposed_weight_display, indent=4)}")
     print(f"  Metrics: {json.dumps(proposed_metrics, indent=4)}")
 
     # Save comparison
     comparison = {
-        "current": {"weights": {k: round(v * 100, 2) for k, v in current_weights.items()}, "metrics": current_metrics},
-        "proposed": {"weights": {k: round(v * 100, 2) for k, v in proposed_weights.items()}, "metrics": proposed_metrics},
+        "current": {
+            "weights": {k: round(v * 100, 2) for k, v in current_weights.items()},
+            "metrics": current_metrics,
+        },
+        "proposed": {
+            "weights": {k: round(v * 100, 2) for k, v in proposed_weights.items()},
+            "metrics": proposed_metrics,
+        },
     }
     comparison_path = OUTPUT_DIR / "portfolio_comparison.json"
     with open(comparison_path, "w") as f:
@@ -275,10 +334,16 @@ def main():
 
     # REIT correlations
     if "VNQ" in corr_matrix.columns:
-        vnq_gold = corr_matrix.loc["VNQ", "GLD"] if "GLD" in corr_matrix.columns else None
-        vnq_silver = corr_matrix.loc["VNQ", "SLV"] if "SLV" in corr_matrix.columns else None
-        vnq_oil = corr_matrix.loc["VNQ", "XOM"] if "XOM" in corr_matrix.columns else None
-        print(f"\n2. VNQ (REITs) correlations:")
+        vnq_gold = (
+            corr_matrix.loc["VNQ", "GLD"] if "GLD" in corr_matrix.columns else None
+        )
+        vnq_silver = (
+            corr_matrix.loc["VNQ", "SLV"] if "SLV" in corr_matrix.columns else None
+        )
+        vnq_oil = (
+            corr_matrix.loc["VNQ", "XOM"] if "XOM" in corr_matrix.columns else None
+        )
+        print("\n2. VNQ (REITs) correlations:")
         if vnq_gold:
             print(f"   - vs Gold: {vnq_gold:.2f}")
         if vnq_silver:
@@ -297,8 +362,12 @@ def main():
     # Metric improvements
     if current_metrics and proposed_metrics:
         print("\n4. Portfolio Metrics Comparison:")
-        sharpe_change = proposed_metrics["sharpe_ratio"] - current_metrics["sharpe_ratio"]
-        sortino_change = proposed_metrics["sortino_ratio"] - current_metrics["sortino_ratio"]
+        sharpe_change = (
+            proposed_metrics["sharpe_ratio"] - current_metrics["sharpe_ratio"]
+        )
+        sortino_change = (
+            proposed_metrics["sortino_ratio"] - current_metrics["sortino_ratio"]
+        )
         dd_change = proposed_metrics["max_drawdown"] - current_metrics["max_drawdown"]
         print(f"   - Sharpe change: {sharpe_change:+.3f}")
         print(f"   - Sortino change: {sortino_change:+.3f}")

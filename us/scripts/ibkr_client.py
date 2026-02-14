@@ -22,7 +22,11 @@ DEFAULT_PORT = int(os.getenv("IBKR_PORT", "7497"))
 DEFAULT_CLIENT_ID = int(os.getenv("IBKR_CLIENT_ID", "1"))
 
 
-def connect(host: str = "127.0.0.1", port: int = DEFAULT_PORT, client_id: int = DEFAULT_CLIENT_ID) -> IB:
+def connect(
+    host: str = "127.0.0.1",
+    port: int = DEFAULT_PORT,
+    client_id: int = DEFAULT_CLIENT_ID,
+) -> IB:
     """Connect to TWS or IB Gateway."""
     ib = IB()
     ib.connect(host, port, clientId=client_id)

@@ -30,8 +30,8 @@ MEDIUM-YIELD (4-7%):
 All operate primarily in US/Canada (Western Hemisphere, high-trust jurisdictions)
 """
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import yfinance as yf
 
 # COMPREHENSIVE OIL & GAS UNIVERSE
@@ -137,15 +137,22 @@ def fetch_total_return_index(tickers: list[str], period: str = "3y") -> pd.DataF
                 for i in range(len(close)):
                     if i > 0:
                         # Dividend yield on ex-date
-                        div_yield = dividends.iloc[i] / close.iloc[i-1] if close.iloc[i-1] != 0 else 0
+                        if close.iloc[i - 1] != 0:
+                            div_yield = dividends.iloc[i] / close.iloc[i - 1]
+                        else:
+                            div_yield = 0
                         # Adjust for dividend reinvestment
-                        cumulative_dividends = (1 + cumulative_dividends) * (1 + div_yield) - 1
-                        total_return_index.iloc[i] = close.iloc[i] * (1 + cumulative_dividends)
+                        cumulative_dividends = (1 + cumulative_dividends) * (
+                            1 + div_yield
+                        ) - 1
+                        total_return_index.iloc[i] = close.iloc[i] * (
+                            1 + cumulative_dividends
+                        )
 
                 dfs.append(total_return_index.rename(ticker))
             else:
                 failed.append(ticker)
-        except Exception as e:
+        except Exception:
             failed.append(ticker)
             continue
 
@@ -169,7 +176,9 @@ def calculate_momentum(prices: pd.DataFrame, lookback: int) -> pd.Series:
     return (prices.iloc[-1] / prices.iloc[-lookback] - 1) * 100
 
 
-def calculate_downside_volatility(returns: pd.DataFrame, threshold: float = 0.0) -> pd.Series:
+def calculate_downside_volatility(
+    returns: pd.DataFrame, threshold: float = 0.0
+) -> pd.Series:
     """Calculate annualized downside volatility."""
     downside_returns = returns[returns < threshold]
     downside_vol = downside_returns.std() * np.sqrt(252)
@@ -186,7 +195,8 @@ def calculate_max_drawdown(prices: pd.DataFrame) -> pd.Series:
 def main():
     print("=" * 95)
     print("COMPREHENSIVE OIL & GAS ANALYSIS - ALL SEGMENTS")
-    print("Western Hemisphere Operations | NYSE/NASDAQ Listed | 7%+ Yield Focus")
+    print("Western Hemisphere Operations | NYSE/NASDAQ Listed")
+    print("7%+ Yield Focus")
     print("=" * 95)
 
     # Display universe
@@ -200,10 +210,14 @@ def main():
         ("E&P (EXPLORATION & PRODUCTION)", EP_COMPANIES),
     ]:
         print(f"{segment_name}:")
-        print(f"{'Ticker':<8} {'Name':<30} {'Yield':<8} {'Operations':<25}")
+        header = f"{'Ticker':<8} {'Name':<30} {'Yield':<8} {'Operations':<25}"
+        print(header)
         print("-" * 95)
-        for ticker, info in sorted(segment_dict.items(), key=lambda x: -x[1]['yield']):
-            print(f"{ticker:<8} {info['name']:<30} {info['yield']:>6.2f}% {info['ops']:<25}")
+        for ticker, info in sorted(segment_dict.items(), key=lambda x: -x[1]["yield"]):
+            print(
+                f"{ticker:<8} {info['name']:<30} {info['yield']:>6.2f}% "
+                f"{info['ops']:<25}"
+            )
         print()
 
     # Fetch data
@@ -235,36 +249,48 @@ def main():
     score = combined_mom / downside_vol
 
     # Create summary table
-    summary = pd.DataFrame({
-        'Segment': [get_segment(t) for t in prices.columns],
-        'Div_Yield': [ALL_STOCKS[t]['yield'] for t in prices.columns],
-        'Operations': [ALL_STOCKS[t]['ops'] for t in prices.columns],
-        '3M_Mom': mom_3m,
-        '6M_Mom': mom_6m,
-        'Avg_Mom': combined_mom,
-        'Down_Vol': downside_vol,
-        'Max_DD': max_dd * 100,
-        'Score': score,
-    }, index=prices.columns)
+    summary = pd.DataFrame(
+        {
+            "Segment": [get_segment(t) for t in prices.columns],
+            "Div_Yield": [ALL_STOCKS[t]["yield"] for t in prices.columns],
+            "Operations": [ALL_STOCKS[t]["ops"] for t in prices.columns],
+            "3M_Mom": mom_3m,
+            "6M_Mom": mom_6m,
+            "Avg_Mom": combined_mom,
+            "Down_Vol": downside_vol,
+            "Max_DD": max_dd * 100,
+            "Score": score,
+        },
+        index=prices.columns,
+    )
 
     # HIGH-YIELD ANALYSIS (7%+)
     print("\n" + "=" * 95)
     print("HIGH-YIELD STOCKS (7%+ Dividend Yield)")
     print("=" * 95)
 
-    high_yield = summary[summary['Div_Yield'] >= 7.0].sort_values('Score', ascending=False)
+    high_yield = summary[summary["Div_Yield"] >= 7.0].sort_values(
+        "Score", ascending=False
+    )
 
     if len(high_yield) > 0:
         print(f"\nFound {len(high_yield)} stocks with 7%+ yield:\n")
-        print("Ticker  Segment    Div Yld    3M Mom    6M Mom   Avg Mom  Down Vol  Max DD    Score")
+        header = (
+            "Ticker  Segment    Div Yld    3M Mom    6M Mom   Avg Mom  "
+            "Down Vol  Max DD    Score"
+        )
+        print(header)
         print("-" * 95)
         for ticker in high_yield.index:
             row = high_yield.loc[ticker]
-            print(f"{ticker:<6} {row['Segment']:<10} {row['Div_Yield']:>6.2f}% {row['3M_Mom']:>+8.2f}% "
-                  f"{row['6M_Mom']:>+8.2f}% {row['Avg_Mom']:>+8.2f}% {row['Down_Vol']:>8.2f}% "
-                  f"{row['Max_DD']:>+7.1f}% {row['Score']:>8.2f}")
+            print(
+                f"{ticker:<6} {row['Segment']:<10} {row['Div_Yield']:>6.2f}% "
+                f"{row['3M_Mom']:>+8.2f}% {row['6M_Mom']:>+8.2f}% "
+                f"{row['Avg_Mom']:>+8.2f}% {row['Down_Vol']:>8.2f}% "
+                f"{row['Max_DD']:>+7.1f}% {row['Score']:>8.2f}"
+            )
 
-        print(f"\nHIGH-YIELD CATEGORY AVERAGES:")
+        print("\nHIGH-YIELD CATEGORY AVERAGES:")
         print(f"  Average Yield:        {high_yield['Div_Yield'].mean():>6.2f}%")
         print(f"  Average 6M Momentum:  {high_yield['6M_Mom'].mean():>+6.2f}%")
         print(f"  Average Downside Vol: {high_yield['Down_Vol'].mean():>6.2f}%")
@@ -278,10 +304,15 @@ def main():
     print("=" * 95)
 
     for segment in ["Royalty", "Midstream", "Major", "Refinery", "E&P"]:
-        seg_data = summary[summary['Segment'] == segment]
+        seg_data = summary[summary["Segment"] == segment]
         if len(seg_data) > 0:
             print(f"\n{segment.upper()} ({len(seg_data)} stocks):")
-            print(f"  Avg Yield:       {seg_data['Div_Yield'].mean():>6.2f}% (range: {seg_data['Div_Yield'].min():.2f}% - {seg_data['Div_Yield'].max():.2f}%)")
+            print(
+                "  Avg Yield:       "
+                f"{seg_data['Div_Yield'].mean():>6.2f}% (range: "
+                f"{seg_data['Div_Yield'].min():.2f}% - "
+                f"{seg_data['Div_Yield'].max():.2f}%)"
+            )
             print(f"  Avg 6M Momentum: {seg_data['6M_Mom'].mean():>+6.2f}%")
             print(f"  Avg Down Vol:    {seg_data['Down_Vol'].mean():>6.2f}%")
             print(f"  Avg Max DD:      {seg_data['Max_DD'].mean():>+6.1f}%")
@@ -292,26 +323,43 @@ def main():
     print("TOP 10 STOCKS BY COMBINED SCORE (Risk-Adjusted Returns)")
     print("=" * 95)
 
-    top_10 = summary.nlargest(10, 'Score')
-    print("\nRank Ticker  Segment    Div Yld   Avg Mom  Down Vol  Max DD    Score    Operations")
+    top_10 = summary.nlargest(10, "Score")
+    print(
+        "\nRank Ticker  Segment    Div Yld   Avg Mom  Down Vol  Max DD    "
+        "Score    Operations"
+    )
     print("-" * 100)
     for i, ticker in enumerate(top_10.index, 1):
         row = top_10.loc[ticker]
-        print(f"{i:>3}. {ticker:<6} {row['Segment']:<10} {row['Div_Yield']:>6.2f}% {row['Avg_Mom']:>+8.2f}% "
-              f"{row['Down_Vol']:>8.2f}% {row['Max_DD']:>+7.1f}% {row['Score']:>8.2f}  {row['Operations']:<20}")
+        print(
+            f"{i:>3}. {ticker:<6} {row['Segment']:<10} "
+            f"{row['Div_Yield']:>6.2f}% {row['Avg_Mom']:>+8.2f}% "
+            f"{row['Down_Vol']:>8.2f}% {row['Max_DD']:>+7.1f}% "
+            f"{row['Score']:>8.2f}  {row['Operations']:<20}"
+        )
 
     # YIELD-FOCUSED RANKING (Top 10 by yield that also have positive momentum)
     print("\n" + "=" * 95)
     print("TOP 10 HIGHEST YIELDS (with Positive Momentum)")
     print("=" * 95)
 
-    positive_mom = summary[summary['Avg_Mom'] > 0].sort_values('Div_Yield', ascending=False).head(10)
-    print("\nRank Ticker  Segment    Div Yld   Avg Mom  Down Vol    Score    Operations")
+    positive_mom = (
+        summary[summary["Avg_Mom"] > 0]
+        .sort_values("Div_Yield", ascending=False)
+        .head(10)
+    )
+    print(
+        "\nRank Ticker  Segment    Div Yld   Avg Mom  Down Vol    Score    Operations"
+    )
     print("-" * 95)
     for i, ticker in enumerate(positive_mom.index, 1):
         row = positive_mom.loc[ticker]
-        print(f"{i:>3}. {ticker:<6} {row['Segment']:<10} {row['Div_Yield']:>6.2f}% {row['Avg_Mom']:>+8.2f}% "
-              f"{row['Down_Vol']:>8.2f}% {row['Score']:>8.2f}  {row['Operations']:<20}")
+        print(
+            f"{i:>3}. {ticker:<6} {row['Segment']:<10} "
+            f"{row['Div_Yield']:>6.2f}% {row['Avg_Mom']:>+8.2f}% "
+            f"{row['Down_Vol']:>8.2f}% {row['Score']:>8.2f}  "
+            f"{row['Operations']:<20}"
+        )
 
     # PORTFOLIO OPTIMIZATION SCENARIOS
     print("\n" + "=" * 95)
@@ -332,57 +380,84 @@ def main():
     total_div_income = 0
     for ticker in top_yield.index:
         row = top_yield.loc[ticker]
-        div_income = equal_weight * row['Div_Yield'] / 100
+        div_income = equal_weight * row["Div_Yield"] / 100
         total_div_income += div_income
-        print(f"{ticker:<6} {row['Div_Yield']:>6.2f}% {row['Avg_Mom']:>+8.2f}% {row['Score']:>8.2f}  ${equal_weight:>8,.0f}   ${div_income:>8,.0f}")
+        print(
+            f"{ticker:<6} {row['Div_Yield']:>6.2f}% {row['Avg_Mom']:>+8.2f}% "
+            f"{row['Score']:>8.2f}  ${equal_weight:>8,.0f}   "
+            f"${div_income:>8,.0f}"
+        )
 
     print("-" * 75)
-    print(f"TOTAL                                 ${CAPITAL:>8,.0f}   ${total_div_income:>8,.0f}")
+    print(
+        "TOTAL                                 "
+        f"${CAPITAL:>8,.0f}   ${total_div_income:>8,.0f}"
+    )
     print(f"Weighted Average Yield: {(total_div_income / CAPITAL * 100):>6.2f}%")
 
     # Scenario 2: Score-weighted (top 5 by score)
     print(f"\n\nSCENARIO 2: Risk-Adjusted Portfolio (${CAPITAL:,})")
     print("Strategy: Top 5 by score, score-weighted allocation\n")
 
-    top_score = summary.nlargest(5, 'Score')
-    total_score = top_score['Score'].sum()
+    top_score = summary.nlargest(5, "Score")
+    total_score = top_score["Score"].sum()
 
     print("Ticker  Segment    Score   Weight   Allocation  Div Yld  Annual Div Income")
     print("-" * 80)
     total_div_income = 0
     for ticker in top_score.index:
         row = top_score.loc[ticker]
-        weight = row['Score'] / total_score
+        weight = row["Score"] / total_score
         alloc = CAPITAL * weight
-        div_income = alloc * row['Div_Yield'] / 100
+        div_income = alloc * row["Div_Yield"] / 100
         total_div_income += div_income
-        print(f"{ticker:<6} {row['Segment']:<10} {row['Score']:>6.2f} {weight*100:>6.2f}%  ${alloc:>8,.0f}   {row['Div_Yield']:>6.2f}% ${div_income:>8,.0f}")
+        print(
+            f"{ticker:<6} {row['Segment']:<10} {row['Score']:>6.2f} "
+            f"{weight * 100:>6.2f}%  ${alloc:>8,.0f}   "
+            f"{row['Div_Yield']:>6.2f}% ${div_income:>8,.0f}"
+        )
 
     print("-" * 80)
-    print(f"TOTAL                                 ${CAPITAL:>8,.0f}           ${total_div_income:>8,.0f}")
+    print(
+        "TOTAL                                 "
+        f"${CAPITAL:>8,.0f}           ${total_div_income:>8,.0f}"
+    )
     print(f"Weighted Average Yield: {(total_div_income / CAPITAL * 100):>6.2f}%")
 
     # Scenario 3: Diversified across segments
     print(f"\n\nSCENARIO 3: Segment-Diversified Portfolio (${CAPITAL:,})")
     print("Strategy: Best stock from each segment, score-weighted\n")
 
-    best_per_segment = summary.groupby('Segment').apply(lambda x: x.nlargest(1, 'Score')).reset_index(drop=True)
-    best_per_segment = best_per_segment.set_index(best_per_segment.index.map(lambda x: summary.index[x]))
-    total_score = best_per_segment['Score'].sum()
+    best_per_segment = (
+        summary.groupby("Segment")
+        .apply(lambda segment: segment.nlargest(1, "Score"))
+        .reset_index(drop=True)
+    )
+    best_per_segment = best_per_segment.set_index(
+        best_per_segment.index.map(lambda x: summary.index[x])
+    )
+    total_score = best_per_segment["Score"].sum()
 
     print("Ticker  Segment    Score   Weight   Allocation  Div Yld  Annual Div Income")
     print("-" * 80)
     total_div_income = 0
     for ticker in best_per_segment.index:
         row = best_per_segment.loc[ticker]
-        weight = row['Score'] / total_score
+        weight = row["Score"] / total_score
         alloc = CAPITAL * weight
-        div_income = alloc * row['Div_Yield'] / 100
+        div_income = alloc * row["Div_Yield"] / 100
         total_div_income += div_income
-        print(f"{ticker:<6} {row['Segment']:<10} {row['Score']:>6.2f} {weight*100:>6.2f}%  ${alloc:>8,.0f}   {row['Div_Yield']:>6.2f}% ${div_income:>8,.0f}")
+        print(
+            f"{ticker:<6} {row['Segment']:<10} {row['Score']:>6.2f} "
+            f"{weight * 100:>6.2f}%  ${alloc:>8,.0f}   "
+            f"{row['Div_Yield']:>6.2f}% ${div_income:>8,.0f}"
+        )
 
     print("-" * 80)
-    print(f"TOTAL                                 ${CAPITAL:>8,.0f}           ${total_div_income:>8,.0f}")
+    print(
+        "TOTAL                                 "
+        f"${CAPITAL:>8,.0f}           ${total_div_income:>8,.0f}"
+    )
     print(f"Weighted Average Yield: {(total_div_income / CAPITAL * 100):>6.2f}%")
 
     # KEY INSIGHTS
@@ -390,42 +465,65 @@ def main():
     print("KEY INSIGHTS & RECOMMENDATIONS")
     print("-" * 95)
 
-    best_7plus = high_yield.nlargest(1, 'Score').index[0] if len(high_yield) > 0 else None
-    best_7plus_score = high_yield.loc[best_7plus, 'Score'] if best_7plus else 0
+    if len(high_yield) > 0:
+        best_7plus = high_yield.nlargest(1, "Score").index[0]
+        best_7plus_score = high_yield.loc[best_7plus, "Score"]
+    else:
+        best_7plus = None
+        best_7plus_score = 0
 
-    print(f"""
-1. YIELD LANDSCAPE:
-   - Highest yield: {summary['Div_Yield'].max():.2f}% ({summary['Div_Yield'].idxmax()})
-   - Stocks with 7%+ yield: {len(high_yield)}
-   - Best 7%+ stock by score: {best_7plus} ({best_7plus_score:.2f}) if best_7plus else 'None'
+    print("1. YIELD LANDSCAPE:")
+    print(
+        "   - Highest yield: "
+        f"{summary['Div_Yield'].max():.2f}% "
+        f"({summary['Div_Yield'].idxmax()})"
+    )
+    print(f"   - Stocks with 7%+ yield: {len(high_yield)}")
+    if best_7plus:
+        print(f"   - Best 7%+ stock by score: {best_7plus} ({best_7plus_score:.2f})")
+    else:
+        print("   - Best 7%+ stock by score: None")
 
-2. SEGMENT PERFORMANCE:
-   - Best segment by avg score: {summary.groupby('Segment')['Score'].mean().idxmax()}
-   - Highest-yielding segment: {summary.groupby('Segment')['Div_Yield'].mean().idxmax()}
+    print("\n2. SEGMENT PERFORMANCE:")
+    print(
+        "   - Best segment by avg score: "
+        f"{summary.groupby('Segment')['Score'].mean().idxmax()}"
+    )
+    print(
+        "   - Highest-yielding segment: "
+        f"{summary.groupby('Segment')['Div_Yield'].mean().idxmax()}"
+    )
 
-3. RISK-ADJUSTED WINNERS:
-   - Top 3 by score: {', '.join(top_10.head(3).index.tolist())}
-   - XOM (current portfolio) rank: #{summary['Score'].rank(ascending=False).loc['XOM']:.0f} of {len(summary)}
+    top_3 = ", ".join(top_10.head(3).index.tolist())
+    xom_rank = summary["Score"].rank(ascending=False).loc["XOM"]
+    print("\n3. RISK-ADJUSTED WINNERS:")
+    print(f"   - Top 3 by score: {top_3}")
+    print(f"   - XOM (current portfolio) rank: #{xom_rank:.0f} of {len(summary)}")
 
-4. TAX CONSIDERATIONS (21% C-Corp):
-   - Dividends taxed same as capital gains
-   - MLPs (ET, MPLX, EPD) may have K-1 complexity
-   - Royalty companies (DMLP, KRP, BSM) also issue K-1s
-   - Consider administrative burden vs yield benefit
+    print("\n4. TAX CONSIDERATIONS (21% C-Corp):")
+    print("   - Dividends taxed same as capital gains")
+    print("   - MLPs (ET, MPLX, EPD) may have K-1 complexity")
+    print("   - Royalty companies (DMLP, KRP, BSM) also issue K-1s")
+    print("   - Consider administrative burden vs yield benefit")
 
-5. GEOGRAPHIC EXPOSURE:
-   - All stocks operate primarily in Western Hemisphere
-   - High-trust jurisdictions: US (majority), Canada, limited Europe
-   - Minimal geopolitical risk vs international operators
+    print("\n5. GEOGRAPHIC EXPOSURE:")
+    print("   - All stocks operate primarily in Western Hemisphere")
+    print("   - High-trust jurisdictions: US (majority), Canada, limited Europe")
+    print("   - Minimal geopolitical risk vs international operators")
 
-RECOMMENDATIONS:
-   - For 7%+ yield: Focus on Royalty companies (DMLP, KRP, BSM)
-   - For risk-adjusted returns: Use Scenario 2 allocation
-   - For diversification: Use Scenario 3 allocation
-   - Consider MLP tax complexity for C-Corps (consult tax advisor)
-   - DMLP (14% yield, score {summary.loc['DMLP', 'Score']:.2f}) offers highest yield
-   - Top score overall: {summary['Score'].idxmax()} ({summary['Score'].max():.2f})
-""")
+    print("\nRECOMMENDATIONS:")
+    print("   - For 7%+ yield: Focus on Royalty companies (DMLP, KRP, BSM)")
+    print("   - For risk-adjusted returns: Use Scenario 2 allocation")
+    print("   - For diversification: Use Scenario 3 allocation")
+    print("   - Consider MLP tax complexity for C-Corps (consult tax advisor)")
+    print(
+        "   - DMLP (14% yield, score "
+        f"{summary.loc['DMLP', 'Score']:.2f}) offers highest yield"
+    )
+    print(
+        "   - Top score overall: "
+        f"{summary['Score'].idxmax()} ({summary['Score'].max():.2f})"
+    )
 
 
 if __name__ == "__main__":

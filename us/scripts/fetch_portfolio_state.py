@@ -20,7 +20,19 @@ API_KEY = os.getenv("FINANCIAL_DATASETS_API_KEY")
 BASE_URL = "https://api.financialdatasets.ai"
 
 # Portfolio tickers
-TICKERS = ["PAAS", "HL", "AEM", "WPM", "FNV", "XOM", "SU", "AVDV", "DFIV", "IVAL", "MSTR"]
+TICKERS = [
+    "PAAS",
+    "HL",
+    "AEM",
+    "WPM",
+    "FNV",
+    "XOM",
+    "SU",
+    "AVDV",
+    "DFIV",
+    "IVAL",
+    "MSTR",
+]
 
 # Reference prices from Dec 31, 2025
 REFERENCE_PRICES = {
@@ -52,7 +64,10 @@ def fetch_snapshot(ticker: str) -> dict | None:
 
 def fetch_historical_prices(ticker: str, start_date: str, end_date: str) -> list:
     """Fetch historical daily prices for a ticker."""
-    url = f"{BASE_URL}/prices?ticker={ticker}&interval=day&interval_multiplier=1&start_date={start_date}&end_date={end_date}"
+    url = (
+        f"{BASE_URL}/prices?ticker={ticker}&interval=day"
+        f"&interval_multiplier=1&start_date={start_date}&end_date={end_date}"
+    )
     response = requests.get(url, headers=HEADERS)
     if response.status_code == 200:
         return response.json().get("prices", [])
@@ -107,7 +122,10 @@ def calculate_momentum(prices: list, months: int) -> float | None:
         # Use whatever history we have
         start_price = prices[0]["close"]
     else:
-        start_price = prices[-target_days]["close"] if len(prices) > target_days else prices[0]["close"]
+        if len(prices) > target_days:
+            start_price = prices[-target_days]["close"]
+        else:
+            start_price = prices[0]["close"]
 
     end_price = prices[-1]["close"]
 
@@ -120,8 +138,6 @@ def calculate_momentum(prices: list, months: int) -> float | None:
 def main():
     today = datetime.now()
     six_months_ago = today - timedelta(days=180)
-    three_months_ago = today - timedelta(days=90)
-
     start_date = six_months_ago.strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
 
@@ -153,7 +169,9 @@ def main():
                     change_pct = 0
                     within_range = True
 
-                momentum_positive = yf_data["return_3m"] > 0 and yf_data["return_6m"] > 0
+                momentum_positive = (
+                    yf_data["return_3m"] > 0 and yf_data["return_6m"] > 0
+                )
 
                 results[ticker] = {
                     "current_price": current_price,
@@ -168,10 +186,22 @@ def main():
                     "source": "yfinance",
                 }
 
-                print(f"  Current: ${current_price:.2f} | Ref: ${ref_price:.2f} | Change: {change_pct:+.1f}%")
-                print(f"  3M Return: {yf_data['return_3m']:+.1f}% | 6M Return: {yf_data['return_6m']:+.1f}%")
-                print(f"  Momentum: {'POSITIVE' if momentum_positive else 'NEGATIVE'} | Within Range: {'YES' if within_range else 'NO'}")
-                print(f"  (Source: yfinance)")
+                print(
+                    "  Current: "
+                    f"${current_price:.2f} | Ref: ${ref_price:.2f} | "
+                    f"Change: {change_pct:+.1f}%"
+                )
+                print(
+                    "  3M Return: "
+                    f"{yf_data['return_3m']:+.1f}% | 6M Return: "
+                    f"{yf_data['return_6m']:+.1f}%"
+                )
+                print(
+                    "  Momentum: "
+                    f"{'POSITIVE' if momentum_positive else 'NEGATIVE'} | "
+                    f"Within Range: {'YES' if within_range else 'NO'}"
+                )
+                print("  (Source: yfinance)")
                 continue
             else:
                 print(f"  Skipping {ticker} - no data from either source")
@@ -199,18 +229,25 @@ def main():
             prices_sorted = sorted(prices, key=lambda x: x["time"])
 
             # 3M return (last ~90 days)
-            three_month_idx = max(0, len(prices_sorted) - 63)  # ~63 trading days in 3 months
+            three_month_idx = max(0, len(prices_sorted) - 63)
+            # ~63 trading days in 3 months
             if three_month_idx < len(prices_sorted):
                 start_3m = prices_sorted[three_month_idx]["close"]
                 end_3m = prices_sorted[-1]["close"]
-                return_3m = ((end_3m - start_3m) / start_3m) * 100 if start_3m > 0 else 0
+                if start_3m > 0:
+                    return_3m = ((end_3m - start_3m) / start_3m) * 100
+                else:
+                    return_3m = 0
             else:
                 return_3m = 0
 
             # 6M return (full range)
             start_6m = prices_sorted[0]["close"]
             end_6m = prices_sorted[-1]["close"]
-            return_6m = ((end_6m - start_6m) / start_6m) * 100 if start_6m > 0 else 0
+            if start_6m > 0:
+                return_6m = ((end_6m - start_6m) / start_6m) * 100
+            else:
+                return_6m = 0
         else:
             return_3m = 0
             return_6m = 0
@@ -229,28 +266,48 @@ def main():
             "market_cap": snapshot.get("market_cap", 0),
         }
 
-        print(f"  Current: ${current_price:.2f} | Ref: ${ref_price:.2f} | Change: {change_pct:+.1f}%")
+        print(
+            "  Current: "
+            f"${current_price:.2f} | Ref: ${ref_price:.2f} | "
+            f"Change: {change_pct:+.1f}%"
+        )
         print(f"  3M Return: {return_3m:+.1f}% | 6M Return: {return_6m:+.1f}%")
-        print(f"  Momentum: {'POSITIVE' if momentum_positive else 'NEGATIVE'} | Within Range: {'YES' if within_range else 'NO'}")
+        print(
+            "  Momentum: "
+            f"{'POSITIVE' if momentum_positive else 'NEGATIVE'} | "
+            f"Within Range: {'YES' if within_range else 'NO'}"
+        )
 
     # Print summary tables
     print("\n" + "=" * 80)
     print("PRICE COMPARISON TABLE")
     print("=" * 80)
-    print(f"{'Ticker':<8} {'Current':>10} {'Reference':>10} {'Change %':>10} {'In Range':>10}")
+    header = (
+        f"{'Ticker':<8} {'Current':>10} {'Reference':>10} {'Change %':>10} "
+        f"{'In Range':>10}"
+    )
+    print(header)
     print("-" * 48)
     for ticker, data in results.items():
         status = "YES" if data["within_range"] else "NO"
-        print(f"{ticker:<8} ${data['current_price']:>8.2f} ${data['ref_price']:>8.2f} {data['change_pct']:>+9.1f}% {status:>10}")
+        print(
+            f"{ticker:<8} ${data['current_price']:>8.2f} "
+            f"${data['ref_price']:>8.2f} {data['change_pct']:>+9.1f}% "
+            f"{status:>10}"
+        )
 
     print("\n" + "=" * 80)
     print("MOMENTUM TABLE")
     print("=" * 80)
-    print(f"{'Ticker':<8} {'3M Return':>12} {'6M Return':>12} {'Momentum':>12}")
+    header = f"{'Ticker':<8} {'3M Return':>12} {'6M Return':>12} {'Momentum':>12}"
+    print(header)
     print("-" * 44)
     for ticker, data in results.items():
         status = "POSITIVE" if data["momentum_positive"] else "NEGATIVE"
-        print(f"{ticker:<8} {data['return_3m']:>+11.1f}% {data['return_6m']:>+11.1f}% {status:>12}")
+        print(
+            f"{ticker:<8} {data['return_3m']:>+11.1f}% "
+            f"{data['return_6m']:>+11.1f}% {status:>12}"
+        )
 
     # Check for alerts
     print("\n" + "=" * 80)
@@ -260,9 +317,19 @@ def main():
     alerts = []
     for ticker, data in results.items():
         if not data["within_range"]:
-            alerts.append(f"PRICE ALERT: {ticker} is outside 20% range (${data['current_price']:.2f} vs ref ${data['ref_price']:.2f})")
+            alerts.append(
+                "PRICE ALERT: "
+                f"{ticker} is outside 20% range "
+                f"(${data['current_price']:.2f} vs ref "
+                f"${data['ref_price']:.2f})"
+            )
         if not data["momentum_positive"]:
-            alerts.append(f"MOMENTUM ALERT: {ticker} has negative momentum (3M: {data['return_3m']:+.1f}%, 6M: {data['return_6m']:+.1f}%)")
+            alerts.append(
+                "MOMENTUM ALERT: "
+                f"{ticker} has negative momentum "
+                f"(3M: {data['return_3m']:+.1f}%, "
+                f"6M: {data['return_6m']:+.1f}%)"
+            )
 
     if alerts:
         for alert in alerts:
@@ -278,7 +345,7 @@ def main():
     md_output = f"""
 ## 11. Current State (Jan 2026)
 
-**As of:** {today.strftime('%Y-%m-%d')}
+**As of:** {today.strftime("%Y-%m-%d")}
 
 ### Price Comparison vs Dec 31, 2025 Reference
 
@@ -287,7 +354,11 @@ def main():
 """
     for ticker, data in results.items():
         status = "Yes" if data["within_range"] else "**NO**"
-        md_output += f"| {ticker} | ${data['current_price']:.2f} | ${data['ref_price']:.2f} | {data['change_pct']:+.1f}% | {status} |\n"
+        md_output += (
+            f"| {ticker} | ${data['current_price']:.2f} | "
+            f"${data['ref_price']:.2f} | {data['change_pct']:+.1f}% | "
+            f"{status} |\n"
+        )
 
     md_output += """
 ### Momentum Status
@@ -297,7 +368,10 @@ def main():
 """
     for ticker, data in results.items():
         status = "Positive" if data["momentum_positive"] else "**NEGATIVE**"
-        md_output += f"| {ticker} | {data['return_3m']:+.1f}% | {data['return_6m']:+.1f}% | {status} |\n"
+        md_output += (
+            f"| {ticker} | {data['return_3m']:+.1f}% | "
+            f"{data['return_6m']:+.1f}% | {status} |\n"
+        )
 
     # Add alerts section
     if alerts:
@@ -305,7 +379,10 @@ def main():
         for alert in alerts:
             md_output += f"- {alert}\n"
     else:
-        md_output += "\n### Status\n\nAll positions within 20% range and have positive momentum. DCA can proceed as planned.\n"
+        md_output += (
+            "\n### Status\n\nAll positions within 20% range and have "
+            "positive momentum. DCA can proceed as planned.\n"
+        )
 
     print(md_output)
 

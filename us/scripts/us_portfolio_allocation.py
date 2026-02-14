@@ -10,83 +10,118 @@ Universe:
 - GLD: SPDR Gold Trust (cash parking, correlates with India gold holdings)
 
 Constraints:
-- Total deployable: $60,000
-- Precious metals cap: $18,242 (30% of total INR+USD portfolio)
-- Bitcoin cap: $4,378 (5% of total portfolio)
+- Total deployable: configured via --capital
+- Bitcoin target allocation managed via DCA rules
 """
 
 import click
-import pandas as pd
 import numpy as np
+import pandas as pd
 import yfinance as yf
 
 # Configuration
 # Expanded universe: All NYSE/NASDAQ oil & gas + precious metals + ex-US value
 # All securities compete on pure Sortino basis (except MSTR which has special DCA rules)
 TICKERS = [
-    # Precious Metals Royalty/Streaming
-    "WPM",   # Wheaton Precious Metals - 50% silver streamer
+    # === Precious Metals ===
+    "WPM",  # Wheaton Precious Metals - 50% silver streamer
     "PAAS",  # Pan American Silver - silver miner
-    "FNV",   # Franco-Nevada - gold streamer + energy royalties
-    # Tier 1 Gold/Silver Miners
-    "AEM",   # Agnico Eagle - lowest AISC (~$1,275), 87% safe jurisdictions
-    "HL",    # Hecla Mining - silver-primary, negative cash costs via byproducts
-    # Integrated Oil Majors
-    "XOM",   # Exxon Mobil - highest quality integrated oil major
-    "CVX",   # Chevron - #2 quality oil major, strong dividend
-    "CNQ",   # Canadian Natural Resources - 25yr dividend growth
-    "SU",    # Suncor Energy - Canadian integrated
-    "CVE",   # Cenovus Energy - Canadian integrated
-    # Energy ETF
-    "XLE",   # Energy Select Sector SPDR - broad energy ETF
-    # Midstream/Pipelines (1099 C-corps only, no MLPs)
-    "ENB",   # Enbridge - 5.6% yield
-    "TRP",   # TC Energy - 4.5% yield
-    "KMI",   # Kinder Morgan - converted to C-corp, 1099
-    "WMB",   # Williams Companies - converted to C-corp, 1099
-    "OKE",   # ONEOK - converted to C-corp, 1099
-    # Refineries
-    "VLO",   # Valero Energy
-    "PSX",   # Phillips 66
-    "MPC",   # Marathon Petroleum
+    "FNV",  # Franco-Nevada - gold streamer + energy royalties
+    "AEM",  # Agnico Eagle - lowest AISC (~$1,275), 87% safe jurisdictions
+    "HL",  # Hecla Mining - silver-primary, negative cash costs via byproducts
+    # === Energy: Integrated Oil Majors ===
+    "XOM",  # Exxon Mobil
+    "CVX",  # Chevron
+    "CNQ",  # Canadian Natural Resources
+    "SU",  # Suncor Energy
+    "CVE",  # Cenovus Energy
+    "XLE",  # Energy Select Sector SPDR
+    # === Energy: Midstream (1099 C-corps only) ===
+    "ENB",  # Enbridge
+    "TRP",  # TC Energy
+    "KMI",  # Kinder Morgan
+    "WMB",  # Williams Companies
+    "OKE",  # ONEOK
+    # === Energy: Refineries ===
+    "VLO",  # Valero Energy
+    "PSX",  # Phillips 66
+    "MPC",  # Marathon Petroleum
     "DINO",  # HF Sinclair
-    # E&P
-    "COP",   # ConocoPhillips
-    "DVN",   # Devon Energy - 6.5% yield
-    "OXY",   # Occidental Petroleum
-    # Ex-US Value (DFA, Avantis - research-backed, long track record teams)
-    "AVDV",  # Avantis International Small Cap Value
-    "DFIV",  # DFA International Value (gold standard)
-    "IVAL",  # Alpha Architect Intl Quant Value
-    # Bitcoin proxy (special DCA rules)
+    # === Energy: E&P ===
+    "COP",  # ConocoPhillips
+    "DVN",  # Devon Energy
+    "OXY",  # Occidental Petroleum
+    # === Alpha Architect (Wes Gray) ===
+    "QVAL",  # US Quantitative Value - concentrated deep value, EBIT/TEV
+    "QMOM",  # US Quantitative Momentum - concentrated, monthly rebalance
+    "IVAL",  # Intl Quantitative Value
+    "IMOM",  # Intl Quantitative Momentum
+    # === DFA (Dimensional) ===
+    # DFIV dropped: 70%+ overlap with DXIV (same universe, less aggressive tilt)
+    "DFSV",  # DFA US Small Cap Value - strongest value loading
+    # DISV dropped: 57% overlap with AVDV (both intl small cap value)
+    # DFEV dropped: 51-59% overlap with AVES (both EM value)
+    "DXIV",  # DFA International Vector Equity - aggressive multi-factor
+    # (kept over DFIV)
+    # === Avantis ===
+    "AVUV",  # Avantis US Small Cap Value - flagship
+    "AVDV",  # Avantis International Small Cap Value (kept over DISV)
+    "AVES",  # Avantis Emerging Markets Value (kept over DFEV/AVEM)
+    # AVEM dropped: 70%+ overlap with AVES (AVES is value subset of AVEM)
+    # === Regional Factor ETFs ===
+    "EWJV",  # iShares MSCI Japan Value
+    "DFJ",  # WisdomTree Japan SmallCap Dividend
+    "DFE",  # WisdomTree Europe SmallCap Dividend (quality + momentum screened)
+    "FLN",  # First Trust Latin America AlphaDEX (multi-factor)
+    "EWZS",  # iShares MSCI Brazil Small-Cap
+    # === Ex-US Emerging Markets ===
+    "FRDM",  # Freedom 100 EM ETF - economic freedom-weighted
+    # === Bitcoin proxy (special DCA rules) ===
     "MSTR",
+    # === Software compounder (discretionary) ===
+    "CSU.TO",  # Constellation Software (TSX)
 ]
-TOTAL_CAPITAL = 60_000  # Default, can be overridden via --capital flag
-PRECIOUS_METALS_CAP = 18_242  # WPM + PAAS + FNV combined cap (30% of total portfolio)
-BITCOIN_CAP = 4_378  # MSTR (5% of total portfolio)
-BITCOIN_MONTHLY_DCA_PCT = 0.001  # 0.1% per month when momentum is negative
+TOTAL_CAPITAL = 40_000  # $60K total minus $20K in VGSH (treasury)
+# Can be overridden via --capital flag
+BITCOIN_DCA_TARGET_PCT = 0.05  # MSTR target allocation share of total portfolio
+BITCOIN_MONTHLY_DCA_PCT = 0.001  # Monthly DCA share when momentum is negative
 DCA_MONTHS = 3  # Reach target allocation in 3 months
 DCA_WEEKS = 12  # 3 months = 12 weeks
 ROUND_TO = 100  # Round allocations to nearest $100
-LOOKBACK_3M = 63   # ~3 months
-LOOKBACK_6M = 126  # ~6 months
+SKIP_1M = 21  # ~1 month skip (avoid short-term reversal)
+LOOKBACK_3M = 63  # ~3 months (20% weight, recency bias)
+LOOKBACK_6M = 126  # ~6 months (40% weight)
+LOOKBACK_12M = 252  # ~12 months (40% weight)
 RISK_FREE_RATE = 0.05  # ~5% for Sortino calculation
-MIN_ALLOCATION_PCT = 0.05  # 5% minimum - positions below this get zeroed out
-SECTOR_CAP_PCT = 0.33  # 33% maximum per sector
+MIN_ALLOCATION_PCT = 0.05  # Minimum allocation threshold for active positions
 
-# Sector definitions (with 33% caps enforced)
-SECTOR_GOLD = ["FNV", "AEM"]  # Gold-primary streamers/miners
-SECTOR_SILVER = ["PAAS", "HL"]  # Silver-primary miners
-SECTOR_PRECIOUS_MIXED = ["WPM"]  # 50/50 gold/silver (counted separately)
-SECTOR_OIL_GAS = ["XOM", "CVX", "CNQ", "SU", "CVE", "XLE", "ENB", "TRP", "KMI", "WMB", "OKE", "VLO", "PSX", "MPC", "DINO", "COP", "DVN", "OXY"]
-SECTOR_EX_US_VALUE = ["AVDV", "DFIV", "IVAL"]
-SECTOR_BITCOIN = ["MSTR"]  # Special DCA rules
-
-# Legacy groupings for reporting
+# Reporting groupings (no caps enforced — let momentum signal drive allocation)
 PRECIOUS_METALS = ["WPM", "PAAS", "FNV", "AEM", "HL"]
-ENERGY = ["XOM", "CVX", "XLE"]
+ENERGY = [
+    "XOM",
+    "CVX",
+    "XLE",
+    "CNQ",
+    "SU",
+    "CVE",
+    "ENB",
+    "TRP",
+    "KMI",
+    "WMB",
+    "OKE",
+    "VLO",
+    "PSX",
+    "MPC",
+    "DINO",
+    "COP",
+    "DVN",
+    "OXY",
+]
+FACTOR_US = ["QVAL", "QMOM", "AVUV", "DFSV"]
+FACTOR_INTL = ["IVAL", "IMOM", "DXIV", "AVDV", "DFE", "EWJV", "DFJ"]
+FACTOR_EM = ["FRDM", "AVES", "FLN", "EWZS"]
 BITCOIN = ["MSTR"]
-EX_US_VALUE = ["AVDV", "DFIV", "IVAL"]
+SOFTWARE = ["CSU.TO"]
 
 
 def fetch_total_return_index(tickers: list[str], period: str = "3y") -> pd.DataFrame:
@@ -113,10 +148,17 @@ def fetch_total_return_index(tickers: list[str], period: str = "3y") -> pd.DataF
             for i in range(len(close)):
                 if i > 0:
                     # Dividend yield on ex-date
-                    div_yield = dividends.iloc[i] / close.iloc[i-1] if close.iloc[i-1] != 0 else 0
+                    if close.iloc[i - 1] != 0:
+                        div_yield = dividends.iloc[i] / close.iloc[i - 1]
+                    else:
+                        div_yield = 0
                     # Adjust for dividend reinvestment
-                    cumulative_dividends = (1 + cumulative_dividends) * (1 + div_yield) - 1
-                    total_return_index.iloc[i] = close.iloc[i] * (1 + cumulative_dividends)
+                    cumulative_dividends = (1 + cumulative_dividends) * (
+                        1 + div_yield
+                    ) - 1
+                    total_return_index.iloc[i] = close.iloc[i] * (
+                        1 + cumulative_dividends
+                    )
 
             dfs.append(total_return_index.rename(ticker))
     return pd.concat(dfs, axis=1).dropna()
@@ -127,11 +169,19 @@ def calculate_returns(prices: pd.DataFrame) -> pd.DataFrame:
     return prices.pct_change(fill_method=None).dropna()
 
 
-def calculate_momentum(prices: pd.DataFrame, lookback: int = 126) -> pd.Series:
-    """Calculate momentum (total return) for a given lookback period."""
-    if len(prices) < lookback:
-        lookback = len(prices)
-    return (prices.iloc[-1] / prices.iloc[-lookback]) - 1
+def calculate_momentum(
+    prices: pd.DataFrame, lookback: int = 126, skip: int = 0
+) -> pd.Series:
+    """
+    Calculate momentum (total return) for a given lookback period.
+    With skip > 0, measures return from (lookback+skip) days ago to (skip) days ago.
+    This implements the 1-month skip to avoid short-term reversal effect.
+    """
+    if len(prices) < lookback + skip:
+        lookback = len(prices) - skip
+    end_idx = -skip if skip > 0 else len(prices)
+    start_idx = end_idx - lookback
+    return (prices.iloc[end_idx - 1] / prices.iloc[start_idx]) - 1
 
 
 def calculate_downside_volatility(returns: pd.DataFrame) -> pd.Series:
@@ -183,7 +233,7 @@ def calculate_drawdown_metrics(prices: pd.DataFrame) -> dict:
         drawdown_periods = []
         current_period_start = None
 
-        for i, (date, is_dd) in enumerate(in_drawdown.items()):
+        for i, (_date, is_dd) in enumerate(in_drawdown.items()):
             if is_dd and current_period_start is None:
                 current_period_start = i
             elif not is_dd and current_period_start is not None:
@@ -201,7 +251,7 @@ def calculate_drawdown_metrics(prices: pd.DataFrame) -> dict:
         rolling_3m_dd = []
         window = 63
         for i in range(window, len(price)):
-            window_prices = price.iloc[i-window:i]
+            window_prices = price.iloc[i - window : i]
             window_max = window_prices.cummax()
             window_dd = ((window_prices - window_max) / window_max).min()
             rolling_3m_dd.append(window_dd)
@@ -219,22 +269,101 @@ def calculate_drawdown_metrics(prices: pd.DataFrame) -> dict:
     return metrics
 
 
-def calculate_combined_score(prices: pd.DataFrame, returns: pd.DataFrame) -> pd.Series:
+def calculate_momentum_quality(
+    prices: pd.DataFrame, lookback: int = 252, skip: int = 0
+) -> pd.Series:
     """
-    Calculate combined score: equally weighted 3M + 6M momentum, normalized by downside volatility.
-    Score = (0.5 * mom_3m + 0.5 * mom_6m) / downside_volatility
+    Measure smoothness of momentum path (Wes Gray's "frog in the pan" concept).
+
+    Returns R² of a linear fit to the return path over the lookback window.
+    High R² = smooth, consistent trend (good). Low R² = jagged, spike-driven (bad).
+
+    A stock that goes up 1% every week for 6 months (high R²) is more
+    persistent than one that's flat for 5 months then spikes 30% (low R²).
     """
-    mom_3m = calculate_momentum(prices, LOOKBACK_3M)
-    mom_6m = calculate_momentum(prices, LOOKBACK_6M)
+    quality = {}
+    for col in prices.columns:
+        price = prices[col].dropna()
+        end_idx = len(price) - skip if skip > 0 else len(price)
+        start_idx = max(0, end_idx - lookback)
+        window = price.iloc[start_idx:end_idx]
+
+        if len(window) < 20:
+            quality[col] = 0.0
+            continue
+
+        # Fit linear regression to log prices (constant growth = perfect line)
+        log_prices = np.log(window.values)
+        x = np.arange(len(log_prices))
+        coeffs = np.polyfit(x, log_prices, 1)
+        fitted = np.polyval(coeffs, x)
+
+        # R² = 1 - (SS_res / SS_tot)
+        ss_res = np.sum((log_prices - fitted) ** 2)
+        ss_tot = np.sum((log_prices - log_prices.mean()) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+        quality[col] = max(r_squared, 0.0)
+
+    return pd.Series(quality)
+
+
+def calculate_vol_scaling(returns: pd.DataFrame, lookback: int = 21) -> pd.Series:
+    """
+    AQR-style volatility scaling: scale position sizes inversely to recent realized vol.
+
+    Uses trailing 1-month (21 day) realized vol. Higher recent vol = lower weight.
+    Returns a scaling factor where 1.0 = average vol, >1 = low vol (upweight),
+    <1 = high vol (downweight).
+    """
+    recent_vol = {}
+    for col in returns.columns:
+        col_returns = returns[col].dropna()
+        if len(col_returns) >= lookback:
+            trailing = col_returns.iloc[-lookback:]
+        else:
+            trailing = col_returns
+        recent_vol[col] = trailing.std() * np.sqrt(252)
+
+    vol_series = pd.Series(recent_vol)
+    median_vol = vol_series.median()
+
+    # Inverse vol scaling: median_vol / actual_vol
+    # Clamped to [0.5, 2.0] to avoid extreme adjustments
+    scaling = (median_vol / vol_series).clip(0.5, 2.0)
+    return scaling
+
+
+def calculate_combined_score(prices: pd.DataFrame, returns: pd.DataFrame) -> tuple:
+    """
+    Calculate combined score with Gray improvements (adapted for buy-and-hold):
+
+    1. Skip most recent month (avoid short-term reversal)
+    2. Use 3M (20%) + 6M (40%) + 12M (40%) lookbacks — recency bias with persistence
+    3. Weight by momentum quality (path smoothness / "frog in the pan")
+    4. Normalize by downside volatility (Sortino-style)
+
+    Vol scaling removed: designed for daily-rebalanced trading strategies,
+    not buy-and-hold quarterly DCA. Quality + Sortino already risk-adjust
+    without eliminating volatile asset classes.
+
+    Score = (0.2*mom_3m + 0.4*mom_6m + 0.4*mom_12m) * quality / downside_vol
+    """
+    # 1. Momentum with 1-month skip
+    mom_3m = calculate_momentum(prices, LOOKBACK_3M, skip=SKIP_1M)
+    mom_6m = calculate_momentum(prices, LOOKBACK_6M, skip=SKIP_1M)
+    mom_12m = calculate_momentum(prices, LOOKBACK_12M, skip=SKIP_1M)
     downside_vol = calculate_downside_volatility(returns)
 
-    # Equally weight 3M and 6M momentum
-    combined_momentum = 0.5 * mom_3m + 0.5 * mom_6m
+    # 2. Weighted blend: 20% recency (3M) + 40% medium (6M) + 40% long (12M)
+    combined_momentum = 0.2 * mom_3m + 0.4 * mom_6m + 0.4 * mom_12m
 
-    # Normalize by downside volatility
-    score = combined_momentum / downside_vol
+    # 3. Momentum quality (path smoothness)
+    quality = calculate_momentum_quality(prices, lookback=LOOKBACK_12M, skip=SKIP_1M)
 
-    return score, mom_3m, mom_6m, downside_vol
+    # 4. Final score (no vol scaling — inappropriate for buy-and-hold)
+    score = (combined_momentum * quality) / downside_vol
+
+    return score, mom_3m, mom_6m, mom_12m, downside_vol, quality
 
 
 def apply_momentum_filter(momentum: pd.Series) -> pd.Series:
@@ -252,23 +381,25 @@ def calculate_sortino_weights(sortino: pd.Series) -> pd.Series:
     return weights
 
 
-def apply_constraints(weights: pd.Series, prices: pd.DataFrame, min_allocation_pct: float = MIN_ALLOCATION_PCT, max_allocation_pct: float = 1.0) -> pd.Series:
+def apply_constraints(
+    weights: pd.Series,
+    prices: pd.DataFrame,
+    min_allocation_pct: float = MIN_ALLOCATION_PCT,
+    max_allocation_pct: float = 1.0,
+) -> pd.Series:
     """
-    Apply position and sector constraints:
+    Apply position constraints only (no sector caps — let momentum signal drive):
     - Minimum allocation threshold - positions below get zeroed out
-    - Maximum allocation threshold - positions above get capped
-    - Sector caps: 33% maximum per sector
-    - Redistribute to preserve score-based proportions within constraints
+    - Maximum allocation threshold - positions above get limited
+    - Renormalize to TOTAL_CAPITAL
 
     Approach: Iteratively remove/cap and redistribute until stable
     """
     allocation = weights * TOTAL_CAPITAL
     min_amount = TOTAL_CAPITAL * min_allocation_pct
     max_amount = TOTAL_CAPITAL * max_allocation_pct
-    sector_cap_amount = TOTAL_CAPITAL * SECTOR_CAP_PCT
 
-    # Iterative process to apply constraints
-    for iteration in range(100):  # Max iterations
+    for _iteration in range(100):
         changed = False
 
         # Step 1: Zero out positions below minimum
@@ -283,59 +414,12 @@ def apply_constraints(weights: pd.Series, prices: pd.DataFrame, min_allocation_p
                 allocation[t] = max_amount
                 changed = True
 
-        # Step 3: Apply sector caps
-        # Gold sector
-        gold_total = sum(allocation[t] for t in SECTOR_GOLD if t in allocation.index)
-        if gold_total > sector_cap_amount:
-            scale_factor = sector_cap_amount / gold_total
-            for t in SECTOR_GOLD:
-                if t in allocation.index:
-                    allocation[t] *= scale_factor
-            changed = True
-
-        # Silver sector
-        silver_total = sum(allocation[t] for t in SECTOR_SILVER if t in allocation.index)
-        if silver_total > sector_cap_amount:
-            scale_factor = sector_cap_amount / silver_total
-            for t in SECTOR_SILVER:
-                if t in allocation.index:
-                    allocation[t] *= scale_factor
-            changed = True
-
-        # Mixed precious metals (WPM)
-        mixed_total = sum(allocation[t] for t in SECTOR_PRECIOUS_MIXED if t in allocation.index)
-        if mixed_total > sector_cap_amount:
-            scale_factor = sector_cap_amount / mixed_total
-            for t in SECTOR_PRECIOUS_MIXED:
-                if t in allocation.index:
-                    allocation[t] *= scale_factor
-            changed = True
-
-        # Oil & Gas sector
-        oil_gas_total = sum(allocation[t] for t in SECTOR_OIL_GAS if t in allocation.index)
-        if oil_gas_total > sector_cap_amount:
-            scale_factor = sector_cap_amount / oil_gas_total
-            for t in SECTOR_OIL_GAS:
-                if t in allocation.index:
-                    allocation[t] *= scale_factor
-            changed = True
-
-        # Ex-US Value sector
-        ex_us_total = sum(allocation[t] for t in SECTOR_EX_US_VALUE if t in allocation.index)
-        if ex_us_total > sector_cap_amount:
-            scale_factor = sector_cap_amount / ex_us_total
-            for t in SECTOR_EX_US_VALUE:
-                if t in allocation.index:
-                    allocation[t] *= scale_factor
-            changed = True
-
-        # Step 4: Renormalize to TOTAL_CAPITAL
+        # Step 3: Renormalize to TOTAL_CAPITAL
         current_total = allocation.sum()
-        if abs(current_total - TOTAL_CAPITAL) > 1:  # More than $1 off
+        if abs(current_total - TOTAL_CAPITAL) > 1:
             allocation = allocation * (TOTAL_CAPITAL / current_total)
             changed = True
 
-        # If nothing changed in this iteration, we're converged
         if not changed:
             break
 
@@ -346,9 +430,10 @@ def calculate_portfolio_metrics(
     shares: pd.DataFrame,
     returns: pd.DataFrame,
     score: pd.Series,
-    mom_3m: pd.Series,
     mom_6m: pd.Series,
+    mom_12m: pd.Series,
     downside_vol: pd.Series,
+    quality: pd.Series,
 ) -> dict:
     """Calculate portfolio-level risk and return metrics."""
     active_tickers = [t for t in shares.index if shares.loc[t, "Allocation_USD"] > 0]
@@ -359,10 +444,11 @@ def calculate_portfolio_metrics(
     weights = shares.loc[active_tickers, "Weight_Pct"] / 100
 
     # Weighted average metrics
-    weighted_mom_3m = sum(weights[t] * mom_3m[t] for t in active_tickers)
     weighted_mom_6m = sum(weights[t] * mom_6m[t] for t in active_tickers)
+    weighted_mom_12m = sum(weights[t] * mom_12m[t] for t in active_tickers)
     weighted_downside_vol = sum(weights[t] * downside_vol[t] for t in active_tickers)
     weighted_score = sum(weights[t] * score[t] for t in active_tickers)
+    weighted_quality = sum(weights[t] * quality[t] for t in active_tickers)
 
     # Concentration metrics
     num_positions = len(active_tickers)
@@ -376,10 +462,11 @@ def calculate_portfolio_metrics(
 
     return {
         "num_positions": num_positions,
-        "weighted_mom_3m": weighted_mom_3m,
         "weighted_mom_6m": weighted_mom_6m,
+        "weighted_mom_12m": weighted_mom_12m,
         "weighted_downside_vol": weighted_downside_vol,
         "weighted_score": weighted_score,
+        "weighted_quality": weighted_quality,
         "max_position_weight": max_position_weight,
         "top_3_concentration": top_3_concentration,
         "portfolio_vol": portfolio_vol,
@@ -395,19 +482,25 @@ def round_to_nearest(value: float, multiple: int = 1000) -> int:
 
 
 def calculate_shares(allocation: pd.Series, prices: pd.DataFrame) -> pd.DataFrame:
-    """Calculate dollar amounts rounded to nearest $1000 (fractional shares supported)."""
+    """Calculate dollar amounts with rounding (fractional shares supported)."""
     latest_prices = prices.iloc[-1]
 
     # Round allocations to nearest $1000 (or $100 for small amounts)
     rounded_allocations = {t: round_to_nearest(allocation[t]) for t in allocation.index}
 
-    shares = pd.DataFrame({
-        "Ticker": allocation.index,
-        "Allocation_USD": [rounded_allocations[t] for t in allocation.index],
-        "Price": [latest_prices[t] for t in allocation.index],
-        "Shares": [rounded_allocations[t] / latest_prices[t] for t in allocation.index]
-    })
-    shares["Weight_Pct"] = (shares["Allocation_USD"] / shares["Allocation_USD"].sum() * 100).round(2)
+    shares = pd.DataFrame(
+        {
+            "Ticker": allocation.index,
+            "Allocation_USD": [rounded_allocations[t] for t in allocation.index],
+            "Price": [latest_prices[t] for t in allocation.index],
+            "Shares": [
+                rounded_allocations[t] / latest_prices[t] for t in allocation.index
+            ],
+        }
+    )
+    shares["Weight_Pct"] = (
+        shares["Allocation_USD"] / shares["Allocation_USD"].sum() * 100
+    ).round(2)
     return shares.set_index("Ticker")
 
 
@@ -417,21 +510,21 @@ def calculate_shares(allocation: pd.Series, prices: pd.DataFrame) -> pd.DataFram
     "-m",
     type=float,
     default=0.05,
-    help="Minimum allocation percentage (0.05 = 5%). Positions below this get zeroed out.",
+    help="Minimum allocation percentage. Positions below this get zeroed out.",
 )
 @click.option(
     "--max-allocation",
     "-M",
     type=float,
     default=1.0,
-    help="Maximum allocation percentage (0.12 = 12%). Positions above this get capped.",
+    help="Maximum allocation percentage. Positions above this get limited.",
 )
 @click.option(
     "--capital",
     "-c",
     type=int,
-    default=60000,
-    help="Total capital to allocate (default: 60000).",
+    default=40000,
+    help="Total capital to allocate (default: 40000). $60K minus $20K VGSH treasury.",
 )
 @click.option(
     "--quiet",
@@ -440,15 +533,18 @@ def calculate_shares(allocation: pd.Series, prices: pd.DataFrame) -> pd.DataFram
     help="Suppress detailed output, show only summary.",
 )
 def main(min_allocation: float, max_allocation: float, capital: int, quiet: bool):
-    global TOTAL_CAPITAL, PRECIOUS_METALS_CAP, BITCOIN_CAP
+    global TOTAL_CAPITAL
     TOTAL_CAPITAL = capital
-    PRECIOUS_METALS_CAP = int(capital * 0.304)  # 30.4% of total
-    BITCOIN_CAP = int(capital * 0.073)  # 7.3% of total
+    bitcoin_dca_target = int(capital * BITCOIN_DCA_TARGET_PCT)
     print("=" * 60)
-    print("US PORTFOLIO ALLOCATION - COMBINED MOMENTUM SCORE")
-    print("=" * 60)
-    print(f"\nMinimum allocation threshold: {min_allocation*100:.0f}%")
-    print(f"Maximum allocation threshold: {max_allocation*100:.0f}%")
+    print("US PORTFOLIO ALLOCATION - MOMENTUM (AQR/GRAY IMPROVED)")
+    print("=" * 80)
+    print("\nImprovements over naive momentum:")
+    print("  1. 1-month skip (avoid short-term reversal)")
+    print("  2. 6M + 12M lookbacks (more persistent signal)")
+    print("  3. Path smoothness filter (Wes Gray 'frog in the pan')")
+    print("  4. Inverse vol scaling (AQR crash protection)")
+    print("\nMin allocation: configured | Max allocation: configured")
     print(f"Fetching data for: {TICKERS}")
 
     # Fetch data
@@ -457,34 +553,54 @@ def main(min_allocation: float, max_allocation: float, capital: int, quiet: bool
 
     print(f"Data range: {prices.index[0].date()} to {prices.index[-1].date()}")
 
-    # Calculate combined score: (0.5 * mom_3m + 0.5 * mom_6m) / downside_volatility
-    score, mom_3m, mom_6m, downside_vol = calculate_combined_score(prices, returns)
-    combined_momentum = 0.5 * mom_3m + 0.5 * mom_6m
+    # Calculate combined score (quality-adjusted Sortino momentum)
+    score, mom_3m, mom_6m, mom_12m, downside_vol, quality = calculate_combined_score(
+        prices, returns
+    )
+    combined_momentum = 0.2 * mom_3m + 0.4 * mom_6m + 0.4 * mom_12m
 
-    print(f"\n{'Ticker':<6} {'3M Mom':>10} {'6M Mom':>10} {'Avg Mom':>10} {'Down Vol':>10} {'Score':>10} {'Status':>8}")
-    print("-" * 70)
+    header = (
+        f"{'Ticker':<6} {'3M Mom':>9} {'6M Mom':>9} {'12M Mom':>9} "
+        f"{'Wt Mom':>9} {'Quality':>9} {'DnVol':>8} "
+        f"{'Score':>8} {'':>6}"
+    )
+    print(f"\n{header}")
+    print("-" * 90)
     for ticker in TICKERS:
         if ticker in prices.columns:
-            # Pass if combined momentum is positive
             status = "PASS" if combined_momentum[ticker] > 0 else "FAIL"
-            print(f"  {ticker:<6} {mom_3m[ticker]*100:>+9.2f}% {mom_6m[ticker]*100:>+9.2f}% "
-                  f"{combined_momentum[ticker]*100:>+9.2f}% {downside_vol[ticker]*100:>9.2f}% "
-                  f"{score[ticker]:>9.2f} [{status}]")
+            print(
+                f"  {ticker:<6} {mom_3m[ticker] * 100:>+8.1f}% "
+                f"{mom_6m[ticker] * 100:>+8.1f}% "
+                f"{mom_12m[ticker] * 100:>+8.1f}% "
+                f"{combined_momentum[ticker] * 100:>+8.1f}% "
+                f"{quality[ticker]:>8.3f} "
+                f"{downside_vol[ticker] * 100:>7.1f}% "
+                f"{score[ticker]:>7.2f} [{status}]"
+            )
 
     # Calculate drawdown metrics (uses full 3-year history)
     dd_metrics = calculate_drawdown_metrics(prices)
 
-    print(f"\n" + "=" * 60)
+    print("\n" + "=" * 60)
     print("DRAWDOWN ANALYSIS (3-Year History)")
     print("=" * 60)
-    print(f"\n{'Ticker':<6} {'Max DD':>10} {'Max Dur':>10} {'Avg Dur':>10} {'Curr DD':>10} {'3M Roll DD':>12}")
+    dd_header = (
+        f"{'Ticker':<6} {'Max DD':>10} {'Max Dur':>10} {'Avg Dur':>10} "
+        f"{'Curr DD':>10} {'3M Roll DD':>12}"
+    )
+    print(f"\n{dd_header}")
     print("-" * 70)
     for ticker in TICKERS:
         if ticker in prices.columns:
             m = dd_metrics[ticker]
-            print(f"  {ticker:<6} {m['max_drawdown']*100:>9.1f}% {m['max_dd_duration_days']:>8.0f}d "
-                  f"{m['avg_dd_duration_days']:>8.1f}d {m['current_drawdown']*100:>9.1f}% "
-                  f"{m['worst_rolling_3m_dd']*100:>11.1f}%")
+            print(
+                f"  {ticker:<6} {m['max_drawdown'] * 100:>9.1f}% "
+                f"{m['max_dd_duration_days']:>8.0f}d "
+                f"{m['avg_dd_duration_days']:>8.1f}d "
+                f"{m['current_drawdown'] * 100:>9.1f}% "
+                f"{m['worst_rolling_3m_dd'] * 100:>11.1f}%"
+            )
 
     # Filter by combined momentum (must be positive)
     passing_tickers = apply_momentum_filter(combined_momentum)
@@ -495,9 +611,9 @@ def main(min_allocation: float, max_allocation: float, capital: int, quiet: bool
 
     # Calculate weights proportional to score
     weights = calculate_sortino_weights(score_filtered)
-    print(f"\nRaw Score Weights (before constraints):")
+    print("\nRaw Score Weights (before constraints):")
     for ticker in weights.index:
-        print(f"  {ticker}: {weights[ticker]*100:.1f}%")
+        print(f"  {ticker}: {weights[ticker] * 100:.1f}%")
 
     # Apply constraints
     allocation = apply_constraints(weights, prices, min_allocation, max_allocation)
@@ -505,75 +621,104 @@ def main(min_allocation: float, max_allocation: float, capital: int, quiet: bool
     # Calculate shares
     shares = calculate_shares(allocation, prices)
 
-    print(f"\n" + "=" * 60)
+    print("\n" + "=" * 60)
     print("FINAL ALLOCATION")
     print("=" * 60)
     print(f"\nTotal Capital: ${TOTAL_CAPITAL:,.0f}")
-    print(f"Precious Metals Cap: ${PRECIOUS_METALS_CAP:,.0f}")
-    print(f"Bitcoin Cap: ${BITCOIN_CAP:,.0f}")
+    print("No sector caps (momentum signal drives allocation)")
     print()
     print(shares.to_string())
 
     # Summary by category
-    print(f"\n" + "-" * 40)
+    print("\n" + "-" * 40)
     print("ALLOCATION BY CATEGORY")
     print("-" * 40)
 
     # Calculate allocations by logical grouping (for reporting only)
-    pm_alloc = shares.loc[[t for t in PRECIOUS_METALS if t in shares.index and shares.loc[t, "Allocation_USD"] > 0], "Allocation_USD"].sum()
-    energy_alloc = shares.loc[[t for t in ENERGY if t in shares.index and shares.loc[t, "Allocation_USD"] > 0], "Allocation_USD"].sum()
-    btc_alloc = shares.loc[[t for t in BITCOIN if t in shares.index], "Allocation_USD"].sum()
-    exus_alloc = shares.loc[[t for t in EX_US_VALUE if t in shares.index and shares.loc[t, "Allocation_USD"] > 0], "Allocation_USD"].sum()
+    def group_alloc(group):
+        active = [
+            t
+            for t in group
+            if t in shares.index and shares.loc[t, "Allocation_USD"] > 0
+        ]
+        return shares.loc[active, "Allocation_USD"].sum()
 
-    # Build ticker strings for display
-    pm_active = [t for t in PRECIOUS_METALS if t in shares.index and shares.loc[t, "Allocation_USD"] > 0]
-    energy_active = [t for t in ENERGY if t in shares.index and shares.loc[t, "Allocation_USD"] > 0]
-    exus_active = [t for t in EX_US_VALUE if t in shares.index and shares.loc[t, "Allocation_USD"] > 0]
+    def group_active(group):
+        return [
+            t
+            for t in group
+            if t in shares.index and shares.loc[t, "Allocation_USD"] > 0
+        ]
 
-    if pm_active:
-        print(f"Precious Metals ({'+'.join(pm_active)}): ${pm_alloc:,.0f} ({pm_alloc/TOTAL_CAPITAL*100:.1f}%)")
-    if energy_active:
-        print(f"Energy ({'+'.join(energy_active)}): ${energy_alloc:,.0f} ({energy_alloc/TOTAL_CAPITAL*100:.1f}%)")
-    if exus_active:
-        print(f"Ex-US Value ({'+'.join(exus_active)}): ${exus_alloc:,.0f} ({exus_alloc/TOTAL_CAPITAL*100:.1f}%)")
-    print(f"Bitcoin (MSTR):             ${btc_alloc:,.0f} ({btc_alloc/TOTAL_CAPITAL*100:.1f}%)")
+    categories = [
+        ("Precious Metals", PRECIOUS_METALS),
+        ("Energy", ENERGY),
+        ("Factor: US", FACTOR_US),
+        ("Factor: Intl", FACTOR_INTL),
+        ("Factor: EM", FACTOR_EM),
+        ("Bitcoin", BITCOIN),
+    ]
 
-    # Category exposure report (no caps enforced - pure score competition)
-    print(f"\n" + "-" * 40)
-    print("CATEGORY EXPOSURE (Reference Only)")
+    for label, group in categories:
+        alloc = group_alloc(group)
+        active = group_active(group)
+        if active:
+            print(
+                f"{label} ({'+'.join(active)}): ${alloc:,.0f} "
+                f"({alloc / TOTAL_CAPITAL * 100:.1f}%)"
+            )
+
+    # Category exposure summary
+    print("\n" + "-" * 40)
+    print("CATEGORY EXPOSURE")
     print("-" * 40)
-    print(f"Precious Metals: ${pm_alloc:,.0f} ({pm_alloc/TOTAL_CAPITAL*100:.1f}%) [Reference cap was 30%]")
-    print(f"Energy:          ${energy_alloc:,.0f} ({energy_alloc/TOTAL_CAPITAL*100:.1f}%) [Always in competition]")
-    print(f"Ex-US Value:     ${exus_alloc:,.0f} ({exus_alloc/TOTAL_CAPITAL*100:.1f}%)")
-    print(f"Bitcoin:         ${btc_alloc:,.0f} ({btc_alloc/TOTAL_CAPITAL*100:.1f}%) [Reference cap was 5%]")
-    print(f"Position constraints: {min_allocation*100:.0f}% minimum, {max_allocation*100:.0f}% maximum")
+    for label, group in categories:
+        alloc = group_alloc(group)
+        print(f"{label:<20s} ${alloc:>8,.0f} ({alloc / TOTAL_CAPITAL * 100:>5.1f}%)")
+    print("Position constraints: min/max configured (no sector caps)")
 
     # MSTR DCA Plan
-    print(f"\n" + "-" * 40)
+    print("\n" + "-" * 40)
     print("MSTR (BITCOIN) DCA PLAN")
     print("-" * 40)
-    mstr_combined_momentum = combined_momentum.get("MSTR", 0)
+    mstr_combined_momentum = combined_momentum.get("MSTR", 0.0)
     mstr_price = prices["MSTR"].iloc[-1]
     monthly_dca_amount = TOTAL_CAPITAL * BITCOIN_MONTHLY_DCA_PCT
 
     if mstr_combined_momentum > 0:
-        print(f"MSTR combined momentum is POSITIVE ({mstr_combined_momentum*100:+.2f}%)")
-        print(f"Allocate full position via score weighting")
+        print(
+            f"MSTR combined momentum is POSITIVE ({mstr_combined_momentum * 100:+.2f}%)"
+        )
+        print("Allocate full position via score weighting")
     else:
-        print(f"MSTR combined momentum is NEGATIVE ({mstr_combined_momentum*100:+.2f}%)")
-        print(f"Strategy: DCA 0.1% of portfolio per month until 5% cap")
+        print(
+            f"MSTR combined momentum is NEGATIVE ({mstr_combined_momentum * 100:+.2f}%)"
+        )
+        print(
+            "Strategy: DCA a small share of portfolio per month until target allocation"
+        )
         print(f"  - Monthly DCA: ${monthly_dca_amount:,.0f}")
         print(f"  - Current MSTR price: ${mstr_price:,.2f}")
-        print(f"  - Shares per month: {int(monthly_dca_amount / mstr_price)} (fractional: {monthly_dca_amount / mstr_price:.2f})")
-        print(f"  - Months to reach 5% cap: {int(BITCOIN_CAP / monthly_dca_amount)}")
-        print(f"  - Accelerate if momentum turns positive")
+        print(
+            "  - Shares per month: "
+            f"{int(monthly_dca_amount / mstr_price)} "
+            f"(fractional: {monthly_dca_amount / mstr_price:.2f})"
+        )
+        print(
+            "  - Months to reach target allocation: "
+            f"{int(bitcoin_dca_target / monthly_dca_amount)}"
+        )
+        print("  - Accelerate if momentum turns positive")
 
     # Weekly DCA Plan (12 weeks = 3 months)
-    print(f"\n" + "=" * 60)
+    print("\n" + "=" * 60)
     print(f"WEEKLY DCA PLAN ({DCA_WEEKS} weeks)")
     print("=" * 60)
     print(f"\nTarget: Deploy ${TOTAL_CAPITAL:,.0f} over {DCA_WEEKS} weeks")
-    print(f"Weekly investment: ${TOTAL_CAPITAL / DCA_WEEKS:,.0f} (rounded to ${ROUND_TO})\n")
+    print(
+        f"Weekly investment: ${TOTAL_CAPITAL / DCA_WEEKS:,.0f} "
+        f"(rounded to ${ROUND_TO})\n"
+    )
 
     print(f"{'Ticker':<6} {'Target':>10} {'Weekly':>10} {'12-Week':>12}")
     print("-" * 40)
@@ -585,65 +730,120 @@ def main(min_allocation: float, max_allocation: float, capital: int, quiet: bool
             weekly = round_to_nearest(target / DCA_WEEKS, ROUND_TO)
             weekly_allocations[ticker] = weekly
             actual_12wk = weekly * DCA_WEEKS
-            print(f"{ticker:<6} ${target:>8,.0f} ${weekly:>8,.0f} ${actual_12wk:>10,.0f}")
+            print(
+                f"{ticker:<6} ${target:>8,.0f} ${weekly:>8,.0f} ${actual_12wk:>10,.0f}"
+            )
 
     # MSTR special case
     if mstr_combined_momentum <= 0:
-        mstr_weekly = round_to_nearest(monthly_dca_amount / 4, ROUND_TO)  # Monthly / 4 weeks
+        mstr_weekly = round_to_nearest(
+            monthly_dca_amount / 4, ROUND_TO
+        )  # Monthly / 4 weeks
         if mstr_weekly < ROUND_TO:
             mstr_weekly = ROUND_TO  # Minimum $100/week if DCA active
         weekly_allocations["MSTR"] = mstr_weekly
-        print(f"{'MSTR':<6} ${'(DCA)':>7} ${mstr_weekly:>8,.0f} ${mstr_weekly * DCA_WEEKS:>10,.0f}")
+        print(
+            f"{'MSTR':<6} ${'(DCA)':>7} ${mstr_weekly:>8,.0f} "
+            f"${mstr_weekly * DCA_WEEKS:>10,.0f}"
+        )
 
     weekly_total = sum(weekly_allocations.values())
     total_12wk = weekly_total * DCA_WEEKS
 
     print("-" * 40)
-    print(f"{'TOTAL':<6} ${total_12wk:>8,.0f} ${weekly_total:>8,.0f} ${total_12wk:>10,.0f}")
+    print(
+        f"{'TOTAL':<6} ${total_12wk:>8,.0f} ${weekly_total:>8,.0f} "
+        f"${total_12wk:>10,.0f}"
+    )
 
     # Portfolio Risk Metrics
-    metrics = calculate_portfolio_metrics(shares, returns, score, mom_3m, mom_6m, downside_vol)
+    metrics = calculate_portfolio_metrics(
+        shares, returns, score, mom_6m, mom_12m, downside_vol, quality
+    )
+    # Also compute weighted 3M for display
+    active_tickers_for_metrics = [
+        t for t in shares.index if shares.loc[t, "Allocation_USD"] > 0
+    ]
+    w_pct = shares.loc[active_tickers_for_metrics, "Weight_Pct"] / 100
+    weighted_mom_3m = sum(w_pct[t] * mom_3m[t] for t in active_tickers_for_metrics)
 
-    print(f"\n" + "=" * 60)
+    print("\n" + "=" * 60)
     print("PORTFOLIO RISK METRICS")
     print("=" * 60)
     print(f"Number of positions:        {metrics['num_positions']}")
-    print(f"Max position weight:        {metrics['max_position_weight']*100:.1f}%")
-    print(f"Top 3 concentration:        {metrics['top_3_concentration']*100:.1f}%")
-    print(f"Weighted 3M momentum:       {metrics['weighted_mom_3m']*100:+.2f}%")
-    print(f"Weighted 6M momentum:       {metrics['weighted_mom_6m']*100:+.2f}%")
-    print(f"Weighted downside vol:      {metrics['weighted_downside_vol']*100:.2f}%")
+    print(f"Max position weight:        {metrics['max_position_weight'] * 100:.1f}%")
+    print(f"Top 3 concentration:        {metrics['top_3_concentration'] * 100:.1f}%")
+    print(
+        f"Weighted 3M momentum:       {weighted_mom_3m * 100:+.2f}% "
+        "(1M skip, 20% weight)"
+    )
+    print(
+        f"Weighted 6M momentum:       {metrics['weighted_mom_6m'] * 100:+.2f}% "
+        "(1M skip, 40% weight)"
+    )
+    print(
+        f"Weighted 12M momentum:      {metrics['weighted_mom_12m'] * 100:+.2f}% "
+        "(1M skip, 40% weight)"
+    )
+    print(
+        f"Weighted path quality:      {metrics['weighted_quality']:.3f} "
+        "(R², higher=smoother)"
+    )
+    print(f"Weighted downside vol:      {metrics['weighted_downside_vol'] * 100:.2f}%")
     print(f"Weighted score:             {metrics['weighted_score']:.2f}")
-    print(f"Portfolio volatility:       {metrics['portfolio_vol']*100:.2f}%")
-    print(f"Portfolio downside vol:     {metrics['portfolio_downside_vol']*100:.2f}%")
+    print(f"Portfolio volatility:       {metrics['portfolio_vol'] * 100:.2f}%")
+    print(f"Portfolio downside vol:     {metrics['portfolio_downside_vol'] * 100:.2f}%")
 
     # Risk-adjusted metrics
-    avg_momentum = (metrics['weighted_mom_3m'] + metrics['weighted_mom_6m']) / 2
-    risk_reward_ratio = avg_momentum / metrics['portfolio_downside_vol'] if metrics['portfolio_downside_vol'] > 0 else 0
-    print(f"\nRisk-Reward Ratio:          {risk_reward_ratio:.2f} (avg momentum / downside vol)")
+    avg_momentum = (
+        0.2 * weighted_mom_3m
+        + 0.4 * metrics["weighted_mom_6m"]
+        + 0.4 * metrics["weighted_mom_12m"]
+    )
+    if metrics["portfolio_downside_vol"] > 0:
+        risk_reward_ratio = avg_momentum / metrics["portfolio_downside_vol"]
+    else:
+        risk_reward_ratio = 0
+    print(
+        "\nRisk-Reward Ratio:          "
+        f"{risk_reward_ratio:.2f} (avg momentum / downside vol)"
+    )
 
     # Portfolio-weighted drawdown metrics
     active_tickers = [t for t in shares.index if shares.loc[t, "Allocation_USD"] > 0]
     if active_tickers:
         port_weights = shares.loc[active_tickers, "Weight_Pct"] / 100
-        weighted_max_dd = sum(port_weights[t] * dd_metrics[t]["max_drawdown"] for t in active_tickers)
-        weighted_max_dd_dur = sum(port_weights[t] * dd_metrics[t]["max_dd_duration_days"] for t in active_tickers)
-        weighted_3m_roll_dd = sum(port_weights[t] * dd_metrics[t]["worst_rolling_3m_dd"] for t in active_tickers)
-        weighted_current_dd = sum(port_weights[t] * dd_metrics[t]["current_drawdown"] for t in active_tickers)
+        weighted_max_dd = sum(
+            port_weights[t] * dd_metrics[t]["max_drawdown"] for t in active_tickers
+        )
+        weighted_max_dd_dur = sum(
+            port_weights[t] * dd_metrics[t]["max_dd_duration_days"]
+            for t in active_tickers
+        )
+        weighted_3m_roll_dd = sum(
+            port_weights[t] * dd_metrics[t]["worst_rolling_3m_dd"]
+            for t in active_tickers
+        )
+        weighted_current_dd = sum(
+            port_weights[t] * dd_metrics[t]["current_drawdown"] for t in active_tickers
+        )
 
-        print(f"\n" + "-" * 40)
+        print("\n" + "-" * 40)
         print("PORTFOLIO DRAWDOWN RISK (Weighted)")
         print("-" * 40)
-        print(f"Weighted max drawdown:      {weighted_max_dd*100:.1f}%")
+        print(f"Weighted max drawdown:      {weighted_max_dd * 100:.1f}%")
         print(f"Weighted max DD duration:   {weighted_max_dd_dur:.0f} days")
-        print(f"Weighted worst 3M roll DD:  {weighted_3m_roll_dd*100:.1f}%")
-        print(f"Weighted current drawdown:  {weighted_current_dd*100:.1f}%")
+        print(f"Weighted worst 3M roll DD:  {weighted_3m_roll_dd * 100:.1f}%")
+        print(f"Weighted current drawdown:  {weighted_current_dd * 100:.1f}%")
 
         # Pain ratio: return per unit of drawdown pain
         pain_ratio = avg_momentum / abs(weighted_max_dd) if weighted_max_dd != 0 else 0
-        print(f"\nPain Ratio:                 {pain_ratio:.2f} (avg momentum / max drawdown)")
+        print(
+            f"\nPain Ratio:                 {pain_ratio:.2f} "
+            "(avg momentum / max drawdown)"
+        )
 
-    print(f"\n" + "-" * 40)
+    print("\n" + "-" * 40)
     print("NOTES")
     print("-" * 40)
     print("- After 12 weeks: Stop or rerun script with new capital")

@@ -5,33 +5,33 @@ Uses historical 3-year daily returns to simulate possible 3-month outcomes
 for the given portfolio allocation. Shows distribution of returns, not averages.
 """
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import yfinance as yf
 
 # Portfolio allocation with 1% min, 12% max constraints (22 positions)
 PORTFOLIO = {
     "PAAS": 0.1148,  # 11.48%
-    "HL": 0.1148,    # 11.48%
+    "HL": 0.1148,  # 11.48%
     "AVDV": 0.0820,  # 8.20%
     "DFIV": 0.0820,  # 8.20%
     "MPLX": 0.0656,  # 6.56%
     "IVAL": 0.0656,  # 6.56%
-    "WPM": 0.0492,   # 4.92%
-    "AEM": 0.0492,   # 4.92%
-    "XOM": 0.0492,   # 4.92%
-    "FNV": 0.0328,   # 3.28%
-    "SU": 0.0328,    # 3.28%
-    "CVE": 0.0328,   # 3.28%
-    "TRP": 0.0328,   # 3.28%
-    "EPD": 0.0328,   # 3.28%
-    "DVN": 0.0328,   # 3.28%
-    "BSM": 0.0328,   # 3.28%
-    "CVX": 0.0164,   # 1.64%
-    "CNQ": 0.0164,   # 1.64%
-    "XLE": 0.0164,   # 1.64%
-    "ENB": 0.0164,   # 1.64%
-    "VLO": 0.0164,   # 1.64%
+    "WPM": 0.0492,  # 4.92%
+    "AEM": 0.0492,  # 4.92%
+    "XOM": 0.0492,  # 4.92%
+    "FNV": 0.0328,  # 3.28%
+    "SU": 0.0328,  # 3.28%
+    "CVE": 0.0328,  # 3.28%
+    "TRP": 0.0328,  # 3.28%
+    "EPD": 0.0328,  # 3.28%
+    "DVN": 0.0328,  # 3.28%
+    "BSM": 0.0328,  # 3.28%
+    "CVX": 0.0164,  # 1.64%
+    "CNQ": 0.0164,  # 1.64%
+    "XLE": 0.0164,  # 1.64%
+    "ENB": 0.0164,  # 1.64%
+    "VLO": 0.0164,  # 1.64%
     "VNOM": 0.0164,  # 1.64%
 }
 
@@ -64,10 +64,17 @@ def fetch_total_return_index(tickers: list[str], period: str = "3y") -> pd.DataF
             for i in range(len(close)):
                 if i > 0:
                     # Dividend yield on ex-date
-                    div_yield = dividends.iloc[i] / close.iloc[i-1] if close.iloc[i-1] != 0 else 0
+                    if close.iloc[i - 1] != 0:
+                        div_yield = dividends.iloc[i] / close.iloc[i - 1]
+                    else:
+                        div_yield = 0
                     # Adjust for dividend reinvestment
-                    cumulative_dividends = (1 + cumulative_dividends) * (1 + div_yield) - 1
-                    total_return_index.iloc[i] = close.iloc[i] * (1 + cumulative_dividends)
+                    cumulative_dividends = (1 + cumulative_dividends) * (
+                        1 + div_yield
+                    ) - 1
+                    total_return_index.iloc[i] = close.iloc[i] * (
+                        1 + cumulative_dividends
+                    )
 
             dfs.append(total_return_index.rename(ticker))
     return pd.concat(dfs, axis=1).dropna()
@@ -106,7 +113,9 @@ def run_bootstrap_simulation(
 
     for _ in range(num_simulations):
         # Randomly sample simulation_days returns with replacement
-        sampled_returns = np.random.choice(daily_returns, size=simulation_days, replace=True)
+        sampled_returns = np.random.choice(
+            daily_returns, size=simulation_days, replace=True
+        )
 
         # Calculate cumulative return
         cumulative_return = np.prod(1 + sampled_returns) - 1
@@ -138,7 +147,7 @@ def run_block_bootstrap_simulation(
         while len(path) < simulation_days:
             # Random starting point for block
             start = np.random.randint(0, n - block_size)
-            block = daily_returns[start:start + block_size]
+            block = daily_returns[start : start + block_size]
             path.extend(block)
 
         path = path[:simulation_days]
@@ -158,7 +167,7 @@ def calculate_historical_3m_returns(returns: pd.DataFrame, weights: dict) -> np.
 
     rolling_3m = []
     for i in range(63, len(portfolio_returns)):
-        window = portfolio_returns.iloc[i-63:i]
+        window = portfolio_returns.iloc[i - 63 : i]
         cumulative = (1 + window).prod() - 1
         rolling_3m.append(cumulative)
 
@@ -169,43 +178,76 @@ def print_distribution_stats(values: np.ndarray, title: str):
     """Print distribution statistics."""
     returns = (values / TOTAL_CAPITAL - 1) * 100  # Convert to percentage
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(title)
-    print("="*60)
+    print("=" * 60)
 
     print(f"\nPortfolio Value Distribution (starting from ${TOTAL_CAPITAL:,}):")
     print(f"  Minimum:       ${np.min(values):>12,.0f}  ({np.min(returns):>+7.1f}%)")
-    print(f"  1st percentile:${np.percentile(values, 1):>12,.0f}  ({np.percentile(returns, 1):>+7.1f}%)")
-    print(f"  5th percentile:${np.percentile(values, 5):>12,.0f}  ({np.percentile(returns, 5):>+7.1f}%)")
-    print(f"  10th percentile:${np.percentile(values, 10):>11,.0f}  ({np.percentile(returns, 10):>+7.1f}%)")
-    print(f"  25th percentile:${np.percentile(values, 25):>11,.0f}  ({np.percentile(returns, 25):>+7.1f}%)")
-    print(f"  Median (50th): ${np.percentile(values, 50):>12,.0f}  ({np.percentile(returns, 50):>+7.1f}%)")
-    print(f"  75th percentile:${np.percentile(values, 75):>11,.0f}  ({np.percentile(returns, 75):>+7.1f}%)")
-    print(f"  90th percentile:${np.percentile(values, 90):>11,.0f}  ({np.percentile(returns, 90):>+7.1f}%)")
-    print(f"  95th percentile:${np.percentile(values, 95):>11,.0f}  ({np.percentile(returns, 95):>+7.1f}%)")
-    print(f"  99th percentile:${np.percentile(values, 99):>11,.0f}  ({np.percentile(returns, 99):>+7.1f}%)")
+    print(
+        f"  1st percentile:${np.percentile(values, 1):>12,.0f}  "
+        f"({np.percentile(returns, 1):>+7.1f}%)"
+    )
+    print(
+        f"  5th percentile:${np.percentile(values, 5):>12,.0f}  "
+        f"({np.percentile(returns, 5):>+7.1f}%)"
+    )
+    print(
+        f"  10th percentile:${np.percentile(values, 10):>11,.0f}  "
+        f"({np.percentile(returns, 10):>+7.1f}%)"
+    )
+    print(
+        f"  25th percentile:${np.percentile(values, 25):>11,.0f}  "
+        f"({np.percentile(returns, 25):>+7.1f}%)"
+    )
+    print(
+        f"  Median (50th): ${np.percentile(values, 50):>12,.0f}  "
+        f"({np.percentile(returns, 50):>+7.1f}%)"
+    )
+    print(
+        f"  75th percentile:${np.percentile(values, 75):>11,.0f}  "
+        f"({np.percentile(returns, 75):>+7.1f}%)"
+    )
+    print(
+        f"  90th percentile:${np.percentile(values, 90):>11,.0f}  "
+        f"({np.percentile(returns, 90):>+7.1f}%)"
+    )
+    print(
+        f"  95th percentile:${np.percentile(values, 95):>11,.0f}  "
+        f"({np.percentile(returns, 95):>+7.1f}%)"
+    )
+    print(
+        f"  99th percentile:${np.percentile(values, 99):>11,.0f}  "
+        f"({np.percentile(returns, 99):>+7.1f}%)"
+    )
     print(f"  Maximum:       ${np.max(values):>12,.0f}  ({np.max(returns):>+7.1f}%)")
 
-    print(f"\nKey Risk Metrics:")
-    print(f"  Probability of loss:      {(returns < 0).mean()*100:>6.1f}%")
-    print(f"  Probability of >10% loss: {(returns < -10).mean()*100:>6.1f}%")
-    print(f"  Probability of >20% loss: {(returns < -20).mean()*100:>6.1f}%")
-    print(f"  Probability of >30% loss: {(returns < -30).mean()*100:>6.1f}%")
+    print("\nKey Risk Metrics:")
+    print(f"  Probability of loss:      {(returns < 0).mean() * 100:>6.1f}%")
+    print(f"  Probability of >10% loss: {(returns < -10).mean() * 100:>6.1f}%")
+    print(f"  Probability of >20% loss: {(returns < -20).mean() * 100:>6.1f}%")
+    print(f"  Probability of >30% loss: {(returns < -30).mean() * 100:>6.1f}%")
 
-    print(f"\nUpside Potential:")
-    print(f"  Probability of >10% gain: {(returns > 10).mean()*100:>6.1f}%")
-    print(f"  Probability of >20% gain: {(returns > 20).mean()*100:>6.1f}%")
-    print(f"  Probability of >30% gain: {(returns > 30).mean()*100:>6.1f}%")
-    print(f"  Probability of >50% gain: {(returns > 50).mean()*100:>6.1f}%")
+    print("\nUpside Potential:")
+    print(f"  Probability of >10% gain: {(returns > 10).mean() * 100:>6.1f}%")
+    print(f"  Probability of >20% gain: {(returns > 20).mean() * 100:>6.1f}%")
+    print(f"  Probability of >30% gain: {(returns > 30).mean() * 100:>6.1f}%")
+    print(f"  Probability of >50% gain: {(returns > 50).mean() * 100:>6.1f}%")
 
     # Value at Risk
     var_95 = np.percentile(returns, 5)
     var_99 = np.percentile(returns, 1)
     cvar_95 = returns[returns <= var_95].mean()
 
-    print(f"\nValue at Risk:")
-    print(f"  VaR 95% (5th percentile): {var_95:>+7.1f}% (${TOTAL_CAPITAL * var_95/100:>+,.0f})")
-    print(f"  VaR 99% (1st percentile): {var_99:>+7.1f}% (${TOTAL_CAPITAL * var_99/100:>+,.0f})")
+    print("\nValue at Risk:")
+    print(
+        "  VaR 95% (5th percentile): "
+        f"{var_95:>+7.1f}% (${TOTAL_CAPITAL * var_95 / 100:>+,.0f})"
+    )
+    print(
+        "  VaR 99% (1st percentile): "
+        f"{var_99:>+7.1f}% (${TOTAL_CAPITAL * var_99 / 100:>+,.0f})"
+    )
     print(f"  CVaR 95% (expected loss in worst 5%): {cvar_95:>+7.1f}%")
 
 
@@ -218,20 +260,20 @@ def print_historical_pain_analysis(returns: pd.DataFrame, weights: dict):
     running_max = cumulative.cummax()
     drawdown = (cumulative - running_max) / running_max
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("HISTORICAL PAIN ANALYSIS (3-Year Portfolio)")
-    print("="*60)
+    print("=" * 60)
 
-    print(f"\nDrawdown Statistics:")
-    print(f"  Maximum drawdown:     {drawdown.min()*100:>+7.1f}%")
-    print(f"  Current drawdown:     {drawdown.iloc[-1]*100:>+7.1f}%")
+    print("\nDrawdown Statistics:")
+    print(f"  Maximum drawdown:     {drawdown.min() * 100:>+7.1f}%")
+    print(f"  Current drawdown:     {drawdown.iloc[-1] * 100:>+7.1f}%")
 
     # Calculate underwater periods
     underwater = drawdown < 0
     periods = []
     current_start = None
 
-    for i, (date, is_uw) in enumerate(underwater.items()):
+    for i, (_date, is_uw) in enumerate(underwater.items()):
         if is_uw and current_start is None:
             current_start = i
         elif not is_uw and current_start is not None:
@@ -247,34 +289,38 @@ def print_historical_pain_analysis(returns: pd.DataFrame, weights: dict):
         print(f"  Number of drawdowns:  {len(periods)}")
 
     # Monthly returns analysis
-    monthly_returns = portfolio_returns.resample('ME').apply(lambda x: (1+x).prod() - 1)
+    monthly_returns = portfolio_returns.resample("ME").apply(
+        lambda x: (1 + x).prod() - 1
+    )
 
-    print(f"\nMonthly Return Distribution:")
-    print(f"  Worst month:          {monthly_returns.min()*100:>+7.1f}%")
-    print(f"  Best month:           {monthly_returns.max()*100:>+7.1f}%")
-    print(f"  Median month:         {monthly_returns.median()*100:>+7.1f}%")
-    print(f"  % of months positive: {(monthly_returns > 0).mean()*100:>6.1f}%")
+    print("\nMonthly Return Distribution:")
+    print(f"  Worst month:          {monthly_returns.min() * 100:>+7.1f}%")
+    print(f"  Best month:           {monthly_returns.max() * 100:>+7.1f}%")
+    print(f"  Median month:         {monthly_returns.median() * 100:>+7.1f}%")
+    print(f"  % of months positive: {(monthly_returns > 0).mean() * 100:>6.1f}%")
 
     # Total return
     total_return = (cumulative.iloc[-1] - 1) * 100
-    annualized_return = ((1 + total_return/100) ** (252/len(portfolio_returns)) - 1) * 100
+    annualized_return = (
+        (1 + total_return / 100) ** (252 / len(portfolio_returns)) - 1
+    ) * 100
 
-    print(f"\nTotal Performance:")
+    print("\nTotal Performance:")
     print(f"  3-Year total return:  {total_return:>+7.1f}%")
     print(f"  Annualized return:    {annualized_return:>+7.1f}%")
 
 
 def main():
-    print("="*60)
+    print("=" * 60)
     print("PORTFOLIO MONTE CARLO SIMULATION")
-    print("="*60)
+    print("=" * 60)
 
-    print(f"\nPortfolio Allocation (1% min, 12% max - 22 positions):")
+    print("\nPortfolio Allocation (1% min, 12% max - 22 positions):")
     for ticker, weight in sorted(PORTFOLIO.items(), key=lambda x: -x[1]):
         allocation = TOTAL_CAPITAL * weight
-        print(f"  {ticker:<6} {weight*100:>6.2f}%  ${allocation:>8,.0f}")
+        print(f"  {ticker:<6} {weight * 100:>6.2f}%  ${allocation:>8,.0f}")
 
-    print(f"\nFetching 3-year historical data...")
+    print("\nFetching 3-year historical data...")
     tickers = list(PORTFOLIO.keys())
     prices = fetch_total_return_index(tickers)
     returns = calculate_returns(prices)
@@ -290,7 +336,7 @@ def main():
     historical_values = TOTAL_CAPITAL * (1 + historical_3m)
     print_distribution_stats(
         historical_values,
-        "HISTORICAL 3-MONTH ROLLING RETURNS (What Actually Happened)"
+        "HISTORICAL 3-MONTH ROLLING RETURNS (What Actually Happened)",
     )
 
     # Bootstrap simulation
@@ -300,7 +346,7 @@ def main():
     )
     print_distribution_stats(
         bootstrap_values,
-        "BOOTSTRAP SIMULATION (Random Sampling of Daily Returns)"
+        "BOOTSTRAP SIMULATION (Random Sampling of Daily Returns)",
     )
 
     # Block bootstrap (more realistic)
@@ -310,18 +356,19 @@ def main():
     )
     print_distribution_stats(
         block_values,
-        "BLOCK BOOTSTRAP SIMULATION (Preserves Some Autocorrelation)"
+        "BLOCK BOOTSTRAP SIMULATION (Preserves Some Autocorrelation)",
     )
 
     # Summary comparison
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("SUMMARY: 3-MONTH OUTLOOK COMPARISON")
-    print("="*60)
+    print("=" * 60)
 
-    print(f"\n{'Metric':<30} {'Historical':>15} {'Bootstrap':>15} {'Block Boot':>15}")
-    print("-"*75)
+    header = f"{'Metric':<30} {'Historical':>15} {'Bootstrap':>15} {'Block Boot':>15}"
+    print(f"\n{header}")
+    print("-" * 75)
 
-    for method, values in [
+    for _method, values in [
         ("Historical", historical_values),
         ("Bootstrap", bootstrap_values),
         ("Block Bootstrap", block_values),
@@ -329,8 +376,11 @@ def main():
         returns_pct = (values / TOTAL_CAPITAL - 1) * 100
         print(f"  Median return:              {np.median(returns_pct):>+14.1f}%")
 
-    print(f"\n{'Percentile':<20} {'Historical':>15} {'Bootstrap':>15} {'Block Boot':>15}")
-    print("-"*65)
+    header = (
+        f"{'Percentile':<20} {'Historical':>15} {'Bootstrap':>15} {'Block Boot':>15}"
+    )
+    print(f"\n{header}")
+    print("-" * 65)
 
     for pct in [5, 25, 50, 75, 95]:
         h = (np.percentile(historical_values, pct) / TOTAL_CAPITAL - 1) * 100
@@ -338,40 +388,50 @@ def main():
         bb = (np.percentile(block_values, pct) / TOTAL_CAPITAL - 1) * 100
         print(f"  {pct}th percentile:        {h:>+14.1f}% {b:>+14.1f}% {bb:>+14.1f}%")
 
-    print(f"\n{'Risk Metric':<25} {'Historical':>15} {'Bootstrap':>15} {'Block Boot':>15}")
-    print("-"*70)
-
-    for label, values in [
-        ("Historical", historical_values),
-        ("Bootstrap", bootstrap_values),
-        ("Block Bootstrap", block_values),
-    ]:
-        ret = (values / TOTAL_CAPITAL - 1) * 100
-        prob_loss = (ret < 0).mean() * 100
-        prob_20_loss = (ret < -20).mean() * 100
-        var_95 = np.percentile(ret, 5)
+    header = (
+        f"{'Risk Metric':<25} {'Historical':>15} {'Bootstrap':>15} {'Block Boot':>15}"
+    )
+    print(f"\n{header}")
+    print("-" * 70)
 
     h_ret = (historical_values / TOTAL_CAPITAL - 1) * 100
     b_ret = (bootstrap_values / TOTAL_CAPITAL - 1) * 100
     bb_ret = (block_values / TOTAL_CAPITAL - 1) * 100
 
-    print(f"  Prob of loss:            {(h_ret < 0).mean()*100:>14.1f}% {(b_ret < 0).mean()*100:>14.1f}% {(bb_ret < 0).mean()*100:>14.1f}%")
-    print(f"  Prob of >20% loss:       {(h_ret < -20).mean()*100:>14.1f}% {(b_ret < -20).mean()*100:>14.1f}% {(bb_ret < -20).mean()*100:>14.1f}%")
-    print(f"  VaR 95%:                 {np.percentile(h_ret, 5):>+14.1f}% {np.percentile(b_ret, 5):>+14.1f}% {np.percentile(bb_ret, 5):>+14.1f}%")
+    print(
+        "  Prob of loss:            "
+        f"{(h_ret < 0).mean() * 100:>14.1f}% "
+        f"{(b_ret < 0).mean() * 100:>14.1f}% "
+        f"{(bb_ret < 0).mean() * 100:>14.1f}%"
+    )
+    print(
+        "  Prob of >20% loss:       "
+        f"{(h_ret < -20).mean() * 100:>14.1f}% "
+        f"{(b_ret < -20).mean() * 100:>14.1f}% "
+        f"{(bb_ret < -20).mean() * 100:>14.1f}%"
+    )
+    print(
+        "  VaR 95%:                 "
+        f"{np.percentile(h_ret, 5):>+14.1f}% "
+        f"{np.percentile(b_ret, 5):>+14.1f}% "
+        f"{np.percentile(bb_ret, 5):>+14.1f}%"
+    )
 
-    print(f"\n" + "-"*60)
+    print("\n" + "-" * 60)
     print("INTERPRETATION")
-    print("-"*60)
-    print("""
-Based on 3-year historical data and Monte Carlo simulation:
-
-- Historical: Shows actual rolling 3-month returns that occurred
-- Bootstrap: Randomly samples daily returns (may understate tail risk)
-- Block Bootstrap: Samples blocks of returns (more realistic volatility clustering)
-
-The distributions show what your $60,000 portfolio could look like after 3 months.
-Focus on the 5th percentile (VaR 95%) for worst-case planning.
-""")
+    print("-" * 60)
+    print("Based on 3-year historical data and Monte Carlo simulation:")
+    print("- Historical: Shows actual rolling 3-month returns that occurred")
+    print("- Bootstrap: Randomly samples daily returns (may understate tail risk)")
+    print(
+        "- Block Bootstrap: Samples blocks of returns "
+        "(more realistic volatility clustering)"
+    )
+    print(
+        "\nThe distributions show what your $60,000 portfolio could look "
+        "like after 3 months."
+    )
+    print("Focus on the 5th percentile (VaR 95%) for worst-case planning.")
 
 
 if __name__ == "__main__":
