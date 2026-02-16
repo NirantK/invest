@@ -4,6 +4,8 @@ US Portfolio Allocation using Sortino-weighted Momentum
 Rewritten to use polars + rich for clean, fast computation.
 """
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import click
 import numpy as np
 import polars as pl
@@ -135,22 +137,25 @@ def _build_total_return(close: np.ndarray, divs: np.ndarray) -> np.ndarray:
     return tri
 
 
+def _fetch_one(ticker: str, period: str) -> pl.DataFrame | None:
+    """Fetch total return index for one ticker. Returns None on failure."""
+    hist = yf.Ticker(ticker).history(period=period)
+    if hist.empty:
+        return None
+    tri = _build_total_return(hist["Close"].values, hist["Dividends"].values)
+    date_strs = [d.strftime("%Y-%m-%d") for d in hist.index.to_pydatetime()]
+    return pl.DataFrame({"date": date_strs, ticker: tri})
+
+
 def fetch_total_return_index(tickers: list[str], period: str = "3y") -> pl.DataFrame:
     """Fetch total return prices (includes reinvested dividends) as polars DataFrame."""
     frames = []
-    for ticker in tickers:
-        hist = yf.Ticker(ticker).history(period=period)
-        if hist.empty:
-            continue
-        close = hist["Close"].values
-        divs = hist["Dividends"].values
-        tri = _build_total_return(close, divs)
-
-        # Convert to string date for reliable joining
-        date_strs = [d.strftime("%Y-%m-%d") for d in hist.index.to_pydatetime()]
-        frames.append(
-            pl.DataFrame({"date": date_strs, ticker: tri})
-        )
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        futures = {pool.submit(_fetch_one, t, period): t for t in tickers}
+        for future in as_completed(futures):
+            result = future.result()
+            if result is not None:
+                frames.append(result)
 
     if not frames:
         return pl.DataFrame()
