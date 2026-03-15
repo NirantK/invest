@@ -838,29 +838,18 @@ _G_TICKERS: list[str] | None = None
 
 
 def _init_worker(
-    prices: np.ndarray, dates: np.ndarray, earn_mom: np.ndarray | None,
-    rebal_days: list[int], lookbacks: list[int], skips: list[int],
+    prices: np.ndarray, daily_rets: np.ndarray, dates: np.ndarray,
+    earn_mom: np.ndarray | None, cache: PrecomputedSignals,
     ticker_names: list[str],
-    needed_variants: set | None = None,
-    need_smoothness: bool = True,
-    need_consistency: bool = True,
-    need_crash: bool = True,
 ):
+    """Initialize worker with precomputed data from main process."""
     global _G_PRICES, _G_DAILY_RETS, _G_DATES, _G_EARN_MOM, _G_CACHE, _G_TICKERS
     _G_PRICES = prices
-    # Precompute daily returns once per worker (used by all combos)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        _G_DAILY_RETS = np.nan_to_num(prices[1:] / prices[:-1] - 1, nan=0.0)
+    _G_DAILY_RETS = daily_rets
     _G_DATES = dates
     _G_EARN_MOM = earn_mom
     _G_TICKERS = ticker_names
-    _G_CACHE = precompute_signals(
-        prices, rebal_days, lookbacks, skips,
-        needed_variants=needed_variants,
-        need_smoothness=need_smoothness,
-        need_consistency=need_consistency,
-        need_crash=need_crash,
-    )
+    _G_CACHE = cache
 
 
 def _worker_run(args: tuple) -> WalkForwardResult:
@@ -1616,7 +1605,7 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     all_lookbacks = sorted({p.lb_short for p in grid} | {p.lb_mid for p in grid} | {p.lb_long for p in grid} | {252})
     all_skips = sorted({p.skip for p in grid} | {0})
 
-    # Determine which signals the grid actually needs (skip unused = faster precompute)
+    # Determine which signals the grid actually needs
     needed_variants = {p.log_variant for p in grid}
     need_smoothness = any(p.use_smoothness for p in grid)
     need_consistency = any(p.use_consistency for p in grid)
@@ -1625,8 +1614,21 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     console.print(f"[dim]Precomputing signals at {len(all_rebal_days_sorted)} rebal dates "
                   f"({len(all_lookbacks)} lb × {len(all_skips)} sk × {len(needed_variants)} variants)...[/]")
 
-    # ── Group by score signature, batch position/rebal variants ────────
+    # Precompute ONCE in main process (avoids 11x redundant computation in workers)
     import time
+    t_pre = time.monotonic()
+    cache = precompute_signals(
+        prices, all_rebal_days_sorted, all_lookbacks, all_skips,
+        needed_variants=needed_variants,
+        need_smoothness=need_smoothness,
+        need_consistency=need_consistency,
+        need_crash=need_crash,
+    )
+    with np.errstate(divide="ignore", invalid="ignore"):
+        daily_rets = np.nan_to_num(prices[1:] / prices[:-1] - 1, nan=0.0)
+    console.print(f"[dim]Precompute done in {time.monotonic() - t_pre:.1f}s[/]")
+
+    # ── Group by score signature, batch position/rebal variants ────────
     from collections import defaultdict
 
     score_groups = defaultdict(list)
@@ -1637,15 +1639,13 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     console.print(f"[dim]{len(grid):,} combos → {n_groups:,} score groups "
                   f"(avg {len(grid)/n_groups:.0f} variants each)[/]")
 
-    # Build batch args: each batch is a group of params sharing same scores
     batch_args = [(params_list, folds) for params_list in score_groups.values()]
 
     results: list[WalkForwardResult] = []
 
     with ProcessPoolExecutor(
         max_workers=workers, initializer=_init_worker,
-        initargs=(prices, dates, earn_mom, all_rebal_days_sorted, all_lookbacks, all_skips, fetched,
-                  needed_variants, need_smoothness, need_consistency, need_crash),
+        initargs=(prices, daily_rets, dates, earn_mom, cache, fetched),
     ) as pool:
         futures = {pool.submit(_worker_run_batch, a): i for i, a in enumerate(batch_args)}
         done_groups = 0
