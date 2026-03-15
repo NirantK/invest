@@ -1202,49 +1202,11 @@ def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
 
         # Build WalkForwardResult for each (max_positions, rebal_freq) combo
         for n_pos in all_max_pos:
-            fold_returns = [fd[0] for fd in fold_data[n_pos]]
+            fold_rets = [fd[0] for fd in fold_data[n_pos]]
             all_daily = [fd[1] for fd in fold_data[n_pos]]
             avg_pos_list = [fd[2] for fd in fold_data[n_pos]]
-
-            oos_total = float(np.prod([1 + r for r in fold_returns]) - 1)
-            scaled_segments = []
-            cumulative = 1.0
-            for dv in all_daily:
-                scale = cumulative / dv[0] if dv[0] != 0 else cumulative
-                scaled_segments.append(dv * scale)
-                cumulative = scaled_segments[-1][-1]
-            scaled = np.concatenate(scaled_segments)
-
-            running_max = np.maximum.accumulate(scaled)
-            with np.errstate(divide="ignore", invalid="ignore"):
-                dd_series = (scaled - running_max) / running_max
-            overall_dd = np.nan_to_num(dd_series, nan=0.0).min()
-
-            total_oos_days = sum(e - s for s, e in folds)
-            n_years = total_oos_days / 252
-            if n_years > 0 and (1 + oos_total) > 0:
-                ann_return = (1 + oos_total) ** (1 / n_years) - 1
-            else:
-                ann_return = -1.0 if oos_total < 0 else 0.0
-
-            fold_arr = np.array(fold_returns)
-            consist = float(fold_arr.std())
-            win_rate = float(np.mean(fold_arr > 0))
-
-            dr = np.diff(scaled) / scaled[:-1]
-            dr = dr[np.isfinite(dr)]
-            neg = dr[dr < 0]
-            dn_vol = float(neg.std() * np.sqrt(252)) if len(neg) > 0 else 0.0001
-            sortino = ann_return / dn_vol if dn_vol > 0 else 0
-            calmar = ann_return / abs(overall_dd) if overall_dd != 0 else 0
-            romad = min(oos_total / abs(overall_dd), 1e6) if overall_dd != 0 else 0
-
-            results_dict[(n_pos, rf)] = WalkForwardResult(
-                oos_total_return=oos_total, oos_annualized=ann_return,
-                oos_max_dd=overall_dd, oos_sortino=sortino, oos_calmar=calmar,
-                oos_romad=romad, oos_win_rate=win_rate, n_folds=len(folds),
-                avg_positions=float(np.mean(avg_pos_list)), consistency=consist,
-                params=None, fold_returns=fold_returns,  # params set below
+            results_dict[(n_pos, rf)] = _aggregate_folds(
+                fold_rets, all_daily, folds, avg_pos_list, None,
             )
 
     # Map results back to original params
@@ -1382,8 +1344,23 @@ def _walk_forward_with_prescored(
         total_positions.append(np.mean(position_counts) if position_counts else 0)
         all_daily_values.append(portfolio_value)
 
-    # Aggregate folds
+    return _aggregate_folds(fold_returns, all_daily_values, folds, total_positions, params)
+
+
+def _aggregate_folds(
+    fold_returns: list[float],
+    all_daily_values: list[np.ndarray],
+    folds: list[tuple[int, int]],
+    total_positions: list[float],
+    params: ScoringParams | None,
+) -> WalkForwardResult:
+    """Aggregate per-fold results into a single WalkForwardResult.
+
+    Chains daily portfolio values, computes max drawdown, annualized return,
+    sortino, calmar, and romad.
+    """
     oos_total = float(np.prod([1 + r for r in fold_returns]) - 1)
+
     scaled_segments = []
     cumulative = 1.0
     for dv in all_daily_values:
@@ -1408,10 +1385,10 @@ def _walk_forward_with_prescored(
     consist = float(fold_arr.std())
     win_rate = float(np.mean(fold_arr > 0))
 
-    daily_rets = np.diff(scaled) / scaled[:-1]
-    daily_rets = daily_rets[np.isfinite(daily_rets)]
-    neg_rets = daily_rets[daily_rets < 0]
-    dn_vol = float(neg_rets.std() * np.sqrt(252)) if len(neg_rets) > 0 else 0.0001
+    dr = np.diff(scaled) / scaled[:-1]
+    dr = dr[np.isfinite(dr)]
+    neg = dr[dr < 0]
+    dn_vol = float(neg.std() * np.sqrt(252)) if len(neg) > 0 else 0.0001
     sortino = ann_return / dn_vol if dn_vol > 0 else 0
     calmar = ann_return / abs(overall_dd) if overall_dd != 0 else 0
     romad = min(oos_total / abs(overall_dd), 1e6) if overall_dd != 0 else 0
@@ -1476,48 +1453,7 @@ def walk_forward_backtest(
         total_positions.append(avg_pos)
         all_daily_values.append(daily_vals)
 
-    oos_total = float(np.prod([1 + r for r in fold_returns]) - 1)
-
-    # Chain daily values
-    scaled_segments = []
-    cumulative = 1.0
-    for dv in all_daily_values:
-        scale = cumulative / dv[0] if dv[0] != 0 else cumulative
-        scaled_segments.append(dv * scale)
-        cumulative = scaled_segments[-1][-1]
-    scaled = np.concatenate(scaled_segments)
-
-    running_max = np.maximum.accumulate(scaled)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        dd_series = (scaled - running_max) / running_max
-    overall_dd = np.nan_to_num(dd_series, nan=0.0).min()
-
-    total_oos_days = sum(e - s for s, e in folds)
-    n_years = total_oos_days / 252
-    if n_years > 0 and (1 + oos_total) > 0:
-        ann_return = (1 + oos_total) ** (1 / n_years) - 1
-    else:
-        ann_return = -1.0 if oos_total < 0 else 0.0
-
-    fold_arr = np.array(fold_returns)
-    consist = float(fold_arr.std())
-    win_rate = float(np.mean(fold_arr > 0))
-
-    daily_rets = np.diff(scaled) / scaled[:-1]
-    daily_rets = daily_rets[np.isfinite(daily_rets)]
-    neg_rets = daily_rets[daily_rets < 0]
-    dn_vol = float(neg_rets.std() * np.sqrt(252)) if len(neg_rets) > 0 else 0.0001
-    sortino = ann_return / dn_vol if dn_vol > 0 else 0
-    calmar = ann_return / abs(overall_dd) if overall_dd != 0 else 0
-    romad = min(oos_total / abs(overall_dd), 1e6) if overall_dd != 0 else 0
-
-    return WalkForwardResult(
-        oos_total_return=oos_total, oos_annualized=ann_return,
-        oos_max_dd=overall_dd, oos_sortino=sortino, oos_calmar=calmar,
-        oos_romad=romad, oos_win_rate=win_rate, n_folds=len(folds),
-        avg_positions=float(np.mean(total_positions)), consistency=consist,
-        params=params, fold_returns=fold_returns,
-    )
+    return _aggregate_folds(fold_returns, all_daily_values, folds, total_positions, params)
 
 
 # ── Parameter grid ───────────────────────────────────────────────────────────
@@ -1593,100 +1529,6 @@ def build_param_grid() -> list[ScoringParams]:
         ))
 
     return configs
-
-
-@numba.njit(cache=True)
-def _run_fold_numba(
-    daily_rets: np.ndarray,       # (n_days, n_tickers)
-    scores_at_offsets: np.ndarray, # (n_rebal, n_tickers) — scores at each rebal point
-    rebal_offsets: np.ndarray,     # (n_rebal,) — offset within fold
-    period_len: int,
-    all_max_pos: np.ndarray,       # (n_sizes,) e.g. [2, 3, 5, 8, 10, 15, 30]
-    oos_start: int,
-) -> np.ndarray:
-    """Numba-JIT inner loop: compute portfolio values for all position sizes.
-
-    Returns: (n_sizes, period_len+1) portfolio value arrays.
-    """
-    n_sizes = len(all_max_pos)
-    n_tickers = daily_rets.shape[1]
-    pv = np.ones((n_sizes, period_len + 1))
-
-    for idx_rb in range(len(rebal_offsets)):
-        rb_offset = rebal_offsets[idx_rb]
-        next_offset = rebal_offsets[idx_rb + 1] if idx_rb + 1 < len(rebal_offsets) else period_len
-
-        scores = scores_at_offsets[idx_rb]
-
-        # Count valid (score > 0) and get sorted indices
-        valid_count = 0
-        for k in range(n_tickers):
-            if scores[k] > 0:
-                valid_count += 1
-
-        if valid_count == 0:
-            for si in range(n_sizes):
-                for t in range(rb_offset + 1, min(next_offset + 1, period_len + 1)):
-                    pv[si, t] = pv[si, rb_offset]
-            continue
-
-        # Partial sort: get indices of top max(all_max_pos) scores
-        # Use simple selection for numba compatibility
-        max_n = int(all_max_pos[-1])  # largest position size
-        top_n = min(max_n, valid_count)
-
-        # Get indices of top_n scores
-        top_indices = np.empty(top_n, dtype=numba.int64)
-        used = np.zeros(n_tickers, dtype=numba.boolean)
-        for i in range(top_n):
-            best_idx = -1
-            best_score = -1e30
-            for k in range(n_tickers):
-                if not used[k] and scores[k] > best_score and scores[k] > 0:
-                    best_score = scores[k]
-                    best_idx = k
-                    break  # Not correct — need to find true max
-            # Actually find the max properly
-            best_idx = -1
-            best_score = -1e30
-            for k in range(n_tickers):
-                if not used[k] and scores[k] > best_score and scores[k] > 0:
-                    best_score = scores[k]
-                    best_idx = k
-            if best_idx >= 0:
-                top_indices[i] = best_idx
-                used[best_idx] = True
-            else:
-                top_indices[i] = 0
-
-        # Daily returns for hold period
-        day_start = oos_start + rb_offset
-        day_end = day_start + min(next_offset - rb_offset, daily_rets.shape[0] - day_start)
-        n_hold = day_end - day_start
-        if n_hold <= 0:
-            continue
-
-        # For each position size, compute equal-weight portfolio return
-        for si in range(n_sizes):
-            n_pos = int(all_max_pos[si])
-            actual_n = min(n_pos, top_n)
-            if actual_n == 0:
-                for t in range(rb_offset + 1, rb_offset + 1 + n_hold):
-                    if t <= period_len:
-                        pv[si, t] = pv[si, rb_offset]
-                continue
-
-            inv_n = 1.0 / actual_n
-            cumval = pv[si, rb_offset]
-            for d in range(n_hold):
-                port_ret = 0.0
-                for j in range(actual_n):
-                    port_ret += daily_rets[day_start + d, top_indices[j]] * inv_n
-                cumval *= (1.0 + port_ret)
-                if rb_offset + 1 + d <= period_len:
-                    pv[si, rb_offset + 1 + d] = cumval
-
-    return pv
 
 
 PRUNE_INTERVAL_SEC = 120  # prune every 2 minutes wall clock
@@ -1838,7 +1680,7 @@ def _discover_india_mf_schemes(max_per_query: int = 5, fetch_all: bool = False) 
 @click.option("--workers", default=11, help="Parallel workers.")
 @click.option("--min-train", default=252, help="Min training days.")
 @click.option("--oos-window", default=126, help="OOS test window days.")
-@click.option("--max-dd-cap", default=0.50, help="MaxDD cap for survivable scenario.")
+@click.option("--max-dd-cap", default=1.0, help="MaxDD cap for survivable scenario (1.0 = no cap).")
 @click.option("--market", default="us", type=click.Choice(["us", "india"]),
               help="Market: 'us' for US equities (yfinance), 'india' for MFs (mfapi.in).")
 @click.option("--mf-max-per-query", default=15, help="Max schemes per search query (India).")
@@ -2569,6 +2411,80 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
 
     _save_name_cache()
     console.print(f"[dim]Saved {len(mf_name_cache)} scheme names to {mf_names_file}[/]")
+
+
+    # ══════════════════════════════════════════════════════════════════════════
+    #  EFFICIENT FRONTIER PLOT
+    # ══════════════════════════════════════════════════════════════════════════
+    import pandas as pd
+    from plotnine import (
+        ggplot, aes, geom_point, geom_label, geom_line,
+        labs, scale_x_continuous, scale_y_continuous,
+        theme, element_rect, element_text, element_blank,
+    )
+
+    plot_df = pd.DataFrame({
+        "ann_return": [r.oos_annualized * 100 for r in results],
+        "max_dd": [abs(r.oos_max_dd) * 100 for r in results],
+        "log_variant": [r.params.log_variant.value for r in results],
+        "vol_scaling": ["vol-scaled" if r.params.use_vol_scaling else "equal-wt" for r in results],
+    })
+
+    plot_df["dd_bin"] = (plot_df["max_dd"] // 2) * 2
+    frontier = plot_df.groupby("dd_bin").agg(
+        best_return=("ann_return", "max"),
+        count=("ann_return", "count"),
+    ).reset_index()
+    frontier = frontier[frontier["count"] >= 3]
+
+    top_labels = []
+    for _, row in frontier.iterrows():
+        mask = (plot_df["max_dd"] >= row["dd_bin"]) & (plot_df["max_dd"] < row["dd_bin"] + 2)
+        candidates = plot_df[mask]
+        if len(candidates) == 0:
+            continue
+        best_idx = candidates["ann_return"].idxmax()
+        r = results[best_idx]
+        top_labels.append({
+            "dd": float(candidates.loc[best_idx, "max_dd"]),
+            "ret": float(candidates.loc[best_idx, "ann_return"]),
+            "label": r.params.label()[:25],
+        })
+    labels_df = pd.DataFrame(top_labels).drop_duplicates(subset="label").head(6)
+
+    sample_df = plot_df.sample(min(4000, len(plot_df)), random_state=42)
+
+    p = (
+        ggplot(sample_df, aes("max_dd", "ann_return"))
+        + geom_point(aes(color="log_variant"), alpha=0.25, size=0.8)
+        + geom_line(aes("dd_bin", "best_return"), frontier, color="#F40D0D", size=1.3)
+        + geom_label(aes("dd", "ret", label="label"), labels_df, color="#DEE2E6", fill="black", size=7)
+        + labs(
+            x="Max Drawdown (%)",
+            y="Annualized Return (%)",
+            title="Efficient Frontier: Return vs Drawdown",
+            subtitle=f"{len(results):,} combos | {len(folds)} folds | {len(fetched)} instruments | after costs",
+            color="Momentum",
+        )
+        + scale_x_continuous(expand=(0.02, 0))
+        + scale_y_continuous(expand=(0.02, 0))
+        + theme(
+            figure_size=(12, 7),
+            plot_margin=0.02,
+            panel_background=element_rect(fill="#1a1a2e"),
+            plot_background=element_rect(fill="#0f0f1a"),
+            plot_title=element_text(size=16, color="#E0E0E0"),
+            plot_subtitle=element_text(size=10, color="#888888"),
+            text=element_text(color="#D7DADD"),
+            panel_grid=element_blank(),
+            axis_ticks=element_blank(),
+            legend_background=element_rect(fill="#1a1a2e"),
+        )
+    )
+
+    plot_path = Path(__file__).parent.parent / "data" / "efficient_frontier.png"
+    p.save(plot_path, dpi=150, verbose=False)
+    console.print(f"\n[bold green]Efficient frontier saved: {plot_path}[/]")
 
 
 if __name__ == "__main__":

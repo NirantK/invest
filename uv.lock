@@ -628,7 +628,7 @@ requires-dist = [
     { name = "jupyter" },
     { name = "loguru" },
     { name = "matplotlib", specifier = ">=3.10.0" },
-    { name = "numba", specifier = ">=0.64.0" },
+    { name = "numba", specifier = ">=0.61.0" },
     { name = "numpy", specifier = ">=2.0.0" },
     { name = "pandas", specifier = ">=2.2.0" },
     { name = "plotnine", specifier = ">=0.15.3" },
