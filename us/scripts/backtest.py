@@ -232,6 +232,12 @@ INDIA_ETF_TICKERS = [
     "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS",
     "BHARTIARTL.NS", "LT.NS", "SBIN.NS", "ITC.NS", "TATAMOTORS.NS",
     "ADANIENT.NS", "ADANIPORTS.NS", "BAJFINANCE.NS", "WIPRO.NS", "HCLTECH.NS",
+    # Metals / Mining / Commodities
+    "HINDZINC.NS", "HINDCOPPER.NS", "NATIONALUM.NS", "NMDC.NS", "VEDL.NS",
+    "COALINDIA.NS", "TATASTEEL.NS", "JSWSTEEL.NS", "HINDALCO.NS",
+    # Other high-momentum candidates
+    "ZOMATO.NS", "JIOFIN.NS", "TRENT.NS", "HAL.NS", "BEL.NS",
+    "DIXON.NS", "POLYCAB.NS", "PERSISTENT.NS", "COFORGE.NS",
 ]
 
 MIN_TICKERS_PER_FOLD = 15
@@ -2444,6 +2450,102 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
                 )
 
         console.print(holdings_table)
+
+    # ── Holding period analysis for top config ─────────────────────────────
+    console.print(f"\n[bold]HOLDING PERIOD ANALYSIS (Config #1):[/]")
+    best_p = survivable[0].params
+    em_trace = earn_mom if best_p.use_earnings else None
+    safe_idx_trace = []
+    if fetched and best_p.use_abs_momentum:
+        safe_idx_trace = [i for i, t in enumerate(fetched) if t in SAFE_HAVENS]
+
+    # Track all holdings across all folds
+    all_holdings = []  # list of (date_str, [ticker_names])
+    for oos_start, oos_end in folds:
+        period_len = oos_end - oos_start
+        rebal_offsets = list(range(0, period_len, best_p.rebal_freq))
+        for rb_offset in rebal_offsets:
+            rb_abs = oos_start + rb_offset
+            earn_row = em_trace[rb_abs] if em_trace is not None else None
+            scores = score_from_cache(rb_abs, best_p, trace_cache, earn_row)
+            valid = np.where(scores > 0)[0]
+            if safe_idx_trace:
+                valid = np.array([v for v in valid if v not in safe_idx_trace])
+            if len(valid) == 0:
+                all_holdings.append((dates[rb_abs], ["CASH"]))
+                continue
+            sorted_valid = valid[np.argsort(scores[valid])]
+            top_n = min(best_p.max_positions, len(sorted_valid))
+            top_idx = sorted_valid[-top_n:][::-1]
+            names = [_resolve_name(fetched[i]) for i in top_idx]
+            all_holdings.append((dates[rb_abs], names))
+
+    # Compute holding streaks per ticker
+    from collections import defaultdict
+    streak_counts = defaultdict(list)  # ticker → list of consecutive-hold counts
+    prev_set = set()
+    current_streaks = defaultdict(int)
+    for date_str, names in all_holdings:
+        current_set = set(names)
+        # End streaks for tickers no longer held
+        for t in prev_set - current_set:
+            if current_streaks[t] > 0:
+                streak_counts[t].append(current_streaks[t])
+                current_streaks[t] = 0
+        # Continue or start streaks
+        for t in current_set:
+            current_streaks[t] += 1
+        prev_set = current_set
+    # Flush remaining
+    for t, c in current_streaks.items():
+        if c > 0:
+            streak_counts[t].append(c)
+
+    # Report: holding period stats
+    rebal_days_per_hold = best_p.rebal_freq
+    hold_table = Table(title=f"Holding Periods (rebal every {rebal_days_per_hold}d ≈ {rebal_days_per_hold/21:.0f} months)")
+    hold_table.add_column("Ticker", style="bold")
+    hold_table.add_column("Times Held", justify="right")
+    hold_table.add_column("Avg Hold", justify="right")
+    hold_table.add_column("Max Hold", justify="right", style="green")
+    hold_table.add_column("Total Days Held", justify="right")
+
+    # Sort by total days held
+    ticker_stats = []
+    for t, streaks in streak_counts.items():
+        if t == "CASH":
+            continue
+        total_periods = sum(streaks)
+        ticker_stats.append((t, len(streaks), np.mean(streaks), max(streaks), total_periods))
+    ticker_stats.sort(key=lambda x: x[4], reverse=True)
+
+    for t, n_times, avg_hold, max_hold, total in ticker_stats[:25]:
+        hold_table.add_row(
+            t[:35],
+            str(n_times),
+            f"{avg_hold * rebal_days_per_hold / 21:.1f} mo",
+            f"{max_hold * rebal_days_per_hold / 21:.1f} mo",
+            f"{total * rebal_days_per_hold}d",
+        )
+
+    # Cash stats
+    if "CASH" in streak_counts:
+        cash_streaks = streak_counts["CASH"]
+        console.print(f"  Cash periods: {len(cash_streaks)}×, "
+                      f"avg {np.mean(cash_streaks)*rebal_days_per_hold/21:.1f} mo, "
+                      f"max {max(cash_streaks)*rebal_days_per_hold/21:.1f} mo")
+
+    console.print(hold_table)
+
+    # Overall holding period distribution
+    all_streaks = [s * rebal_days_per_hold / 21 for streaks in streak_counts.values()
+                   for s in streaks if streaks]
+    if all_streaks:
+        arr = np.array(all_streaks)
+        console.print(f"  Overall: median hold = {np.median(arr):.1f} mo, "
+                      f"mean = {np.mean(arr):.1f} mo, "
+                      f"P25 = {np.percentile(arr, 25):.1f} mo, "
+                      f"P75 = {np.percentile(arr, 75):.1f} mo")
 
     _save_name_cache()
     console.print(f"[dim]Saved {len(mf_name_cache)} scheme names to {mf_names_file}[/]")
