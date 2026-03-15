@@ -1104,7 +1104,6 @@ def _discover_india_mf_schemes(max_per_query: int = 5, fetch_all: bool = False) 
     """
     if fetch_all:
         all_schemes = get_all_mf_schemes()
-        # Filter to direct+growth plans only (skip regular/dividend/IDCW)
         codes = []
         for s in all_schemes:
             name = s.get("schemeName", "").lower()
@@ -1121,6 +1120,8 @@ def _discover_india_mf_schemes(max_per_query: int = 5, fetch_all: bool = False) 
             if sc not in seen:
                 seen.add(sc)
                 codes.append(sc)
+            if len(codes) >= 1000:
+                return codes
     return codes
 
 
@@ -1133,7 +1134,7 @@ def _discover_india_mf_schemes(max_per_query: int = 5, fetch_all: bool = False) 
 @click.option("--max-dd-cap", default=0.50, help="MaxDD cap for survivable scenario.")
 @click.option("--market", default="us", type=click.Choice(["us", "india"]),
               help="Market: 'us' for US equities (yfinance), 'india' for MFs (mfapi.in).")
-@click.option("--mf-max-per-query", default=5, help="Max schemes per search query (India).")
+@click.option("--mf-max-per-query", default=15, help="Max schemes per search query (India).")
 @click.option("--mf-all", is_flag=True, help="Fetch ALL mfapi.in schemes (India only).")
 def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
          max_dd_cap: float, market: str, mf_max_per_query: int, mf_all: bool):
