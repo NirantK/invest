@@ -15,9 +15,63 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 DATA_DIR = Path(__file__).parent.parent / "data"
 CACHE_DIR = DATA_DIR / "us" / "price_cache"
 
+# Parquet caches (committed to git, read-only fallback)
+_US_PRICES_PQ = DATA_DIR / "us" / "prices.parquet"
+_US_EARNINGS_JSON = DATA_DIR / "us" / "earnings_cache.json"
+_INDIA_MF_PQ = DATA_DIR / "india" / "mf_navs.parquet"
+
+# Lazy-loaded parquet DataFrames
+_us_prices_df = None
+_earn_cache = None
+
+
+def _get_us_prices_df():
+    """Lazy-load US prices parquet as {ticker: {dates, tri}} lookup."""
+    global _us_prices_df
+    if _us_prices_df is None and _US_PRICES_PQ.exists():
+        import pyarrow.parquet as pq
+        table = pq.read_table(_US_PRICES_PQ)
+        dates = table.column("date").to_pylist()
+        _us_prices_df = {}
+        for col_name in table.column_names:
+            if col_name == "date":
+                continue
+            vals = table.column(col_name).to_pylist()
+            # Filter out nulls to get only valid dates/prices
+            valid = [(d, v) for d, v in zip(dates, vals) if v is not None]
+            if valid:
+                d_arr, v_arr = zip(*valid)
+                _us_prices_df[col_name] = {
+                    "dates": np.array(d_arr),
+                    "tri": np.array(v_arr, dtype=np.float64),
+                }
+    return _us_prices_df
+
+
+def _get_earn_cache():
+    """Lazy-load earnings JSON."""
+    global _earn_cache
+    if _earn_cache is None and _US_EARNINGS_JSON.exists():
+        import json
+        _earn_cache = json.loads(_US_EARNINGS_JSON.read_text())
+    return _earn_cache
+
+
+def _parquet_lookup(func_name: str, key: str) -> dict | None:
+    """Try loading from parquet. Returns {dates, tri} dict or earnings dict or None."""
+    if func_name == "fetch_one_dict":
+        df = _get_us_prices_df()
+        if df and key in df:
+            return df[key]
+    elif func_name == "fetch_earnings":
+        cache = _get_earn_cache()
+        if cache:
+            return cache.get(key)
+    return None
+
 
 def daily_disk_cache(func):
-    """Cache results to disk keyed by (args, today). Auto-stale after midnight."""
+    """Cache to disk keyed by (args, today). Falls back to parquet if no pkl."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -26,6 +80,10 @@ def daily_disk_cache(func):
         cache_file = CACHE_DIR / f"{func.__name__}__{key}__{today}.pkl"
         if cache_file.exists():
             return pickle.loads(cache_file.read_bytes())
+        # Fallback: parquet (first arg is ticker)
+        pq_result = _parquet_lookup(func.__name__, str(args[0]))
+        if pq_result is not None:
+            return pq_result
         result = func(*args, **kwargs)
         if result is not None:
             cache_file.write_bytes(pickle.dumps(result))
@@ -215,11 +273,42 @@ def get_all_mf_schemes() -> list[dict]:
 MF_CACHE_DIR = DATA_DIR / "india" / "mf_nav_cache"
 
 
+_india_mf_df = None
+
+
+def _get_india_mf_df() -> dict | None:
+    """Lazy-load India MF parquet as {scheme_code: {dates, tri}} lookup."""
+    global _india_mf_df
+    if _india_mf_df is None and _INDIA_MF_PQ.exists():
+        import pyarrow.parquet as pq
+        table = pq.read_table(_INDIA_MF_PQ)
+        dates = table.column("date").to_pylist()
+        _india_mf_df = {}
+        for col_name in table.column_names:
+            if col_name == "date":
+                continue
+            vals = table.column(col_name).to_pylist()
+            valid = [(d, v) for d, v in zip(dates, vals) if v is not None]
+            if valid:
+                d_arr, v_arr = zip(*valid)
+                _india_mf_df[col_name] = {
+                    "dates": np.array(d_arr),
+                    "tri": np.array(v_arr, dtype=np.float64),
+                }
+    return _india_mf_df
+
+
 def _load_mf_cache(scheme_code: int) -> dict | None:
-    """Load cached MF NAV data. Returns {"dates": np.array, "tri": np.array} or None."""
+    """Load cached MF NAV data. Returns {"dates": np.array, "tri": np.array} or None.
+
+    Checks pkl first, then falls back to parquet.
+    """
     cache_file = MF_CACHE_DIR / f"{scheme_code}.pkl"
     if cache_file.exists():
         return pickle.loads(cache_file.read_bytes())
+    df = _get_india_mf_df()
+    if df and str(scheme_code) in df:
+        return df[str(scheme_code)]
     return None
 
 
