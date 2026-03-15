@@ -343,4 +343,39 @@ def fetch_all_mf_numpy(
         prices[indices, j] = raw[sc]["tri"]
 
     _forward_fill_columns(prices)
+
+    # ── Data quality filters for MFs ─────────────────────────────────────
+    # 1. Remove schemes with <252 trading days (NFO artifacts)
+    # 2. Remove schemes with single-day return >20% (NAV recalculation spikes)
+    # 3. Remove schemes with no data in last 90 days (dead/merged funds)
+    keep = []
+    for j in range(prices.shape[1]):
+        col = prices[:, j]
+        valid = ~np.isnan(col)
+        n_valid = int(valid.sum())
+        if n_valid < 252:
+            continue
+
+        valid_prices = col[valid]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            daily_rets = np.abs(np.diff(valid_prices) / valid_prices[:-1])
+        daily_rets = np.nan_to_num(daily_rets, nan=0.0)
+        if daily_rets.max() > 0.20:
+            continue  # NAV restatement spike
+
+        last_valid_idx = int(np.max(np.where(valid)[0]))
+        if prices.shape[0] - last_valid_idx > 90:
+            continue  # dead/merged fund
+
+        keep.append(j)
+
+    n_dropped = len(fetched) - len(keep)
+    if n_dropped > 0:
+        print(f"  [filter] Dropped {n_dropped} schemes (spikes/thin/dead), keeping {len(keep)}")
+
+    if not keep:
+        return np.array([]), np.array([]), []
+
+    prices = prices[:, keep]
+    fetched = [fetched[j] for j in keep]
     return prices, np.array(all_dates), fetched
