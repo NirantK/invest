@@ -434,19 +434,26 @@ def precompute_signals(
     rebal_days: list[int],
     lookbacks: list[int],
     skips: list[int],
+    needed_variants: set[LogVariant] | None = None,
+    need_smoothness: bool = True,
+    need_consistency: bool = True,
+    need_crash: bool = True,
 ) -> PrecomputedSignals:
-    """Precompute all signals at each rebalance date. Called once per worker."""
+    """Precompute all signals at each rebalance date. Called once per worker.
+
+    Pass needed_variants to skip unused log variants (major speedup).
+    """
     n_tickers = prices.shape[1]
 
     # Market proxy for crash protection (precompute once)
     with np.errstate(divide="ignore", invalid="ignore"):
         mkt = np.nanmean(prices, axis=1)
 
-    # Unique (lookback, skip, LogVariant) combos
+    variants = needed_variants if needed_variants else set(LogVariant)
     mom_keys = set()
     for lb in lookbacks:
         for skip in skips:
-            for lv in LogVariant:
+            for lv in variants:
                 mom_keys.add((lb, skip, lv))
 
     momentum_cache = {k: {} for k in mom_keys}
@@ -458,58 +465,80 @@ def precompute_signals(
     crash_cache = {}
 
     momentum_fn_by_variant = {
-        LogVariant.NONE: momentum_arithmetic,
-        LogVariant.BASIC: momentum_log,
         LogVariant.EWMA: momentum_log_ewma,
         LogVariant.VOLNORM: momentum_log_volnorm,
         LogVariant.ACCEL: momentum_log_accel,
         LogVariant.TRIMMED: momentum_log_trimmed,
     }
 
-    # Precompute all momentum using direct indexing (no slice copies)
-    # For simple momentum variants (NONE, BASIC), compute via price ratios directly
-    for day in rebal_days:
-        n = day + 1  # effective length
+    # ── Batch simple momentum (NONE, BASIC) across all days at once ──────
+    # These only need prices[end-1] and prices[start], fully vectorizable
+    rebal_arr = np.array(rebal_days)
+    for lb, skip in {(lb, sk) for lb, sk, _ in mom_keys}:
+        ends = rebal_arr + 1 - skip   # effective end index
+        starts = ends - lb             # effective start index
+        valid = (starts >= 0) & (ends > 0) & (ends <= prices.shape[0])
 
-        # Fast momentum: index directly into prices array, no slicing
-        for lb, skip, variant in mom_keys:
+        if LogVariant.NONE in variants:
+            result = np.zeros((len(rebal_days), n_tickers))
+            v_idx = np.where(valid)[0]
+            if len(v_idx) > 0:
+                end_prices = prices[ends[v_idx] - 1]
+                start_prices = prices[starts[v_idx]]
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    result[v_idx] = np.nan_to_num(end_prices / start_prices - 1, nan=0.0)
+            for i, day in enumerate(rebal_days):
+                momentum_cache[(lb, skip, LogVariant.NONE)][day] = result[i]
+
+        if LogVariant.BASIC in variants:
+            result = np.zeros((len(rebal_days), n_tickers))
+            v_idx = np.where(valid)[0]
+            if len(v_idx) > 0:
+                end_prices = prices[ends[v_idx] - 1]
+                start_prices = prices[starts[v_idx]]
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    result[v_idx] = np.nan_to_num(np.log(end_prices / start_prices), nan=0.0)
+            for i, day in enumerate(rebal_days):
+                momentum_cache[(lb, skip, LogVariant.BASIC)][day] = result[i]
+
+    # ── Complex variants: per-day (need price windows) ───────────────────
+    complex_keys = [(lb, skip, lv) for lb, skip, lv in mom_keys
+                    if lv not in (LogVariant.NONE, LogVariant.BASIC)]
+
+    for day in rebal_days:
+        n = day + 1
+
+        for lb, skip, variant in complex_keys:
             if n < lb + skip + 1:
                 momentum_cache[(lb, skip, variant)][day] = np.zeros(n_tickers)
-            elif variant == LogVariant.NONE:
-                # Arithmetic: prices[end-1] / prices[start] - 1
-                end = n - skip
-                start = end - lb
-                with np.errstate(divide="ignore", invalid="ignore"):
-                    mom = prices[end - 1] / prices[start] - 1
-                momentum_cache[(lb, skip, variant)][day] = np.nan_to_num(mom, nan=0.0)
-            elif variant == LogVariant.BASIC:
-                end = n - skip
-                start = end - lb
-                with np.errstate(divide="ignore", invalid="ignore"):
-                    mom = np.log(prices[end - 1] / prices[start])
-                momentum_cache[(lb, skip, variant)][day] = np.nan_to_num(mom, nan=0.0)
             else:
-                # Complex variants need price window — use view (not copy)
-                pw = prices[:n]
-                momentum_cache[(lb, skip, variant)][day] = momentum_fn_by_variant[variant](pw, lb, skip)
+                momentum_cache[(lb, skip, variant)][day] = momentum_fn_by_variant[variant](prices[:n], lb, skip)
 
-        # Quality signals — use views instead of copies
         pw = prices[:n]
-        qual = trend_quality(pw, min(252, n))
-        fip = fip_score(pw, min(252, n - 1))
-        smoothness[day] = np.sqrt(qual * fip)
+
+        if need_smoothness:
+            qual = trend_quality(pw, min(252, n))
+            fip = fip_score(pw, min(252, n - 1))
+            smoothness[day] = np.sqrt(qual * fip)
+        else:
+            smoothness[day] = np.ones(n_tickers)
 
         dn_vol_cache[day] = downside_vol(pw, min(252, n))
         tv_cache[day] = total_vol(pw, min(126, n))
-        consistency_cache[day] = consistency_filter(pw, 21)
 
-        # Absolute 12m momentum (for dual momentum)
+        if need_consistency:
+            consistency_cache[day] = consistency_filter(pw, 21)
+        else:
+            consistency_cache[day] = np.ones(n_tickers)
+
         lb12 = min(252, n)
         with np.errstate(divide="ignore", invalid="ignore"):
             abs_mom_cache[day] = np.nan_to_num(prices[day] / prices[max(0, day - lb12)] - 1, nan=0.0)
 
-        # Crash protection
-        crash_cache[day] = crash_protection_signal_at(mkt, day)
+        if need_crash:
+            crash_cache[day] = crash_protection_signal_at(mkt, day)
+        else:
+            crash_cache[day] = 1.0
 
     return PrecomputedSignals(
         momentum_cache=momentum_cache,
@@ -811,13 +840,23 @@ def _init_worker(
     prices: np.ndarray, dates: np.ndarray, earn_mom: np.ndarray | None,
     rebal_days: list[int], lookbacks: list[int], skips: list[int],
     ticker_names: list[str],
+    needed_variants: set | None = None,
+    need_smoothness: bool = True,
+    need_consistency: bool = True,
+    need_crash: bool = True,
 ):
     global _G_PRICES, _G_DATES, _G_EARN_MOM, _G_CACHE, _G_TICKERS
     _G_PRICES = prices
     _G_DATES = dates
     _G_EARN_MOM = earn_mom
     _G_TICKERS = ticker_names
-    _G_CACHE = precompute_signals(prices, rebal_days, lookbacks, skips)
+    _G_CACHE = precompute_signals(
+        prices, rebal_days, lookbacks, skips,
+        needed_variants=needed_variants,
+        need_smoothness=need_smoothness,
+        need_consistency=need_consistency,
+        need_crash=need_crash,
+    )
 
 
 def _worker_run(args: tuple) -> WalkForwardResult:
@@ -1219,8 +1258,14 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     all_lookbacks = sorted({p.lb_short for p in grid} | {p.lb_mid for p in grid} | {p.lb_long for p in grid} | {252})
     all_skips = sorted({p.skip for p in grid} | {0})
 
+    # Determine which signals the grid actually needs (skip unused = faster precompute)
+    needed_variants = {p.log_variant for p in grid}
+    need_smoothness = any(p.use_smoothness for p in grid)
+    need_consistency = any(p.use_consistency for p in grid)
+    need_crash = any(p.use_crash_prot for p in grid)
+
     console.print(f"[dim]Precomputing signals at {len(all_rebal_days_sorted)} rebal dates "
-                  f"({len(all_lookbacks)} lookbacks × {len(all_skips)} skips)...[/]")
+                  f"({len(all_lookbacks)} lb × {len(all_skips)} sk × {len(needed_variants)} variants)...[/]")
 
     # ── Sweep with runtime pruning every 2 min ──────────────────────────
     import time
@@ -1231,7 +1276,8 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
 
     with ProcessPoolExecutor(
         max_workers=workers, initializer=_init_worker,
-        initargs=(prices, dates, earn_mom, all_rebal_days_sorted, all_lookbacks, all_skips, fetched),
+        initargs=(prices, dates, earn_mom, all_rebal_days_sorted, all_lookbacks, all_skips, fetched,
+                  needed_variants, need_smoothness, need_consistency, need_crash),
     ) as pool:
         # Submit initial batch (all alive)
         futures = {}
