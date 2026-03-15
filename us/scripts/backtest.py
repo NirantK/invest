@@ -1946,10 +1946,18 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
 
     results: list[WalkForwardResult] = []
 
-    with ProcessPoolExecutor(
-        max_workers=workers, initializer=_init_worker,
-        initargs=(prices, daily_rets, dates, earn_mom, cache, fetched),
-    ) as pool:
+    # Set globals directly — workers inherit via fork (no pickling 630MB cache)
+    import multiprocessing as mp
+    global _G_PRICES, _G_DAILY_RETS, _G_DATES, _G_EARN_MOM, _G_CACHE, _G_TICKERS
+    _G_PRICES = prices
+    _G_DAILY_RETS = daily_rets
+    _G_DATES = dates
+    _G_EARN_MOM = earn_mom
+    _G_CACHE = cache
+    _G_TICKERS = fetched
+
+    ctx = mp.get_context("fork")
+    with ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as pool:
         futures = {pool.submit(_worker_run_batch, a): i for i, a in enumerate(batch_args)}
         done_groups = 0
 
