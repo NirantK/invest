@@ -94,32 +94,74 @@ TICKERS = [
 # Populated at runtime via --market india --mf-query "flexi cap,large cap,..."
 # or fetched from mfapi.in search endpoint
 INDIA_MF_QUERIES = [
+    # ── Core equity categories ──
     "flexi cap growth direct",
     "large cap growth direct",
     "mid cap growth direct",
     "small cap growth direct",
+    "large and mid cap growth direct",
+    "multi cap growth direct",
+    "focused fund direct growth",
+    # ── Factor / smart-beta ──
+    "alpha fund direct growth",
+    "low volatility direct growth",
+    "momentum index direct growth",
+    "nifty alpha low volatility direct growth",
+    "quality direct growth",
+    "value fund direct growth",
+    "dividend yield fund direct growth",
+    "equal weight direct growth",
+    "quant fund direct growth",
+    # ── Index funds ──
     "nifty 50 index direct growth",
     "nifty next 50 index direct growth",
-    "gold fund direct growth",
-    "silver etf",
-    "liquid fund direct growth",
-    "gilt fund direct growth",
-    "nasdaq 100 fund of fund direct growth",
-    "s&p 500 index fund direct growth",
-    "value fund direct growth",
-    "momentum index direct growth",
+    "nifty midcap 150 index direct growth",
+    "nifty smallcap 250 index direct growth",
+    "sensex index direct growth",
+    "nifty 500 index direct growth",
+    # ── Sector / thematic ──
     "banking fund direct growth",
+    "financial services fund direct growth",
     "pharma fund direct growth",
+    "healthcare fund direct growth",
     "technology fund direct growth",
+    "it fund direct growth",
     "infrastructure fund direct growth",
     "consumption fund direct growth",
-    "dividend yield fund direct growth",
-    "focused fund direct growth",
-    "elss tax saver direct growth",
+    "manufacturing fund direct growth",
+    "energy fund direct growth",
+    "psu equity fund direct growth",
+    "mnc fund direct growth",
+    "auto fund direct growth",
+    "realty fund direct growth",
+    "defence fund direct growth",
+    "innovation fund direct growth",
+    "digital india fund direct growth",
+    "business cycle fund direct growth",
+    "transportation fund direct growth",
+    # ── International ──
+    "nasdaq 100 fund of fund direct growth",
+    "s&p 500 index fund direct growth",
+    "international fund direct growth",
+    "us equity fund direct growth",
+    "global fund direct growth",
+    "china fund direct growth",
+    "emerging market fund direct growth",
+    # ── Commodities / precious metals ──
+    "gold fund direct growth",
+    "silver etf",
+    "commodities fund direct growth",
+    # ── Hybrid / multi-asset (safe havens for dual momentum) ──
+    "liquid fund direct growth",
+    "gilt fund direct growth",
+    "overnight fund direct growth",
+    "money market fund direct growth",
     "balanced advantage direct growth",
     "aggressive hybrid direct growth",
     "multi asset direct growth",
-    "commodities fund direct growth",
+    "equity savings fund direct growth",
+    # ── Tax saver ──
+    "elss tax saver direct growth",
 ]
 
 MIN_TICKERS_PER_FOLD = 15
@@ -884,7 +926,7 @@ def build_param_grid() -> list[ScoringParams]:
         (0.33, 0.34, 0.33), # Equal
     ]
     skips = [0, 21]
-    positions = [8, 10, 15]
+    positions = [2, 3, 5, 8, 10, 15, 30]
     rebal_freqs = [5, 10, 21, 42, 63]
 
     # Signal profiles: predefined combos to avoid full cartesian explosion
