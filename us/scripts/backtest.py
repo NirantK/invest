@@ -176,6 +176,10 @@ REBAL_FREQS = {
     "1m": 21,
     "2m": 42,
     "1q": 63,
+    "1y": 252,
+    "18m": 378,
+    "2y": 504,
+    "3y": 756,
 }
 
 # ── Transaction cost model (IBKR C-Corp, $50K account) ──────────────────────
@@ -920,6 +924,8 @@ def build_param_grid() -> list[ScoringParams]:
         (42, 126, 252),   # 2M/6M/12M
         (63, 126, 252),   # 3M/6M/12M
         (21, 42, 63),     # All short: 1M/2M/3M — pure recent momentum
+        (126, 252, 504),  # 6M/12M/24M — long-term trend
+        (252, 504, 756),  # 12M/24M/36M — ultra long-term
     ]
     weight_schemes = [
         (0.4, 0.4, 0.2),   # Recency bias (top performer)
@@ -930,7 +936,7 @@ def build_param_grid() -> list[ScoringParams]:
     ]
     skips = [0, 21]
     positions = [2, 3, 5, 8, 10, 15, 30]
-    rebal_freqs = [5, 10, 21, 42, 63]
+    rebal_freqs = [5, 10, 21, 42, 63, 252, 378, 504, 756]  # +1yr, 18mo, 2yr, 3yr
 
     # Signal profiles: predefined combos to avoid full cartesian explosion
     # Each: (sortino, smooth, earnings, LogVariant, consistency, abs_mom, vol_scl, crash)
@@ -1098,9 +1104,14 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
         IBKR_COMMISSION_PER_SHARE = 0.0     # MF switches are free
         IBKR_MIN_COMMISSION = 0.0           # No per-order min
         AVG_SHARE_PRICE = 100.0             # Avg NAV
-        HALF_SPREAD_BPS = 0.0               # MFs trade at NAV (no spread)
+        # Exit load: 1% if redeemed < 1yr, modeled as half-spread on sells
+        # For rebal < 252 days, assume we pay exit load; for >= 252, no load
+        # Average across rebal freqs: ~50bps effective
+        HALF_SPREAD_BPS = 50.0 if any(rf < 252 for rf in [5,10,21,42,63]) else 0.0
         CCORP_TAX_RATE = 0.20               # 20% STCG (conservative for frequent rebal)
         SEC_FINRA_FEE_PER_SHARE = 0.0       # No regulatory fees
+        # Note: MF NAVs already include expense ratios (deducted daily from NAV)
+        # So no separate expense ratio deduction needed
 
         console.print(f"[bold]Discovering India MF schemes...[/]")
         scheme_codes = _discover_india_mf_schemes(mf_max_per_query, fetch_all=mf_all)
