@@ -911,77 +911,55 @@ def walk_forward_backtest(
 
 
 def build_param_grid() -> list[ScoringParams]:
-    """Build grid with all 10 AQR/AA signals + 5 rebal frequencies.
-
-    Uses smart grouping to keep grid manageable (~10K combos).
-    """
+    """Build full parameter grid. Runtime pruning handles the rest."""
+    LV = LogVariant
     configs = []
 
-    # Base: 5 lookbacks × 5 weight schemes × 2 skips = 50 base combos
     lookbacks = [
-        (10, 42, 126),    # 2W/2M/6M — aggressive short-term
+        (10, 42, 126),    # 2W/2M/6M
         (21, 63, 252),    # 1M/3M/12M
         (42, 126, 252),   # 2M/6M/12M
         (63, 126, 252),   # 3M/6M/12M
-        (21, 42, 63),     # All short: 1M/2M/3M — pure recent momentum
-        (126, 252, 504),  # 6M/12M/24M — long-term trend
-        (252, 504, 756),  # 12M/24M/36M — ultra long-term
+        (21, 42, 63),     # 1M/2M/3M
+        (126, 252, 504),  # 6M/12M/24M
+        (252, 504, 756),  # 12M/24M/36M
     ]
     weight_schemes = [
-        (0.4, 0.4, 0.2),   # Recency bias (top performer)
-        (0.5, 0.3, 0.2),   # Strong recency
-        (0.7, 0.2, 0.1),   # Ultra-short bias
-        (0.1, 0.3, 0.6),   # Trend-following
-        (0.33, 0.34, 0.33), # Equal
+        (0.4, 0.4, 0.2),
+        (0.5, 0.3, 0.2),
+        (0.7, 0.2, 0.1),
+        (0.1, 0.3, 0.6),
+        (0.33, 0.34, 0.33),
     ]
     skips = [0, 21]
     positions = [2, 3, 5, 8, 10, 15, 30]
-    rebal_freqs = [5, 10, 21, 42, 63, 252, 378, 504, 756]  # +1yr, 18mo, 2yr, 3yr
+    rebal_freqs = [5, 10, 21, 42, 63, 252, 378, 504, 756]
 
-    # Signal profiles: predefined combos to avoid full cartesian explosion
-    # Each: (sortino, smooth, earnings, LogVariant, consistency, abs_mom, vol_scl, crash)
-    LV = LogVariant
     signal_profiles = [
-        # Baseline: arithmetic only
-        (False, False, False, LV.NONE,    False, False, False, False),
-        # Single signals (test each alone)
-        (True,  False, False, LV.NONE,    False, False, False, False),  # sortino only
-        (False, True,  False, LV.NONE,    False, False, False, False),  # smoothness only
-        (False, False, True,  LV.NONE,    False, False, False, False),  # earnings only
+        (False, False, False, LV.NONE,    False, False, False, False),  # baseline
+        (True,  False, False, LV.NONE,    False, False, False, False),  # sortino
+        (False, True,  False, LV.NONE,    False, False, False, False),  # smooth
+        (False, False, True,  LV.NONE,    False, False, False, False),  # earnings
         (False, False, False, LV.BASIC,   False, False, False, False),  # basic log
-        (False, False, False, LV.EWMA,    False, False, False, False),  # ewma log
-        (False, False, False, LV.VOLNORM, False, False, False, False),  # vol-norm log
-        (False, False, False, LV.ACCEL,   False, False, False, False),  # accel log
-        (False, False, False, LV.TRIMMED, False, False, False, False),  # trimmed log
-        (False, False, False, LV.NONE,    True,  False, False, False),  # 8/12 consistency
-        (False, False, False, LV.NONE,    False, True,  False, False),  # dual momentum
-        (False, False, False, LV.NONE,    False, False, True,  False),  # vol scaling
-        (False, False, False, LV.NONE,    False, False, False, True),   # crash prot
-        # Best combos from prior sweep
-        (True,  False, True,  LV.NONE,    False, False, False, False),  # sortino + earnings
-        (False, False, True,  LV.NONE,    True,  False, False, False),  # earnings + 8/12
-        (False, False, False, LV.NONE,    False, True,  True,  False),  # dual + vol_scl
-        (True,  False, False, LV.NONE,    False, True,  False, False),  # sortino + dual
-        (False, False, True,  LV.NONE,    False, True,  False, False),  # earnings + dual
-        # AQR-inspired
-        (False, False, False, LV.NONE,    False, False, True,  True),   # vol_scl + crash
-        (True,  False, False, LV.NONE,    False, True,  True,  False),  # sortino + dual + vol_scl
-        (True,  False, False, LV.NONE,    False, True,  True,  True),   # sort + dual + vol_scl + crash
-        # Alpha Architect inspired
-        (True,  True,  True,  LV.NONE,    True,  False, False, False),  # sort + smooth + earn + 8/12
-        (False, False, True,  LV.BASIC,   True,  True,  False, False),  # earn + log + 8/12 + dual
-        # Log variant combos — pair new variants with best signals
-        (True,  False, False, LV.VOLNORM, False, False, False, False),  # sortino + vol-norm
-        (False, False, True,  LV.EWMA,    False, False, False, False),  # earnings + ewma
-        (False, False, True,  LV.ACCEL,   False, False, False, False),  # earnings + accel
-        (False, False, False, LV.VOLNORM, False, False, True,  False),  # vol-norm + vol_scl
-        (False, False, False, LV.TRIMMED, False, False, True,  False),  # trimmed + vol_scl
-        (True,  False, True,  LV.VOLNORM, False, False, False, False),  # sort + earn + vol-norm
-        (False, False, True,  LV.ACCEL,   True,  False, False, False),  # earn + accel + 8/12
-        # Kitchen sink
-        (True,  True,  True,  LV.BASIC,   True,  True,  True,  True),   # everything basic log
-        (True,  False, True,  LV.VOLNORM, True,  True,  True,  True),   # everything vol-norm
-        (True,  False, True,  LV.EWMA,    True,  True,  True,  True),   # everything ewma
+        (False, False, False, LV.EWMA,    False, False, False, False),  # ewma
+        (False, False, False, LV.VOLNORM, False, False, False, False),  # vol-norm
+        (False, False, False, LV.ACCEL,   False, False, False, False),  # accel
+        (False, False, False, LV.TRIMMED, False, False, False, False),  # trimmed
+        (False, False, False, LV.NONE,    True,  False, False, False),  # 8/12
+        (False, False, False, LV.NONE,    False, True,  False, False),  # dual
+        (False, False, False, LV.NONE,    False, False, True,  False),  # vol_scl
+        (False, False, False, LV.NONE,    False, False, False, True),   # crash
+        (True,  False, True,  LV.NONE,    False, False, False, False),  # sort+earn
+        (False, False, True,  LV.NONE,    True,  False, False, False),  # earn+8/12
+        (False, False, False, LV.NONE,    False, True,  True,  False),  # dual+vscl
+        (False, False, False, LV.NONE,    False, False, True,  True),   # vscl+crash
+        (True,  True,  True,  LV.NONE,    True,  False, False, False),  # AA kitchen
+        (False, False, True,  LV.EWMA,    False, False, False, False),  # earn+ewma
+        (False, False, True,  LV.ACCEL,   False, False, False, False),  # earn+accel
+        (False, False, False, LV.EWMA,    False, False, True,  False),  # ewma+vscl
+        (False, False, False, LV.TRIMMED, False, False, True,  False),  # trim+vscl
+        (True,  False, True,  LV.VOLNORM, False, False, False, False),  # sort+earn+vnorm
+        (True,  True,  True,  LV.EWMA,    True,  True,  True,  True),   # everything ewma
     ]
 
     for lb, ws, skip, profile, n_pos, rf in product(
@@ -1002,6 +980,74 @@ def build_param_grid() -> list[ScoringParams]:
         ))
 
     return configs
+
+
+PRUNE_INTERVAL_SEC = 120  # prune every 2 minutes wall clock
+PRUNE_KEEP_RATIO = 0.5    # keep top 50% at each prune pass
+PRUNE_MIN_RESULTS = 500   # need at least this many results before first prune
+
+
+def _prune_grid(
+    results_so_far: list[WalkForwardResult],
+    remaining_params: set[int],  # indices into grid
+    grid: list[ScoringParams],
+) -> set[int]:
+    """Drop bottom-half param dimensions based on results so far.
+
+    Identifies which param values (skip, positions, rebal_freq, log_variant)
+    are consistently in the bottom quartile, and removes all grid entries
+    that use those values.
+    """
+    if len(results_so_far) < PRUNE_MIN_RESULTS:
+        return remaining_params
+
+    # Sort by annualized return
+    sorted_results = sorted(results_so_far, key=lambda r: r.oos_annualized, reverse=True)
+    n_top = max(len(sorted_results) // 4, 20)
+    top_results = sorted_results[:n_top]
+    bottom_results = sorted_results[-n_top:]
+
+    # Count param values in top vs bottom quartile
+    prune_dims = [
+        ("skip", lambda p: p.skip),
+        ("max_positions", lambda p: p.max_positions),
+        ("rebal_freq", lambda p: p.rebal_freq),
+        ("log_variant", lambda p: p.log_variant),
+        ("lb_short", lambda p: p.lb_short),
+    ]
+
+    dead_values = {}  # {dim_name: set of values to kill}
+    for dim_name, accessor in prune_dims:
+        top_counts = Counter(accessor(r.params) for r in top_results)
+        bottom_counts = Counter(accessor(r.params) for r in bottom_results)
+        all_values = set(top_counts.keys()) | set(bottom_counts.keys())
+
+        for val in all_values:
+            top_n = top_counts.get(val, 0)
+            bot_n = bottom_counts.get(val, 0)
+            # Kill values that appear 5x+ more in bottom than top
+            if bot_n >= 5 and top_n == 0:
+                dead_values.setdefault(dim_name, set()).add(val)
+            elif bot_n > 0 and top_n > 0 and bot_n / max(top_n, 1) >= 5:
+                dead_values.setdefault(dim_name, set()).add(val)
+
+    if not dead_values:
+        return remaining_params
+
+    # Filter remaining grid indices
+    pruned = set()
+    accessors = {name: fn for name, fn in prune_dims}
+    for idx in remaining_params:
+        p = grid[idx]
+        keep = True
+        for dim_name, dead_vals in dead_values.items():
+            if accessors[dim_name](p) in dead_vals:
+                keep = False
+                break
+        if keep:
+            pruned.add(idx)
+
+    return pruned
 
 
 # ── Table builder ────────────────────────────────────────────────────────────
@@ -1159,20 +1205,47 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     console.print(f"[dim]Precomputing signals at {len(all_rebal_days_sorted)} rebal dates "
                   f"({len(all_lookbacks)} lookbacks × {len(all_skips)} skips)...[/]")
 
+    # ── Sweep with runtime pruning every 2 min ──────────────────────────
+    import time
     results: list[WalkForwardResult] = []
-    args_list = [(p, folds) for p in grid]
+    alive = set(range(len(grid)))  # indices of grid entries still in play
+    args_list = [(grid[i], folds) for i in range(len(grid))]
+    pruned_total = 0
 
     with ProcessPoolExecutor(
         max_workers=workers, initializer=_init_worker,
         initargs=(prices, dates, earn_mom, all_rebal_days_sorted, all_lookbacks, all_skips, fetched),
     ) as pool:
-        futures = {pool.submit(_worker_run, a): i for i, a in enumerate(args_list)}
+        # Submit initial batch (all alive)
+        futures = {}
+        for i in alive:
+            futures[pool.submit(_worker_run, args_list[i])] = i
+
         done = 0
+        last_prune_time = time.monotonic()
+
         for future in as_completed(futures):
-            results.append(future.result())
+            idx = futures[future]
+            result = future.result()
+            results.append(result)
             done += 1
+
             if done % 1000 == 0:
-                console.print(f"  [dim]{done}/{len(grid)}...[/]")
+                console.print(f"  [dim]{done}/{len(grid)} done, {len(alive)} alive, {pruned_total} pruned[/]")
+
+            # Prune every PRUNE_INTERVAL_SEC
+            now = time.monotonic()
+            if now - last_prune_time >= PRUNE_INTERVAL_SEC and len(results) >= PRUNE_MIN_RESULTS:
+                before = len(alive)
+                alive = _prune_grid(results, alive, grid)
+                pruned_now = before - len(alive)
+                pruned_total += pruned_now
+                if pruned_now > 0:
+                    console.print(f"  [yellow]PRUNED {pruned_now} combos "
+                                  f"({before} → {len(alive)} alive)[/]")
+                last_prune_time = now
+
+    console.print(f"[green]Done: {len(results):,} evaluated, {pruned_total} pruned[/]")
 
     # ══════════════════════════════════════════════════════════════════════════
     #  SCENARIO ANALYSIS
