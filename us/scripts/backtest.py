@@ -693,16 +693,17 @@ def precompute_signals(
             result = np.zeros((len(rebal_days), n_tickers))
             v_idx = np.where(valid)[0]
             if len(v_idx) > 0:
-                # Log return (same as BASIC)
                 with np.errstate(divide="ignore", invalid="ignore"):
                     log_ret = np.nan_to_num(np.log(prices[ends[v_idx] - 1] / prices[starts[v_idx]]), nan=0.0)
-                # Per-window std of daily log returns
-                for ii, vi in enumerate(v_idx):
-                    s, e = int(starts[vi]), int(ends[vi])
-                    window_rets = full_daily_log_rets[s:e - 1]
-                    vol = np.std(window_rets, axis=0)
-                    vol = np.where(vol > 0, vol, 0.0001)
-                    result[vi] = np.nan_to_num(log_ret[ii] / (vol * np.sqrt(lb)), nan=0.0, posinf=0.0, neginf=0.0)
+                # Batched vol: gather all windows at once (same lb → same window length)
+                window_len = lb - 1
+                row_offsets = np.arange(window_len)[None, :]           # (1, window_len)
+                start_indices = starts[v_idx, None]                     # (n_valid, 1)
+                indices = start_indices + row_offsets                    # (n_valid, window_len)
+                windows = full_daily_log_rets[indices]                  # (n_valid, window_len, n_tickers)
+                vol = np.std(windows, axis=1)                           # (n_valid, n_tickers)
+                vol = np.where(vol > 0, vol, 0.0001)
+                result[v_idx] = np.nan_to_num(log_ret / (vol * np.sqrt(lb)), nan=0.0, posinf=0.0, neginf=0.0)
             for i, day in enumerate(rebal_days):
                 momentum_cache[(lb, skip, LogVariant.VOLNORM)][day] = result[i]
 
@@ -1850,10 +1851,12 @@ def _load_market_data(
             date_to_idx = {d: i for i, d in enumerate(all_dates_set)}
             n_combined = len(mf_fetched) + len(etf_fetched)
             prices = np.full((len(all_dates_set), n_combined), np.nan)
-            mf_idx = np.array([date_to_idx[d] for d in mf_dates])
-            prices[np.ix_(mf_idx, range(len(mf_fetched)))] = mf_prices
-            etf_idx = np.array([date_to_idx[d] for d in etf_dates])
-            prices[np.ix_(etf_idx, range(len(mf_fetched), n_combined))] = etf_prices
+            mf_row_idx = np.array([date_to_idx[d] for d in mf_dates], dtype=np.intp)
+            for j in range(len(mf_fetched)):
+                prices[mf_row_idx, j] = mf_prices[:, j]
+            etf_row_idx = np.array([date_to_idx[d] for d in etf_dates], dtype=np.intp)
+            for j in range(len(etf_fetched)):
+                prices[etf_row_idx, len(mf_fetched) + j] = etf_prices[:, j]
             from data_utils import _forward_fill_columns
             _forward_fill_columns(prices)
             dates = np.array(all_dates_set)
@@ -2302,17 +2305,15 @@ def _print_scenario_analysis(
         hv_rf = Counter(r.params.rebal_freq for r in top20_hv)
         console.print(f"  rebal: {' '.join(f'{k}d={v}' for k,v in sorted(hv_rf.items()))}")
 
-    # ── Scenario 14: COST IMPACT — How much do costs drag returns? ────────────
-    console.print(f"\n[bold]COST MODEL (IBKR C-Corp, ${PORTFOLIO_VALUE/1000:.0f}K):[/]")
-    console.print(f"  Commission: ${IBKR_COMMISSION_PER_SHARE}/share (tiered), min ${IBKR_MIN_COMMISSION}/order")
-    console.print(f"  Half-spread: {HALF_SPREAD_BPS:.0f} bps ({HALF_SPREAD_BPS/100:.2f}%)")
-    console.print(f"  C-Corp tax: {CCORP_TAX_RATE*100:.0f}% flat on realized gains")
+    # ── Scenario 14: COST IMPACT ────────────────────────────────────────────────
+    console.print(f"\n[bold]COST MODEL ({cfg.label}):[/]")
+    console.print(f"  Commission: ${cfg.commission_per_share}/share, min ${cfg.min_commission}/order")
+    console.print(f"  Half-spread: {cfg.half_spread_bps:.0f} bps ({cfg.half_spread_bps/100:.2f}%)")
+    console.print(f"  Tax: {cfg.tax_rate*100:.0f}% on realized gains")
     console.print(f"  [dim]Note: all scenario returns above are AFTER costs[/]")
 
-    # ══════════════════════════════════════════════════════════════════════════
-    #  SUMMARY + SIGNAL DOMINANCE
-    # ══════════════════════════════════════════════════════════════════════════
-
+    # Summary + signal dominance
+    dd_cap_pct = max_dd_cap * 100
     oos_rets = np.array([r.oos_total_return for r in results])
     console.print(f"\n[bold]Summary[/]  combos={len(results):,}  folds={len(folds)}")
     console.print(f"  OOS return — best: {oos_rets.max()*100:+.1f}%  "
@@ -2323,7 +2324,7 @@ def _print_scenario_analysis(
     top50 = survivable[:min(50, len(survivable))]
     if not top50:
         console.print("  [red]No combos survived the DD cap![/]")
-        return
+        return []
 
     console.print(f"\n[bold]Signal dominance (top 50 survivable):[/]")
     for attr, label in [
@@ -2339,7 +2340,6 @@ def _print_scenario_analysis(
         else:
             c = Counter(vals)
             console.print(f"  {label}: {' '.join(f'{k}={v}' for k,v in sorted(c.items()))}")
-    # Log variant breakdown
     lv_counts = Counter(r.params.log_variant.value for r in top50)
     console.print(f"  log-variant: {' '.join(f'{k}={v}' for k,v in sorted(lv_counts.items()))}")
 
@@ -2351,9 +2351,25 @@ def _print_scenario_analysis(
     for wt, cnt in wc.most_common(3):
         console.print(f"    w={wt[0]:.1f}/{wt[1]:.1f}/{wt[2]:.1f}: {cnt}")
 
-    # ══════════════════════════════════════════════════════════════════════════
-    #  HOLDINGS TRACE — re-run top configs, log ticker selections at each rebal
-    # ══════════════════════════════════════════════════════════════════════════
+    return survivable
+
+
+def _print_holdings_trace(
+    survivable: list[WalkForwardResult],
+    prices: np.ndarray,
+    dates: np.ndarray,
+    folds: list[tuple[int, int]],
+    fetched: list[str],
+    earn_mom: np.ndarray | None,
+    all_rebal_days_sorted: list[int],
+    all_lookbacks: list[int],
+    all_skips: list[int],
+    needed_variants: set,
+    need_smoothness: bool,
+    need_consistency: bool,
+    need_crash: bool,
+) -> None:
+    """Holdings trace + holding period analysis for top 3 survivable configs."""
 
     console.print(f"\n[bold]HOLDINGS TRACE (top 3 survivable configs):[/]")
 
@@ -2562,9 +2578,12 @@ def _print_scenario_analysis(
     console.print(f"[dim]Saved {len(mf_name_cache)} scheme names to {mf_names_file}[/]")
 
 
-    # ══════════════════════════════════════════════════════════════════════════
-    #  EFFICIENT FRONTIER PLOT
-    # ══════════════════════════════════════════════════════════════════════════
+def _print_efficient_frontier(
+    results: list[WalkForwardResult],
+    folds: list[tuple[int, int]],
+    fetched: list[str],
+) -> None:
+    """Plot efficient frontier: return vs drawdown."""
     import pandas as pd
     from plotnine import (
         ggplot, aes, geom_point, geom_label, geom_line,
