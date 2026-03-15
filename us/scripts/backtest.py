@@ -1850,22 +1850,42 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     global AVG_SHARE_PRICE, HALF_SPREAD_BPS, CCORP_TAX_RATE, SEC_FINRA_FEE_PER_SHARE
 
     if market == "india":
-        # India individual tax model (no other income):
-        # STCG (<1yr): 20%, LTCG (>1yr): 12.5% above ₹1.25L exemption
-        # Since we rebalance frequently, conservatively use 20% (STCG rate)
-        # MF switches: no commission, no spread (NAV-based), 1% exit load <1yr
+        # ── India individual cost model (2026 rates) ─────────────────────
+        # Source: Zerodha/Groww charges pages, ClearTax STT guide, SEBI circulars
+        #
+        # Tax:
+        #   STCG (<1yr): 20% on gains (Budget 2025)
+        #   LTCG (>1yr): 12.5% on gains above ₹1.25L exemption
+        #   With 42d rebal (~2 months), all trades are STCG
+        #
+        # Transaction costs per equity delivery trade (buy+sell round-trip):
+        #   STT: 0.1% on buy + 0.1% on sell = 0.2% round-trip
+        #   Exchange txn charges (NSE): 0.00297% on buy + sell
+        #   SEBI turnover fee: 0.0001% on buy + sell
+        #   Stamp duty: ~0.015% on buy side (varies by state, using Maharashtra)
+        #   GST: 18% on (brokerage + exchange charges)
+        #   DP charges: ₹18.5 per sell transaction (Zerodha/Groww)
+        #   Brokerage: ₹0 for equity delivery (Zerodha, Groww, Dhan)
+        #
+        # For MF switches: ₹0 brokerage, no STT, but 1% exit load if < 1yr
+        #
+        # Blended model (portfolio = mix of MFs + stocks):
+        #   Stocks: ~0.22% round-trip (STT 0.2% + exchange + stamp + GST)
+        #   MFs: ~0% if > 1yr, ~1% if < 1yr (exit load)
+        #   We model as half-spread since costs are proportional to turnover
         PORTFOLIO_VALUE = 2_500_000.0       # ₹25L starting capital
-        IBKR_COMMISSION_PER_SHARE = 0.0     # MF switches are free
-        IBKR_MIN_COMMISSION = 0.0           # No per-order min
-        AVG_SHARE_PRICE = 100.0             # Avg NAV
-        # Exit load: 1% if redeemed < 1yr, modeled as half-spread on sells
-        # For rebal < 252 days, assume we pay exit load; for >= 252, no load
-        # Average across rebal freqs: ~50bps effective
-        HALF_SPREAD_BPS = 50.0 if any(rf < 252 for rf in [5,10,21,42,63]) else 0.0
-        CCORP_TAX_RATE = 0.20               # 20% STCG (conservative for frequent rebal)
-        SEC_FINRA_FEE_PER_SHARE = 0.0       # No regulatory fees
+        IBKR_COMMISSION_PER_SHARE = 0.0     # ₹0 brokerage (Zerodha/Groww delivery)
+        IBKR_MIN_COMMISSION = 0.0
+        AVG_SHARE_PRICE = 500.0             # Avg stock price (₹500 for large-caps)
+        # Half-spread = half of round-trip cost
+        # Stocks: 0.22% round-trip → 11 bps half-spread
+        # MF exit load: 1% if < 1yr, 0% if > 1yr → ~50 bps avg for 42d rebal
+        # Blended (70% MF, 30% stocks): 0.7*50 + 0.3*11 = ~38 bps
+        HALF_SPREAD_BPS = 38.0
+        CCORP_TAX_RATE = 0.20               # 20% STCG (all trades < 1yr at 42d rebal)
+        SEC_FINRA_FEE_PER_SHARE = 0.0       # STT/exchange fees absorbed in half-spread
         # Note: MF NAVs already include expense ratios (deducted daily from NAV)
-        # So no separate expense ratio deduction needed
+        # Note: DP charges (₹18.5/sell) are negligible on ₹25L portfolio
 
         console.print(f"[bold]Discovering India MF schemes...[/]")
         scheme_codes = _discover_india_mf_schemes(mf_max_per_query, fetch_all=mf_all)
