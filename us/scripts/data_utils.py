@@ -10,6 +10,7 @@ from pathlib import Path
 import httpx
 import numpy as np
 import yfinance as yf
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 CACHE_DIR = Path(__file__).parent.parent / "data" / "price_cache"
 
@@ -228,6 +229,19 @@ def _save_mf_cache(scheme_code: int, data: dict) -> None:
     cache_file.write_bytes(pickle.dumps(data))
 
 
+@retry(
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=1, min=1, max=30),
+    retry=retry_if_exception_type((httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError)),
+    reraise=True,
+)
+def _mfapi_get(scheme_code: int) -> dict:
+    """Single mfapi GET with tenacity exponential backoff."""
+    resp = httpx.get(f"{MFAPI_BASE}/{scheme_code}", timeout=60)
+    resp.raise_for_status()
+    return resp.json()
+
+
 def _fetch_mf_nav_incremental(scheme_code: int) -> dict | None:
     """Fetch MF NAV with incremental caching.
 
@@ -237,16 +251,10 @@ def _fetch_mf_nav_incremental(scheme_code: int) -> dict | None:
     cached = _load_mf_cache(scheme_code)
     last_cached_date = cached["dates"][-1] if cached else None
 
-    # Fetch from API with retries
-    for attempt in range(3):
-        resp = httpx.get(f"{MFAPI_BASE}/{scheme_code}", timeout=60)
-        if resp.status_code == 200:
-            break
-        time.sleep(1 * (attempt + 1))
-    else:
-        return cached  # return stale cache if API fails
-
-    data = resp.json()
+    try:
+        data = _mfapi_get(scheme_code)
+    except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError):
+        return cached  # all retries exhausted, fall back to stale cache
     nav_entries = data.get("data", [])
     if not nav_entries:
         return cached
