@@ -988,11 +988,12 @@ def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
                 all_port_rets = daily_rets_slice @ weight_matrix.T
 
                 actual = min(n_hold, next_offset - rb_offset)
+                # Vectorized cumprod across all position sizes at once
+                all_cum = np.cumprod(1 + all_port_rets[:actual], axis=0)  # (actual, n_sizes)
                 for si, n_pos in enumerate(all_max_pos):
                     pos_counts[n_pos].append(actual_counts[si])
-                    cum = np.cumprod(1 + all_port_rets[:actual, si])
                     pv[n_pos][rb_offset + 1:rb_offset + 1 + actual] = (
-                        pv[n_pos][rb_offset] * cum
+                        pv[n_pos][rb_offset] * all_cum[:, si]
                     )
 
             for n in all_max_pos:
