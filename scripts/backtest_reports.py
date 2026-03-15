@@ -281,6 +281,137 @@ def print_scenario_analysis(
     return survivable
 
 
+def _compute_score_direct(
+    prices: np.ndarray, day: int, p, earn_row=None,
+) -> np.ndarray:
+    """Compute momentum scores directly from price data (no cache)."""
+    n_tickers = prices.shape[1]
+    n_days = prices.shape[0]
+
+    def _mom_arith(lb, skip):
+        end = day + 1 - skip
+        start = end - lb
+        if start < 0 or end <= 0 or end > n_days:
+            return np.zeros(n_tickers)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.nan_to_num(prices[end - 1] / prices[start] - 1, nan=0.0)
+
+    def _mom_ewma(lb, skip):
+        end = day + 1 - skip
+        start = end - lb
+        if start < 0 or end <= 0 or end > n_days:
+            return np.zeros(n_tickers)
+        log_p = np.log(np.maximum(prices[start:end], 1e-10))
+        daily_log = np.diff(log_p, axis=0)
+        decay = np.log(2) / 63
+        w = np.exp(decay * np.arange(daily_log.shape[0], dtype=np.float64))
+        w = w / w.sum()
+        return (w[:, np.newaxis] * daily_log).sum(axis=0)
+
+    def _mom_log(lb, skip):
+        end = day + 1 - skip
+        start = end - lb
+        if start < 0 or end <= 0 or end > n_days:
+            return np.zeros(n_tickers)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.nan_to_num(np.log(prices[end - 1] / prices[start]), nan=0.0)
+
+    def _mom_vnorm(lb, skip):
+        end = day + 1 - skip
+        start = end - lb
+        if start < 0 or end <= 0 or end > n_days:
+            return np.zeros(n_tickers)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            log_ret = np.nan_to_num(np.log(prices[end - 1] / prices[start]), nan=0.0)
+        log_p = np.log(np.maximum(prices[start:end], 1e-10))
+        daily = np.diff(log_p, axis=0)
+        vol = np.std(daily, axis=0)
+        vol = np.where(vol > 0, vol, 0.0001)
+        return np.nan_to_num(log_ret / (vol * np.sqrt(lb)), nan=0.0, posinf=0.0, neginf=0.0)
+
+    def _mom_accel(lb, skip):
+        end = day + 1 - skip
+        start = end - lb
+        mid = start + lb // 2
+        if start < 0 or end <= 0 or end > n_days:
+            return np.zeros(n_tickers)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            first = np.log(prices[mid] / prices[start])
+            second = np.log(prices[end - 1] / prices[mid])
+            base = np.log(prices[end - 1] / prices[start])
+        return np.nan_to_num(base + 0.5 * (second - first), nan=0.0)
+
+    def _mom_trim(lb, skip):
+        end = day + 1 - skip
+        start = end - lb
+        if start < 0 or end <= 0 or end > n_days:
+            return np.zeros(n_tickers)
+        log_p = np.log(np.maximum(prices[start:end], 1e-10))
+        daily = np.diff(log_p, axis=0)
+        n = daily.shape[0]
+        trim_n = max(1, int(n * 0.05))
+        sorted_d = np.sort(daily, axis=0)
+        trimmed = sorted_d[trim_n:-trim_n]
+        return trimmed.sum(axis=0) if trimmed.shape[0] > 0 else np.zeros(n_tickers)
+
+    mom_fn_map = {
+        "arith": _mom_arith,
+        "log": _mom_log,
+        "ewma": _mom_ewma,
+        "vnorm": _mom_vnorm,
+        "accel": _mom_accel,
+        "trim": _mom_trim,
+    }
+    mom_fn = mom_fn_map[p.log_variant.value]
+
+    mom_s = mom_fn(p.lb_short, p.skip)
+    mom_m = mom_fn(p.lb_mid, p.skip)
+    mom_l = mom_fn(p.lb_long, p.skip)
+
+    wt_mom = p.w_short * mom_s + p.w_mid * mom_m + p.w_long * mom_l
+    scores = wt_mom.copy()
+
+    if p.use_smoothness:
+        # Compute R² × FIP inline
+        w = min(252, day)
+        if w > 21:
+            log_p = np.log(np.maximum(prices[day - w:day + 1], 1e-10))
+            daily = np.diff(log_p, axis=0)
+            fip = np.mean(daily > 0, axis=0)
+            x = np.arange(w + 1, dtype=np.float64)
+            x_mean = x.mean()
+            x_var = ((x - x_mean) ** 2).sum()
+            if x_var > 0:
+                y_mean = log_p.mean(axis=0)
+                slope = ((x - x_mean)[:, np.newaxis] * (log_p - y_mean)).sum(axis=0) / x_var
+                fitted = slope * (x[:, np.newaxis] - x_mean) + y_mean
+                ss_res = ((log_p - fitted) ** 2).sum(axis=0)
+                ss_tot = ((log_p - y_mean) ** 2).sum(axis=0)
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    r2 = np.maximum(np.where(ss_tot > 0, 1.0 - ss_res / ss_tot, 0.0), 0.0)
+                scores *= np.sqrt(r2 * fip)
+
+    if p.use_sortino:
+        w = min(252, day)
+        if w > 1:
+            with np.errstate(divide="ignore", invalid="ignore"):
+                rets = np.nan_to_num(prices[day - w + 1:day + 1] / prices[day - w:day] - 1, nan=0.0)
+            neg = np.where(rets < 0, rets, 0.0)
+            dn_vol = np.sqrt(np.mean(neg ** 2, axis=0)) * np.sqrt(252)
+            dn_vol = np.where(dn_vol > 0, dn_vol, 0.0001)
+            scores /= dn_vol
+
+    if p.use_earnings and earn_row is not None:
+        earn = np.nan_to_num(earn_row, nan=0.0)
+        scores *= (1 + np.clip(earn, -0.5, 2.0))
+
+    if p.use_abs_momentum:
+        mom_12m = _mom_arith(252, 0)
+        scores = np.where(mom_12m > 0, scores, -1.0)
+
+    return np.where(wt_mom > 0, scores, -1.0)
+
+
 def print_holdings_trace(
     survivable: list[WalkForwardResult],
     prices: np.ndarray,
@@ -299,12 +430,6 @@ def print_holdings_trace(
     """Holdings trace + holding period analysis for top 3 survivable configs."""
 
     print("<holdings-trace>")
-
-    trace_cache = precompute_signals(
-        prices, all_rebal_days_sorted, all_lookbacks, all_skips,
-        needed_variants=needed_variants, need_smoothness=need_smoothness,
-        need_consistency=need_consistency, need_crash=need_crash,
-    )
 
     # MF name resolution
     import json as _json
@@ -340,7 +465,7 @@ def print_holdings_trace(
         n_tk = prices.shape[1]
         safe_mask = np.zeros(n_tk, dtype=bool)
         if fetched and p.use_abs_momentum:
-            safe_mask[np.array([i for i, t in enumerate(fetched) if t in SAFE_HAVENS])] = True
+            safe_mask[np.array([i for i, t in enumerate(fetched) if t in SAFE_HAVENS], dtype=np.intp)] = True
 
         target_dates = ["2009-03", "2009-06", "2009-09", "2016-01", "2016-06", "2016-11",
                         "2020-02", "2020-03", "2020-04", "2020-06"]
@@ -362,7 +487,7 @@ def print_holdings_trace(
             for rb_offset in list(range(0, period_len, p.rebal_freq))[:4]:
                 rb_abs = os + rb_offset
                 earn_row = em[rb_abs] if em is not None else None
-                scores = score_from_cache(rb_abs, p, trace_cache, earn_row)
+                scores = _compute_score_direct(prices, rb_abs, p, earn_row)
                 valid = np.where((scores > 0) & ~safe_mask)[0]
 
                 dt = dates[rb_abs] if rb_abs < len(dates) else "?"
@@ -392,7 +517,7 @@ def print_holdings_trace(
         for rb_offset in range(0, oe - os, best_p.rebal_freq):
             rb_abs = os + rb_offset
             earn_row = em_trace[rb_abs] if em_trace is not None else None
-            scores = score_from_cache(rb_abs, best_p, trace_cache, earn_row)
+            scores = _compute_score_direct(prices, rb_abs, best_p, earn_row)
             valid = np.where((scores > 0) & ~safe_mask_trace)[0]
             if len(valid) == 0:
                 all_holdings.append((dates[rb_abs], ["CASH"]))
@@ -516,3 +641,501 @@ def print_efficient_frontier(
     plot_path = Path(__file__).parent.parent / "data" / "us" / "efficient_frontier.png"
     p.save(plot_path, dpi=150, verbose=False)
     print(f"\nEfficient frontier saved: {plot_path}")
+
+
+def _mc_underwater_analysis(
+    prices: np.ndarray,
+    params,
+    earn_mom: np.ndarray | None,
+    fetched: list[str],
+    n_sims: int = 200,
+    horizon_days: int = 756,  # 3 years
+    rng_seed: int = 42,
+) -> dict:
+    """Monte Carlo underwater analysis with random entry points.
+
+    For a given config, picks random entry dates, runs the strategy forward,
+    and computes:
+    - Duration underwater (days below previous peak)
+    - Duration below -10% from entry
+    - Duration below -20% from entry
+    - Max drawdown distribution
+
+    Returns dict with percentile stats.
+    """
+    n_days = prices.shape[0]
+    n_tickers = prices.shape[1]
+    rng = np.random.RandomState(rng_seed)
+
+    # Need enough history for longest lookback + skip
+    min_start = max(params.lb_long, 756) + params.skip + 1
+    max_start = n_days - horizon_days
+    if max_start <= min_start:
+        max_start = n_days - 252  # at least 1 year
+    if max_start <= min_start:
+        return None
+
+    entry_days = rng.randint(min_start, max_start, size=n_sims)
+
+    # Safe haven mask
+    safe_mask = np.zeros(n_tickers, dtype=bool)
+    for i, t in enumerate(fetched):
+        if t in SAFE_HAVENS:
+            safe_mask[i] = True
+
+    results = {
+        "total_return": [],         # total return over horizon
+        "cagr": [],                 # annualized return
+        "max_dd": [],               # max drawdown
+        "max_underwater_streak": [],  # longest streak below peak (days)
+        "below_10_days": [],        # days below -10% from entry
+        "below_20_days": [],        # days below -20% from entry
+    }
+
+    em = earn_mom if params.use_earnings else None
+
+    for entry in entry_days:
+        sim_len = min(horizon_days, n_days - entry)
+        portfolio = np.ones(sim_len)
+        rebal_freq = params.rebal_freq
+
+        prev_weights = np.zeros(n_tickers)
+        for t in range(0, sim_len - 1, rebal_freq):
+            day = entry + t
+            earn_row = em[day] if em is not None else None
+            scores = _compute_score_direct(prices, day, params, earn_row)
+            scores[safe_mask] = -1.0
+            valid = np.where(scores > 0)[0]
+
+            if len(valid) == 0:
+                # Hold cash — portfolio flat
+                hold_end = min(t + rebal_freq, sim_len)
+                portfolio[t + 1:hold_end] = portfolio[t]
+                prev_weights[:] = 0
+                continue
+
+            sorted_v = valid[np.argsort(scores[valid])]
+            top_n = min(params.max_positions, len(sorted_v))
+            top_idx = sorted_v[-top_n:]
+
+            weights = np.zeros(n_tickers)
+            weights[top_idx] = 1.0 / top_n
+
+            hold_end = min(t + rebal_freq, sim_len)
+            for d in range(t, hold_end - 1):
+                abs_d = entry + d
+                if abs_d + 1 >= n_days:
+                    portfolio[d + 1] = portfolio[d]
+                    continue
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    daily_ret = np.nan_to_num(
+                        prices[abs_d + 1] / prices[abs_d] - 1, nan=0.0
+                    )
+                port_ret = float(np.dot(weights, daily_ret))
+                portfolio[d + 1] = portfolio[d] * (1 + port_ret)
+
+            prev_weights = weights
+
+        # Compute underwater stats
+        running_max = np.maximum.accumulate(portfolio)
+        dd = (portfolio - running_max) / running_max
+
+        max_dd = float(dd.min())
+        underwater = dd < -0.001  # below peak by >0.1%
+        underwater_days = int(underwater.sum())
+        underwater_pct = underwater_days / sim_len
+
+        # Max underwater streak
+        streaks = []
+        current = 0
+        for u in underwater:
+            if u:
+                current += 1
+            else:
+                if current > 0:
+                    streaks.append(current)
+                current = 0
+        if current > 0:
+            streaks.append(current)
+        max_streak = max(streaks) if streaks else 0
+
+        # Below entry thresholds
+        below_10 = portfolio < 0.90
+        below_20 = portfolio < 0.80
+        below_10_days = int(below_10.sum())
+        below_20_days = int(below_20.sum())
+
+        # Returns
+        total_return = portfolio[-1] / portfolio[0] - 1
+        years = sim_len / 252
+        cagr = (1 + total_return) ** (1 / years) - 1 if total_return > -1 else -1.0
+
+        results["max_dd"].append(max_dd)
+        results["total_return"].append(total_return)
+        results["cagr"].append(cagr)
+        results["max_underwater_streak"].append(max_streak)
+        results["below_10_days"].append(below_10_days)
+        results["below_20_days"].append(below_20_days)
+
+    # Compute percentiles
+    def _pctiles(arr):
+        return {
+            "p5": float(np.percentile(arr, 5)),
+            "p25": float(np.percentile(arr, 25)),
+            "median": float(np.median(arr)),
+            "p75": float(np.percentile(arr, 75)),
+            "p95": float(np.percentile(arr, 95)),
+            "mean": float(np.mean(arr)),
+        }
+
+    summary = {k: _pctiles(np.array(v)) for k, v in results.items()}
+    summary["n_sims"] = n_sims
+    summary["horizon_days"] = horizon_days
+    return summary
+
+
+def _mc_entry_points(prices, n_sims, min_start, max_start, seed=42):
+    """Generate shared entry points — same seed for all configs."""
+    rng = np.random.RandomState(seed)
+    return rng.randint(min_start, max_start, size=n_sims)
+
+
+def _print_mc_table(label: str, candidates, prices, earn_mom, fetched, top_n=50):
+    """Run MC analysis on top N configs and print full results."""
+    n_days = prices.shape[0]
+    horizon = 756
+    # Shared entry points across all configs
+    min_start = 756 + 21 + 1
+    max_start = n_days - horizon
+    if max_start <= min_start:
+        max_start = n_days - 252
+    if max_start <= min_start:
+        print(f"\n### {label} — Monte Carlo: insufficient data")
+        return
+
+    shared_entries = _mc_entry_points(prices, 200, min_start, max_start)
+
+    print(f"\n### {label} — Monte Carlo Analysis")
+    print(f"  {min(top_n, len(candidates))} configs × 200 shared entries × 3yr")
+    print(f"  Seed=42, entries from day {min_start} to {max_start}")
+
+    mc_results = []
+    for r in candidates[:top_n]:
+        mc = _mc_underwater_analysis(
+            prices, r.params, earn_mom, fetched,
+            n_sims=200, horizon_days=horizon,
+            rng_seed=42,
+        )
+        if mc is None:
+            continue
+        mc_results.append({"r": r, "mc": mc})
+
+    # Sort by median CAGR descending
+    mc_results.sort(key=lambda x: x["mc"]["cagr"]["median"], reverse=True)
+
+    table_rows = []
+    for i, m in enumerate(mc_results):
+        r = m["r"]
+        mc = m["mc"]
+        cagr = mc["cagr"]
+        dd = mc["max_dd"]
+        streak = mc["max_underwater_streak"]
+        b10 = mc["below_10_days"]
+        b20 = mc["below_20_days"]
+        table_rows.append([
+            f"{i+1}",
+            r.params.label()[:40],
+            # MC Returns
+            f"{cagr['p5']*100:+.0f}%",
+            f"{cagr['p25']*100:+.0f}%",
+            f"{cagr['median']*100:+.0f}%",
+            f"{cagr['p75']*100:+.0f}%",
+            f"{cagr['p95']*100:+.0f}%",
+            # MC Drawdown
+            f"{dd['median']*100:.0f}%",
+            f"{dd['p5']*100:.0f}%",
+            # Underwater streak (days)
+            f"{streak['median']:.0f}",
+            f"{streak['p75']:.0f}",
+            # Days below entry -10%, -20%
+            f"{b10['median']:.0f}",
+            f"{b20['median']:.0f}",
+            # Walk-forward for reference
+            f"{r.oos_annualized*100:+.0f}%",
+        ])
+
+    print(_md_table(
+        ["#", "Config",
+         "P5", "P25", "Med", "P75", "P95",
+         "DD Med", "DD Wst",
+         "Strk", "Strk75",
+         "<-10%", "<-20%",
+         "WF Ann"],
+        table_rows,
+    ))
+
+    # Summary stats
+    if mc_results:
+        meds = [m["mc"]["cagr"]["median"] for m in mc_results]
+        p5s = [m["mc"]["cagr"]["p5"] for m in mc_results]
+        print(f"\n  Across {len(mc_results)} configs:")
+        print(f"    MC median CAGR: best={max(meds)*100:+.0f}% "
+              f"worst={min(meds)*100:+.0f}% avg={np.mean(meds)*100:+.0f}%")
+        print(f"    MC P5 CAGR (worst 5%): best={max(p5s)*100:+.0f}% "
+              f"worst={min(p5s)*100:+.0f}%")
+
+
+def print_portfolio_allocation(
+    results: list[WalkForwardResult],
+    prices: np.ndarray,
+    dates: np.ndarray,
+    fetched: list[str],
+    earn_mom: np.ndarray | None,
+    capital: float = 50000.0,
+) -> None:
+    """Split results into Core (60%, DD<=30%) and Max (30%, DD<=75%).
+
+    10% always allocated to safe-haven assets.
+    Picks best config per bucket by Sortino ratio, then computes
+    current holdings using direct price-based scoring.
+    """
+    CORE_DD_CAP = 0.30
+    MAX_DD_CAP = 0.75
+    CORE_WEIGHT = 0.60
+    MAX_WEIGHT = 0.30
+    SAFE_WEIGHT = 0.10
+
+    core_capital = capital * CORE_WEIGHT
+    max_capital = capital * MAX_WEIGHT
+    safe_capital = capital * SAFE_WEIGHT
+
+    def _is_validated_signal(p) -> bool:
+        """MC-validated signal family: sort+earn+vnorm."""
+        return p.use_sortino and p.use_earnings and p.log_variant.value == "vnorm"
+
+    # Core: sort+earn+vnorm, DD<=30%, ranked by Sortino
+    core_candidates = [
+        r for r in results
+        if abs(r.oos_max_dd) <= CORE_DD_CAP
+        and r.oos_annualized > 0
+        and _is_validated_signal(r.params)
+    ]
+    # Max: sort+earn+vnorm, DD<=75%, ranked by absolute return
+    max_candidates = [
+        r for r in results
+        if abs(r.oos_max_dd) <= MAX_DD_CAP
+        and r.oos_annualized > 0
+        and _is_validated_signal(r.params)
+    ]
+
+    core_candidates.sort(key=lambda r: r.oos_sortino, reverse=True)
+    max_candidates.sort(key=lambda r: r.oos_annualized, reverse=True)
+
+    print("\n<portfolio-allocation>")
+    print(f"### Portfolio Split: ${capital:,.0f}")
+    print(f"  Core (60%): ${core_capital:,.0f} — DD cap {CORE_DD_CAP:.0%}")
+    print(f"  Max  (30%): ${max_capital:,.0f} — DD cap {MAX_DD_CAP:.0%}")
+    print(f"  Safe (10%): ${safe_capital:,.0f} — {', '.join(sorted(SAFE_HAVENS))}")
+
+    last_day = prices.shape[0] - 1
+
+    def _current_holdings(r, alloc_capital):
+        """Get current holdings for a config."""
+        p = r.params
+        em = earn_mom if p.use_earnings else None
+        earn_row = em[last_day] if em is not None else None
+        scores = _compute_score_direct(
+            prices, last_day, p, earn_row
+        )
+
+        # Exclude safe havens from scoring
+        safe_idx = set()
+        for i, t in enumerate(fetched):
+            if t in SAFE_HAVENS:
+                safe_idx.add(i)
+                scores[i] = -1.0
+
+        valid = np.where(scores > 0)[0]
+        if len(valid) == 0:
+            return [], scores
+
+        sorted_valid = valid[np.argsort(scores[valid])]
+        top_n = min(p.max_positions, len(sorted_valid))
+        top_idx = sorted_valid[-top_n:][::-1]
+
+        # Equal-weight allocation
+        per_position = alloc_capital / top_n
+        holdings = []
+        for idx in top_idx:
+            ticker = fetched[idx]
+            price = prices[last_day, idx]
+            shares = int(per_position / price) if price > 0 else 0
+            holdings.append({
+                "ticker": ticker,
+                "score": scores[idx],
+                "price": price,
+                "shares": shares,
+                "value": shares * price,
+            })
+        return holdings, scores
+
+    def _print_bucket(label, candidates, alloc_capital, top_n=5):
+        if not candidates:
+            print(f"\n### {label}: No configs found within DD cap")
+            return None
+
+        best = candidates[0]
+        p = best.params
+        print(f"\n### {label}")
+        print(f"  Config: {p.label()}")
+        print(f"  Ann={best.oos_annualized*100:+.1f}% "
+              f"DD={best.oos_max_dd*100:.1f}% "
+              f"Sortino={best.oos_sortino:.2f} "
+              f"Calmar={best.oos_calmar:.2f} "
+              f"Win={best.oos_win_rate*100:.0f}%")
+
+        # Show top 5 alternatives
+        print(f"\n  Top {top_n} configs by Sortino:")
+        rows = []
+        for r in candidates[:top_n]:
+            rows.append([
+                r.params.label()[:50],
+                f"{r.oos_annualized*100:+.1f}%",
+                f"{r.oos_max_dd*100:.1f}%",
+                f"{r.oos_sortino:.2f}",
+                f"{r.oos_calmar:.2f}",
+                f"{r.oos_win_rate*100:.0f}%",
+            ])
+        print(_md_table(
+            ["Config", "Ann", "MaxDD", "Sortino", "Calmar", "Win%"],
+            rows,
+        ))
+
+        holdings, _ = _current_holdings(best, alloc_capital)
+        if not holdings:
+            print(f"\n  Current: CASH (no positive momentum)")
+            return best
+
+        print(f"\n  Current Holdings (as of {dates[last_day]}):")
+        rows = []
+        total_val = 0
+        for h in holdings:
+            rows.append([
+                h["ticker"],
+                f"{h['score']:.4f}",
+                f"${h['price']:.2f}",
+                str(h["shares"]),
+                f"${h['value']:,.0f}",
+            ])
+            total_val += h["value"]
+        print(_md_table(
+            ["Ticker", "Score", "Price", "Shares", "Value"],
+            rows,
+        ))
+        cash_left = alloc_capital - total_val
+        if cash_left > 0:
+            print(f"  Residual cash: ${cash_left:,.0f}")
+
+        return best
+
+    core_best = _print_bucket("CORE (60%)", core_candidates, core_capital)
+    max_best = _print_bucket("MAX (30%)", max_candidates, max_capital)
+
+    # Monte Carlo underwater analysis
+    _print_mc_table("CORE", core_candidates, prices, earn_mom, fetched)
+    _print_mc_table("MAX", max_candidates, prices, earn_mom, fetched)
+
+    # Safe haven allocation
+    safe_tickers = [t for t in fetched if t in SAFE_HAVENS]
+    print(f"\n### SAFE HAVEN (10%)")
+    if safe_tickers:
+        # Pick by 12m momentum
+        safe_scores = []
+        for t in safe_tickers:
+            idx = fetched.index(t)
+            lb = 252
+            end = last_day + 1
+            start = end - lb
+            if start >= 0:
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    ret = float(np.nan_to_num(
+                        prices[end - 1, idx] / prices[start, idx] - 1
+                    ))
+            else:
+                ret = 0.0
+            safe_scores.append((t, ret, prices[last_day, idx]))
+        safe_scores.sort(key=lambda x: x[1], reverse=True)
+
+        per_safe = safe_capital / min(3, len(safe_scores))
+        rows = []
+        total_safe = 0
+        for t, ret, px in safe_scores[:3]:
+            shares = int(per_safe / px) if px > 0 else 0
+            val = shares * px
+            rows.append([t, f"{ret*100:+.1f}%", f"${px:.2f}",
+                         str(shares), f"${val:,.0f}"])
+            total_safe += val
+        print(_md_table(
+            ["Ticker", "12M Ret", "Price", "Shares", "Value"],
+            rows,
+        ))
+
+    # Combined summary
+    print(f"\n### COMBINED PORTFOLIO SUMMARY")
+    all_positions = {}
+
+    if core_best:
+        core_h, _ = _current_holdings(core_best, core_capital)
+        for h in core_h:
+            t = h["ticker"]
+            if t not in all_positions:
+                all_positions[t] = {"shares": 0, "value": 0, "bucket": []}
+            all_positions[t]["shares"] += h["shares"]
+            all_positions[t]["value"] += h["value"]
+            all_positions[t]["bucket"].append("Core")
+            all_positions[t]["price"] = h["price"]
+
+    if max_best:
+        max_h, _ = _current_holdings(max_best, max_capital)
+        for h in max_h:
+            t = h["ticker"]
+            if t not in all_positions:
+                all_positions[t] = {"shares": 0, "value": 0, "bucket": []}
+            all_positions[t]["shares"] += h["shares"]
+            all_positions[t]["value"] += h["value"]
+            all_positions[t]["bucket"].append("Max")
+            all_positions[t]["price"] = h["price"]
+
+    if safe_tickers:
+        for t, ret, px in safe_scores[:3]:
+            shares = int(per_safe / px) if px > 0 else 0
+            val = shares * px
+            if t not in all_positions:
+                all_positions[t] = {"shares": 0, "value": 0, "bucket": []}
+            all_positions[t]["shares"] += shares
+            all_positions[t]["value"] += val
+            all_positions[t]["bucket"].append("Safe")
+            all_positions[t]["price"] = px
+
+    rows = []
+    total = 0
+    for t in sorted(all_positions, key=lambda x: all_positions[x]["value"], reverse=True):
+        pos = all_positions[t]
+        pct = pos["value"] / capital * 100
+        rows.append([
+            t,
+            "+".join(pos["bucket"]),
+            f"${pos['price']:.2f}",
+            str(pos["shares"]),
+            f"${pos['value']:,.0f}",
+            f"{pct:.1f}%",
+        ])
+        total += pos["value"]
+    print(_md_table(
+        ["Ticker", "Bucket", "Price", "Shares", "Value", "Wt%"],
+        rows,
+    ))
+    print(f"  Total invested: ${total:,.0f} / ${capital:,.0f} "
+          f"({total/capital*100:.1f}%)")
+    print(f"  Cash: ${capital - total:,.0f}")
+    print("</portfolio-allocation>")

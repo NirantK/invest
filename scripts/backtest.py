@@ -206,24 +206,24 @@ INDIA_MF_QUERIES = [
 INDIA_ETF_TICKERS = [
     # Broad market
     "NIFTYBEES.NS", "JUNIORBEES.NS", "BANKBEES.NS", "SETFNIF50.NS",
-    "BSLNIFTY.NS", "NETFNIF100.NS",
+    "BSLNIFTY.NS",
     # Thematic / International
-    "MAFANG.NS", "MON100.NS", "NASDAQ100.NS", "N100.NS",
+    "MAFANG.NS", "MON100.NS", "NASDAQ100.NS",
     # Gold / Silver / Commodities
     "GOLDBEES.NS", "SILVERBEES.NS", "GOLDCASE.NS", "COMMOIETF.NS",
     # Sector
-    "ITBEES.NS", "PHARMABEES.NS", "PSUBNKBEES.NS", "INFRAEES.NS",
+    "ITBEES.NS", "PHARMABEES.NS", "PSUBNKBEES.NS",
     "CONSUMBEES.NS", "CPSEETF.NS",
-    "DIVOPPORTUNITY.NS", "HABORNETF.NS",
+    "HABORNETF.NS",
     # Factor / Smart-beta
-    "NIFTYQLTY.NS", "ALPHAETF.NS", "MOVALUE.NS", "MOMENTUM.NS",
+    "ALPHAETF.NS", "MOVALUE.NS", "MOMENTUM.NS",
     "LOWVOLIETF.NS", "NV20IETF.NS",
     # Debt / Cash proxy
     "LIQUIDBEES.NS", "LIQUIDCASE.NS", "LIQUID.NS",
     # Midcap / Smallcap
     "MIDCAPETF.NS", "MID150BEES.NS",
     # International
-    "HNGSNGBEES.NS", "MOMESETF.NS",
+    "HNGSNGBEES.NS",
     # REITs & InvITs
     "EMBASSY.NS", "MINDSPACE.NS", "BROOKFIELD.NS",
     "IRFC.NS", "POWERGRID.NS",
@@ -949,7 +949,7 @@ def run_oos_period(
     safe_mask = np.zeros(n_tickers, dtype=bool)
     safe_arr = np.empty(0, dtype=np.intp)
     if ticker_names and params.use_abs_momentum:
-        safe_arr = np.array([i for i, t in enumerate(ticker_names) if t in SAFE_HAVENS])
+        safe_arr = np.array([i for i, t in enumerate(ticker_names) if t in SAFE_HAVENS], dtype=np.intp)
         safe_mask[safe_arr] = True
 
     rebal_offsets = list(range(0, period_len, params.rebal_freq))
@@ -1213,8 +1213,9 @@ def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
 
     n_tickers = _G_PRICES.shape[1]
     safe_mask = np.zeros(n_tickers, dtype=bool)
+    safe_arr = np.empty(0, dtype=np.intp)
     if _G_TICKERS and ref.use_abs_momentum:
-        safe_arr = np.array([i for i, t in enumerate(_G_TICKERS) if t in SAFE_HAVENS])
+        safe_arr = np.array([i for i, t in enumerate(_G_TICKERS) if t in SAFE_HAVENS], dtype=np.intp)
         safe_mask[safe_arr] = True
     cache = _G_CACHE
 
@@ -1375,7 +1376,7 @@ def _walk_forward_with_prescored(
     safe_mask = np.zeros(n_tickers, dtype=bool)
     safe_arr = np.empty(0, dtype=np.intp)
     if ticker_names and params.use_abs_momentum:
-        safe_arr = np.array([i for i, t in enumerate(ticker_names) if t in SAFE_HAVENS])
+        safe_arr = np.array([i for i, t in enumerate(ticker_names) if t in SAFE_HAVENS], dtype=np.intp)
         safe_mask[safe_arr] = True
 
     prev_weights = np.zeros(n_tickers)
@@ -1582,7 +1583,7 @@ def build_param_grid() -> list[ScoringParams]:
         (0.33, 0.34, 0.33),
     ]
     skips = [0, 21]
-    positions = [2, 3, 5, 8, 10, 15, 30]
+    positions = [2, 3, 5, 8, 10, 15, 20, 30, 50]
     rebal_freqs = [5, 10, 21, 42, 63, 252, 378, 504, 756]
 
     signal_profiles = [
@@ -1861,7 +1862,7 @@ def _load_market_data(
 @click.command()
 @click.option("--top", default=20, help="Show top N results.")
 @click.option("--period", default="max", help="Price history period.")
-@click.option("--workers", default=11, help="Parallel workers.")
+@click.option("--workers", default=8, help="Parallel workers.")
 @click.option("--min-train", default=252, help="Min training days.")
 @click.option("--oos-window", default=126, help="OOS test window days.")
 @click.option("--max-dd-cap", default=1.0, help="MaxDD cap for survivable scenario (1.0 = no cap).")
@@ -1943,7 +1944,10 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
 
     results.sort(key=lambda r: r.oos_total_return, reverse=True)
 
-    from backtest_reports import print_scenario_analysis, print_holdings_trace, print_efficient_frontier
+    from backtest_reports import (
+        print_scenario_analysis, print_holdings_trace,
+        print_efficient_frontier, print_portfolio_allocation,
+    )
     survivable = print_scenario_analysis(results, folds, prices, dates, top, max_dd_cap, cfg)
 
     if not survivable:
@@ -1955,6 +1959,7 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
         needed_variants, need_smoothness, need_consistency, need_crash,
     )
     print_efficient_frontier(results, folds, fetched)
+    print_portfolio_allocation(results, prices, dates, fetched, earn_mom)
 
 
 if __name__ == "__main__":
