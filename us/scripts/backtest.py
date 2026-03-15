@@ -2,6 +2,7 @@
 Momentum Parameter Sweep — Walk-Forward Validated, Vectorized
 
 Signals from AQR, Alpha Architect (Wes Gray), and academic research.
+6 momentum flavors: arithmetic, log, EWMA-log, vol-normalized, acceleration, trimmed.
 All hot paths use numpy. ProcessPoolExecutor with shared-memory initializer.
 
 Usage:
@@ -13,6 +14,7 @@ Usage:
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass, field
+from enum import Enum
 from itertools import product
 
 import click
@@ -23,9 +25,23 @@ from rich.table import Table
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
-from data_utils import fetch_all_numpy, fetch_all_earnings, build_earnings_momentum
+from data_utils import (
+    fetch_all_numpy, fetch_all_earnings, build_earnings_momentum,
+    fetch_all_mf_numpy, search_mf_schemes, get_all_mf_schemes,
+)
 
 console = Console()
+
+
+class LogVariant(Enum):
+    """Log-return momentum flavors — each dampens outliers differently."""
+    NONE = "arith"      # Arithmetic returns (not log)
+    BASIC = "log"       # ln(P_end/P_start)
+    EWMA = "ewma"       # EWMA-weighted daily log returns (recency bias)
+    VOLNORM = "vnorm"   # Log return / vol — t-statistic of trend
+    ACCEL = "accel"     # 2nd half - 1st half log return (trend acceleration)
+    TRIMMED = "trim"    # Sum of daily log returns after dropping top/bottom 5%
+
 
 # ── Ticker universe ──────────────────────────────────────────────────────────
 
@@ -74,6 +90,38 @@ TICKERS = [
     "IAU",     # iShares Gold Trust (alternative to GLD, lower ER)
 ]
 
+# ── India MF universe (mfapi.in scheme codes) ───────────────────────────────
+# Populated at runtime via --market india --mf-query "flexi cap,large cap,..."
+# or fetched from mfapi.in search endpoint
+INDIA_MF_QUERIES = [
+    "flexi cap growth direct",
+    "large cap growth direct",
+    "mid cap growth direct",
+    "small cap growth direct",
+    "nifty 50 index direct growth",
+    "nifty next 50 index direct growth",
+    "gold fund direct growth",
+    "silver etf",
+    "liquid fund direct growth",
+    "gilt fund direct growth",
+    "nasdaq 100 fund of fund direct growth",
+    "s&p 500 index fund direct growth",
+    "value fund direct growth",
+    "momentum index direct growth",
+    "banking fund direct growth",
+    "pharma fund direct growth",
+    "technology fund direct growth",
+    "infrastructure fund direct growth",
+    "consumption fund direct growth",
+    "dividend yield fund direct growth",
+    "focused fund direct growth",
+    "elss tax saver direct growth",
+    "balanced advantage direct growth",
+    "aggressive hybrid direct growth",
+    "multi asset direct growth",
+    "commodities fund direct growth",
+]
+
 MIN_TICKERS_PER_FOLD = 15
 
 # Safe-haven tickers for dual momentum risk-off allocation
@@ -87,6 +135,17 @@ REBAL_FREQS = {
     "2m": 42,
     "1q": 63,
 }
+
+# ── Transaction cost model (IBKR C-Corp, $50K account) ──────────────────────
+# Source: interactivebrokers.com/en/pricing/commissions-stocks.php (Mar 2026)
+PORTFOLIO_VALUE = 50_000.0           # Starting capital for cost scaling
+IBKR_COMMISSION_PER_SHARE = 0.0035   # Tiered pricing, ≤300K shares/mo
+IBKR_MIN_COMMISSION = 0.35           # Minimum per order
+AVG_SHARE_PRICE = 75.0               # Avg price across our ETF universe
+HALF_SPREAD_BPS = 5.0                # Half bid-ask spread in bps (0.05%)
+                                     # Conservative: commodity ETFs avg 4-12 bps full spread
+CCORP_TAX_RATE = 0.21                # Flat 21% federal on all realized gains
+SEC_FINRA_FEE_PER_SHARE = 0.0002     # SEC + FINRA + CAT fees (negligible but included)
 
 
 # ── Vectorized signal functions ──────────────────────────────────────────────
@@ -114,6 +173,88 @@ def momentum_log(prices: np.ndarray, lookback: int, skip: int) -> np.ndarray:
     with np.errstate(divide="ignore", invalid="ignore"):
         mom = np.log(prices[end - 1] / prices[start])
     return np.nan_to_num(mom, nan=0.0)
+
+
+def momentum_log_ewma(prices: np.ndarray, lookback: int, skip: int, halflife: int = 63) -> np.ndarray:
+    """EWMA-weighted log returns: recent days weighted more. halflife in trading days."""
+    n = prices.shape[0]
+    if n < lookback + skip + 1:
+        return np.zeros(prices.shape[1])
+    end = n - skip
+    start = end - lookback
+    segment = prices[start:end]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        daily_log = np.diff(np.log(segment), axis=0)
+    daily_log = np.nan_to_num(daily_log, nan=0.0, posinf=0.0, neginf=0.0)
+    # Exponential weights: most recent day gets highest weight
+    decay = np.log(2) / halflife
+    w = np.exp(decay * np.arange(daily_log.shape[0], dtype=np.float64))
+    w /= w.sum()
+    return (w[:, np.newaxis] * daily_log).sum(axis=0)
+
+
+def momentum_log_volnorm(prices: np.ndarray, lookback: int, skip: int) -> np.ndarray:
+    """Vol-normalized log momentum: ln(P_end/P_start) / std(daily log returns).
+
+    Essentially a t-statistic of the trend. High value = strong, consistent trend.
+    """
+    n = prices.shape[0]
+    if n < lookback + skip + 1:
+        return np.zeros(prices.shape[1])
+    end = n - skip
+    start = end - lookback
+    with np.errstate(divide="ignore", invalid="ignore"):
+        log_ret = np.log(prices[end - 1] / prices[start])
+        daily_log = np.diff(np.log(prices[start:end]), axis=0)
+    daily_log = np.nan_to_num(daily_log, nan=0.0, posinf=0.0, neginf=0.0)
+    vol = np.std(daily_log, axis=0)
+    vol = np.where(vol > 0, vol, 0.0001)
+    result = log_ret / (vol * np.sqrt(lookback))
+    return np.nan_to_num(result, nan=0.0, posinf=0.0, neginf=0.0)
+
+
+def momentum_log_accel(prices: np.ndarray, lookback: int, skip: int) -> np.ndarray:
+    """Log return acceleration: 2nd half momentum minus 1st half.
+
+    Positive = trend accelerating, negative = decelerating.
+    Added to base log momentum as a boost/penalty.
+    """
+    n = prices.shape[0]
+    if n < lookback + skip:
+        return np.zeros(prices.shape[1])
+    end = n - skip
+    start = end - lookback
+    mid = start + lookback // 2
+    with np.errstate(divide="ignore", invalid="ignore"):
+        first_half = np.log(prices[mid] / prices[start])
+        second_half = np.log(prices[end - 1] / prices[mid])
+        base = np.log(prices[end - 1] / prices[start])
+    accel = second_half - first_half  # positive = accelerating
+    # Blend: base momentum + acceleration bonus (scaled down)
+    result = base + 0.5 * accel
+    return np.nan_to_num(result, nan=0.0, posinf=0.0, neginf=0.0)
+
+
+def momentum_log_trimmed(prices: np.ndarray, lookback: int, skip: int, trim_pct: float = 0.05) -> np.ndarray:
+    """Trimmed log returns: drop top/bottom 5% of daily returns, then sum.
+
+    Robust against gap days (earnings jumps, flash crashes) common in miners/commodities.
+    """
+    n = prices.shape[0]
+    if n < lookback + skip + 1:
+        return np.zeros(prices.shape[1])
+    end = n - skip
+    start = end - lookback
+    segment = prices[start:end]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        daily_log = np.diff(np.log(segment), axis=0)
+    daily_log = np.nan_to_num(daily_log, nan=0.0, posinf=0.0, neginf=0.0)
+    n_days = daily_log.shape[0]
+    n_trim = max(1, int(n_days * trim_pct))
+    # Sort each column, trim top and bottom
+    sorted_rets = np.sort(daily_log, axis=0)
+    trimmed = sorted_rets[n_trim:-n_trim]
+    return trimmed.sum(axis=0)
 
 
 def downside_vol(prices: np.ndarray, window: int = 252) -> np.ndarray:
@@ -230,8 +371,9 @@ def crash_protection_signal_at(mkt_prices: np.ndarray, day: int) -> float:
 class PrecomputedSignals:
     """All signal values precomputed at every possible rebalance date."""
     # Keyed by day index → (n_tickers,) arrays
-    # Momentum: keyed by (lookback, skip, is_log) → {day: array}
-    momentum_cache: dict  # {(lb, skip, log): {day: np.ndarray}}
+    # Momentum: keyed by (lookback, skip, log_variant) → {day: array}
+    # log_variant: False=arithmetic, 0=basic log, 1=ewma, 2=volnorm, 3=accel, 4=trimmed
+    momentum_cache: dict  # {(lb, skip, variant): {day: np.ndarray}}
     # Quality signals: {day: array}
     smoothness: dict      # {day: np.ndarray}  sqrt(R² * FIP)
     dn_vol: dict          # {day: np.ndarray}  downside vol
@@ -254,12 +396,12 @@ def precompute_signals(
     with np.errstate(divide="ignore", invalid="ignore"):
         mkt = np.nanmean(prices, axis=1)
 
-    # Unique (lookback, skip, is_log) combos
+    # Unique (lookback, skip, LogVariant) combos
     mom_keys = set()
     for lb in lookbacks:
         for skip in skips:
-            mom_keys.add((lb, skip, False))  # arithmetic
-            mom_keys.add((lb, skip, True))   # log
+            for lv in LogVariant:
+                mom_keys.add((lb, skip, lv))
 
     momentum_cache = {k: {} for k in mom_keys}
     smoothness = {}
@@ -269,17 +411,25 @@ def precompute_signals(
     abs_mom_cache = {}
     crash_cache = {}
 
+    momentum_fn_by_variant = {
+        LogVariant.NONE: momentum_arithmetic,
+        LogVariant.BASIC: momentum_log,
+        LogVariant.EWMA: momentum_log_ewma,
+        LogVariant.VOLNORM: momentum_log_volnorm,
+        LogVariant.ACCEL: momentum_log_accel,
+        LogVariant.TRIMMED: momentum_log_trimmed,
+    }
+
     for day in rebal_days:
         pw = prices[:day + 1]
         n = pw.shape[0]
 
-        # Momentum for all (lookback, skip, log) combos
-        for lb, skip, is_log in mom_keys:
+        # Momentum for all (lookback, skip, LogVariant) combos
+        for lb, skip, variant in mom_keys:
             if n < lb + skip:
-                momentum_cache[(lb, skip, is_log)][day] = np.zeros(n_tickers)
+                momentum_cache[(lb, skip, variant)][day] = np.zeros(n_tickers)
             else:
-                fn = momentum_log if is_log else momentum_arithmetic
-                momentum_cache[(lb, skip, is_log)][day] = fn(pw, lb, skip)
+                momentum_cache[(lb, skip, variant)][day] = momentum_fn_by_variant[variant](pw, lb, skip)
 
         # Smoothness: sqrt(R² * FIP)
         qual = trend_quality(pw, min(252, n))
@@ -326,7 +476,7 @@ class ScoringParams:
     use_sortino: bool       # Divide by downside vol
     use_smoothness: bool    # R² × FIP quality
     use_earnings: bool      # Earnings momentum boost
-    use_log_returns: bool   # Log returns instead of arithmetic
+    log_variant: LogVariant  # Which momentum return type to use
     use_consistency: bool   # 8-of-12 positive months filter
     use_abs_momentum: bool  # Dual momentum: require positive 12m return
     use_vol_scaling: bool   # Inverse-vol position weighting
@@ -345,7 +495,8 @@ class ScoringParams:
         if self.use_sortino: flags.append("sort")
         if self.use_smoothness: flags.append("smth")
         if self.use_earnings: flags.append("earn")
-        if self.use_log_returns: flags.append("log")
+        if self.log_variant != LogVariant.NONE:
+            flags.append(self.log_variant.value)
         if self.use_consistency: flags.append("8/12")
         if self.use_abs_momentum: flags.append("dual")
         if self.use_vol_scaling: flags.append("vscl")
@@ -364,12 +515,12 @@ def score_from_cache(
     earnings_row: np.ndarray | None = None,
 ) -> np.ndarray:
     """Score all tickers using precomputed signals. Pure array arithmetic."""
-    is_log = params.use_log_returns
+    variant = params.log_variant
     mc = cache.momentum_cache
 
-    mom_s = mc.get((params.lb_short, params.skip, is_log), {}).get(day)
-    mom_m = mc.get((params.lb_mid, params.skip, is_log), {}).get(day)
-    mom_l = mc.get((params.lb_long, params.skip, is_log), {}).get(day)
+    mom_s = mc.get((params.lb_short, params.skip, variant), {}).get(day)
+    mom_m = mc.get((params.lb_mid, params.skip, variant), {}).get(day)
+    mom_l = mc.get((params.lb_long, params.skip, variant), {}).get(day)
 
     if mom_s is None or mom_m is None or mom_l is None:
         return np.full(len(cache.smoothness.get(day, np.array([]))), -1.0)
@@ -402,6 +553,46 @@ def score_from_cache(
 # ── Vectorized OOS period ────────────────────────────────────────────────────
 
 
+def _compute_rebalance_cost(
+    old_weights: np.ndarray,
+    new_weights: np.ndarray,
+    cost_basis: np.ndarray,
+    current_prices_ratio: np.ndarray,
+) -> float:
+    """Compute total cost of rebalancing as a fraction of portfolio value.
+
+    All math is in weight-space (fractions), so it's scale-invariant.
+    Commission is computed in real dollars using PORTFOLIO_VALUE, then converted back to fraction.
+    """
+    turnover = np.abs(new_weights - old_weights)  # per-ticker weight change
+    total_turnover = turnover.sum()  # two-sided turnover (buy + sell)
+
+    if total_turnover < 0.001:
+        return 0.0
+
+    # 1. Commission: IBKR tiered — $0.0035/share, min $0.35/order
+    #    Scale to real dollars using PORTFOLIO_VALUE for accurate commission calc
+    traded_dollars_real = total_turnover * PORTFOLIO_VALUE
+    shares_traded = traded_dollars_real / AVG_SHARE_PRICE
+    n_orders = int(np.sum(turnover > 0.001))
+    per_share_cost = IBKR_COMMISSION_PER_SHARE + SEC_FINRA_FEE_PER_SHARE
+    commission_real = max(shares_traded * per_share_cost, n_orders * IBKR_MIN_COMMISSION)
+    commission_frac = commission_real / PORTFOLIO_VALUE
+
+    # 2. Bid-ask slippage: pay half-spread on each dollar traded (already a fraction)
+    slippage_frac = total_turnover * (HALF_SPREAD_BPS / 10_000)
+
+    # 3. C-Corp tax on realized gains (sells only)
+    sells = np.maximum(old_weights - new_weights, 0.0)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        gain_pct = np.where(cost_basis > 0, current_prices_ratio / cost_basis - 1, 0.0)
+    gain_pct = np.maximum(gain_pct, 0.0)  # only tax gains, not losses
+    # Tax = 21% of (sell_weight × gain_pct) for each ticker
+    tax_frac = (sells * gain_pct).sum() * CCORP_TAX_RATE
+
+    return commission_frac + slippage_frac + tax_frac
+
+
 def run_oos_period(
     prices: np.ndarray,
     params: ScoringParams,
@@ -416,6 +607,10 @@ def run_oos_period(
     period_len = oos_end - oos_start
     portfolio_value = np.ones(period_len + 1)
     position_counts = []
+
+    # Track weights and cost basis for tax + turnover cost calculation
+    prev_weights = np.zeros(n_tickers)
+    cost_basis = np.ones(n_tickers)  # normalized price at which position was entered
 
     # Pre-identify safe-haven ticker indices for dual momentum risk-off
     safe_indices = []
@@ -439,7 +634,6 @@ def run_oos_period(
         if len(valid) == 0:
             # Dual momentum risk-off: all risky assets failed → allocate to best safe haven
             if safe_indices and params.use_abs_momentum:
-                # Pick safe haven with best positive momentum
                 sh_mom = cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers))
                 best_sh = max(safe_indices, key=lambda i: sh_mom[i])
                 weights = np.zeros(n_tickers)
@@ -448,17 +642,14 @@ def run_oos_period(
             else:
                 portfolio_value[rb_offset + 1:next_offset + 1] = portfolio_value[rb_offset]
                 position_counts.append(0)
+                prev_weights = np.zeros(n_tickers)
                 continue
         else:
             top_n = min(params.max_positions, len(valid))
             top_idx = valid[np.argsort(scores[valid])[-top_n:]]
 
-            # Dual momentum: redistribute weight from filtered-out positions to safe havens
             if params.use_abs_momentum and safe_indices and top_n < params.max_positions:
-                # Some risky positions were filtered by abs momentum
-                # Allocate their share to the best safe haven
                 n_risk = top_n
-                n_safe_slots = params.max_positions - n_risk
                 sh_mom = cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers))
                 best_sh = max(safe_indices, key=lambda i: sh_mom[i])
 
@@ -481,6 +672,20 @@ def run_oos_period(
                 weights[top_idx] = 1.0 / top_n
 
             position_counts.append(top_n)
+
+        # Compute rebalance costs (commission + slippage + tax on gains)
+        current_price_ratio = prices[rb_abs] / prices[oos_start] if prices[oos_start].sum() > 0 else np.ones(n_tickers)
+        rebal_cost_frac = _compute_rebalance_cost(
+            prev_weights, weights, cost_basis, current_price_ratio,
+        )
+
+        # Update cost basis: for newly bought positions, mark entry price
+        new_positions = (weights > 0.001) & (prev_weights < 0.001)
+        cost_basis[new_positions] = current_price_ratio[new_positions]
+
+        # Apply rebalance cost as immediate drag
+        portfolio_value[rb_offset] *= (1.0 - rebal_cost_frac)
+        prev_weights = weights.copy()
 
         # Vectorized daily returns
         day_start = oos_start + rb_offset
@@ -630,7 +835,10 @@ def walk_forward_backtest(
 
     total_oos_days = sum(e - s for s, e in folds)
     n_years = total_oos_days / 252
-    ann_return = (1 + oos_total) ** (1 / n_years) - 1 if n_years > 0 else 0
+    if n_years > 0 and (1 + oos_total) > 0:
+        ann_return = (1 + oos_total) ** (1 / n_years) - 1
+    else:
+        ann_return = -1.0 if oos_total < 0 else 0.0
 
     fold_arr = np.array(fold_returns)
     consist = float(fold_arr.std())
@@ -680,35 +888,49 @@ def build_param_grid() -> list[ScoringParams]:
     rebal_freqs = [5, 10, 21, 42, 63]
 
     # Signal profiles: predefined combos to avoid full cartesian explosion
-    # Each profile: (sortino, smooth, earnings, log, consistency, abs_mom, vol_scl, crash)
+    # Each: (sortino, smooth, earnings, LogVariant, consistency, abs_mom, vol_scl, crash)
+    LV = LogVariant
     signal_profiles = [
-        # Baseline: no signals
-        (False, False, False, False, False, False, False, False),
+        # Baseline: arithmetic only
+        (False, False, False, LV.NONE,    False, False, False, False),
         # Single signals (test each alone)
-        (True,  False, False, False, False, False, False, False),  # sortino only
-        (False, True,  False, False, False, False, False, False),  # smoothness only
-        (False, False, True,  False, False, False, False, False),  # earnings only
-        (False, False, False, True,  False, False, False, False),  # log returns only
-        (False, False, False, False, True,  False, False, False),  # 8/12 consistency only
-        (False, False, False, False, False, True,  False, False),  # dual momentum only
-        (False, False, False, False, False, False, True,  False),  # vol scaling only
-        (False, False, False, False, False, False, False, True),   # crash prot only
-        # Best combos from prior research
-        (True,  False, True,  False, False, False, False, False),  # sortino + earnings
-        (False, False, True,  False, True,  False, False, False),  # earnings + 8/12
-        (False, False, False, False, False, True,  True,  False),  # dual + vol_scl
-        (True,  False, False, False, False, True,  False, False),  # sortino + dual
-        (False, False, True,  False, False, True,  False, False),  # earnings + dual
+        (True,  False, False, LV.NONE,    False, False, False, False),  # sortino only
+        (False, True,  False, LV.NONE,    False, False, False, False),  # smoothness only
+        (False, False, True,  LV.NONE,    False, False, False, False),  # earnings only
+        (False, False, False, LV.BASIC,   False, False, False, False),  # basic log
+        (False, False, False, LV.EWMA,    False, False, False, False),  # ewma log
+        (False, False, False, LV.VOLNORM, False, False, False, False),  # vol-norm log
+        (False, False, False, LV.ACCEL,   False, False, False, False),  # accel log
+        (False, False, False, LV.TRIMMED, False, False, False, False),  # trimmed log
+        (False, False, False, LV.NONE,    True,  False, False, False),  # 8/12 consistency
+        (False, False, False, LV.NONE,    False, True,  False, False),  # dual momentum
+        (False, False, False, LV.NONE,    False, False, True,  False),  # vol scaling
+        (False, False, False, LV.NONE,    False, False, False, True),   # crash prot
+        # Best combos from prior sweep
+        (True,  False, True,  LV.NONE,    False, False, False, False),  # sortino + earnings
+        (False, False, True,  LV.NONE,    True,  False, False, False),  # earnings + 8/12
+        (False, False, False, LV.NONE,    False, True,  True,  False),  # dual + vol_scl
+        (True,  False, False, LV.NONE,    False, True,  False, False),  # sortino + dual
+        (False, False, True,  LV.NONE,    False, True,  False, False),  # earnings + dual
         # AQR-inspired
-        (False, False, False, False, False, False, True,  True),   # vol_scl + crash
-        (True,  False, False, False, False, True,  True,  False),  # sortino + dual + vol_scl
-        (True,  False, False, False, False, True,  True,  True),   # sortino + dual + vol_scl + crash
+        (False, False, False, LV.NONE,    False, False, True,  True),   # vol_scl + crash
+        (True,  False, False, LV.NONE,    False, True,  True,  False),  # sortino + dual + vol_scl
+        (True,  False, False, LV.NONE,    False, True,  True,  True),   # sort + dual + vol_scl + crash
         # Alpha Architect inspired
-        (True,  True,  True,  False, True,  False, False, False),  # sort + smooth + earn + 8/12
-        (False, False, True,  True,  True,  True,  False, False),  # earn + log + 8/12 + dual
+        (True,  True,  True,  LV.NONE,    True,  False, False, False),  # sort + smooth + earn + 8/12
+        (False, False, True,  LV.BASIC,   True,  True,  False, False),  # earn + log + 8/12 + dual
+        # Log variant combos — pair new variants with best signals
+        (True,  False, False, LV.VOLNORM, False, False, False, False),  # sortino + vol-norm
+        (False, False, True,  LV.EWMA,    False, False, False, False),  # earnings + ewma
+        (False, False, True,  LV.ACCEL,   False, False, False, False),  # earnings + accel
+        (False, False, False, LV.VOLNORM, False, False, True,  False),  # vol-norm + vol_scl
+        (False, False, False, LV.TRIMMED, False, False, True,  False),  # trimmed + vol_scl
+        (True,  False, True,  LV.VOLNORM, False, False, False, False),  # sort + earn + vol-norm
+        (False, False, True,  LV.ACCEL,   True,  False, False, False),  # earn + accel + 8/12
         # Kitchen sink
-        (True,  True,  True,  True,  True,  True,  True,  True),   # everything
-        (True,  False, True,  True,  True,  True,  True,  True),   # everything minus smooth
+        (True,  True,  True,  LV.BASIC,   True,  True,  True,  True),   # everything basic log
+        (True,  False, True,  LV.VOLNORM, True,  True,  True,  True),   # everything vol-norm
+        (True,  False, True,  LV.EWMA,    True,  True,  True,  True),   # everything ewma
     ]
 
     for lb, ws, skip, profile, n_pos, rf in product(
@@ -716,13 +938,13 @@ def build_param_grid() -> list[ScoringParams]:
     ):
         if lb[0] <= skip:
             continue
-        sort, smth, earn, log, cons, dual, vscl, crsh = profile
+        sort, smth, earn, lv, cons, dual, vscl, crsh = profile
         configs.append(ScoringParams(
             lb_short=lb[0], lb_mid=lb[1], lb_long=lb[2],
             w_short=ws[0], w_mid=ws[1], w_long=ws[2],
             skip=skip,
             use_sortino=sort, use_smoothness=smth, use_earnings=earn,
-            use_log_returns=log, use_consistency=cons,
+            log_variant=lv, use_consistency=cons,
             use_abs_momentum=dual, use_vol_scaling=vscl,
             use_crash_prot=crsh,
             max_positions=n_pos, rebal_freq=rf,
@@ -777,6 +999,20 @@ ALL_COLS = ["ret", "ann", "dd", "sortino", "calmar", "win", "pos", "params"]
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 
+def _discover_india_mf_schemes(max_per_query: int = 5) -> list[int]:
+    """Discover India MF scheme codes by searching common fund categories."""
+    seen = set()
+    codes = []
+    for query in INDIA_MF_QUERIES:
+        results = search_mf_schemes(query)
+        for r in results[:max_per_query]:
+            sc = r["schemeCode"]
+            if sc not in seen:
+                seen.add(sc)
+                codes.append(sc)
+    return codes
+
+
 @click.command()
 @click.option("--top", default=20, help="Show top N results.")
 @click.option("--period", default="max", help="Price history period.")
@@ -784,17 +1020,50 @@ ALL_COLS = ["ret", "ann", "dd", "sortino", "calmar", "win", "pos", "params"]
 @click.option("--min-train", default=252, help="Min training days.")
 @click.option("--oos-window", default=126, help="OOS test window days.")
 @click.option("--max-dd-cap", default=0.50, help="MaxDD cap for survivable scenario.")
-def main(top: int, period: str, workers: int, min_train: int, oos_window: int, max_dd_cap: float):
+@click.option("--market", default="us", type=click.Choice(["us", "india"]),
+              help="Market: 'us' for US equities (yfinance), 'india' for MFs (mfapi.in).")
+@click.option("--mf-max-per-query", default=5, help="Max schemes per search query (India).")
+def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
+         max_dd_cap: float, market: str, mf_max_per_query: int):
     """Walk-forward momentum sweep — AQR + Alpha Architect signals."""
-    console.print(f"[bold]Fetching {len(TICKERS)} tickers ({period})...[/]")
-    prices, dates, fetched = fetch_all_numpy(TICKERS, period)
-    n_days = prices.shape[0]
-    console.print(f"[green]Got {len(fetched)} tickers, {n_days} days ({dates[0]} → {dates[-1]})[/]")
+    global PORTFOLIO_VALUE, IBKR_COMMISSION_PER_SHARE, IBKR_MIN_COMMISSION
+    global AVG_SHARE_PRICE, HALF_SPREAD_BPS, CCORP_TAX_RATE, SEC_FINRA_FEE_PER_SHARE
 
-    console.print("[bold]Fetching earnings...[/]")
-    earnings = fetch_all_earnings(fetched)
-    console.print(f"[green]Earnings for {len(earnings)}/{len(fetched)} tickers[/]")
-    earn_mom = build_earnings_momentum(earnings, dates, fetched)
+    if market == "india":
+        # India cost model: no C-Corp tax, lower commissions, wider spreads
+        PORTFOLIO_VALUE = 2_500_000.0       # ₹25L starting capital
+        IBKR_COMMISSION_PER_SHARE = 0.0     # MF switches are free
+        IBKR_MIN_COMMISSION = 0.0           # No per-order min
+        AVG_SHARE_PRICE = 100.0             # Avg NAV
+        HALF_SPREAD_BPS = 0.0               # MFs trade at NAV (no spread)
+        CCORP_TAX_RATE = 0.125              # 12.5% LTCG on equity MFs (>1yr)
+        SEC_FINRA_FEE_PER_SHARE = 0.0       # No regulatory fees
+        # Exit load: 1% if redeemed within 1 year for most equity MFs
+        # We'll model this as a flat cost on sells for rebal < 252 days
+
+        console.print(f"[bold]Discovering India MF schemes...[/]")
+        scheme_codes = _discover_india_mf_schemes(mf_max_per_query)
+        console.print(f"[green]Found {len(scheme_codes)} schemes[/]")
+
+        console.print(f"[bold]Fetching NAV history ({period})...[/]")
+        prices, dates, fetched = fetch_all_mf_numpy(scheme_codes, period)
+        n_days = prices.shape[0]
+        if n_days == 0:
+            console.print("[red]No data fetched![/]")
+            return
+        console.print(f"[green]Got {len(fetched)} schemes, {n_days} days ({dates[0]} → {dates[-1]})[/]")
+        # No earnings data for MFs
+        earn_mom = None
+    else:
+        console.print(f"[bold]Fetching {len(TICKERS)} tickers ({period})...[/]")
+        prices, dates, fetched = fetch_all_numpy(TICKERS, period)
+        n_days = prices.shape[0]
+        console.print(f"[green]Got {len(fetched)} tickers, {n_days} days ({dates[0]} → {dates[-1]})[/]")
+
+        console.print("[bold]Fetching earnings...[/]")
+        earnings = fetch_all_earnings(fetched)
+        console.print(f"[green]Earnings for {len(earnings)}/{len(fetched)} tickers[/]")
+        earn_mom = build_earnings_momentum(earnings, dates, fetched)
 
     folds = build_folds(prices, min_train, oos_window)
     console.print(f"[bold]{len(folds)} folds[/] ({dates[folds[0][0]]} → {dates[folds[-1][1]]})")
@@ -1064,6 +1333,83 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int, m
             *[f"{np.percentile(surv_dd, p)*100:.1f}%" for p in sp])
         console.print(surv_dist)
 
+    # ── Scenario 13: HIGH-VOL REGIME — What works when everything is volatile ──
+    # Identify folds where cross-asset realized vol was in the top quartile
+    fold_vols = []
+    for fold_idx, (fs, fe) in enumerate(folds):
+        window = prices[fs:fe]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            rets = np.diff(window, axis=0) / window[:-1]
+        rets = np.nan_to_num(rets, nan=0.0)
+        # Cross-asset vol: median of per-ticker annualized vol
+        per_ticker_vol = np.nanstd(rets, axis=0) * np.sqrt(252)
+        fold_vols.append(float(np.nanmedian(per_ticker_vol)))
+
+    fold_vols_arr = np.array(fold_vols)
+    high_vol_threshold = np.percentile(fold_vols_arr, 75)
+    high_vol_folds = [i for i, v in enumerate(fold_vols) if v >= high_vol_threshold]
+    low_vol_folds = [i for i, v in enumerate(fold_vols) if v < np.percentile(fold_vols_arr, 25)]
+
+    console.print(f"\n[bold]HIGH-VOL REGIME ANALYSIS[/]")
+    console.print(f"  Vol threshold (P75): {high_vol_threshold*100:.1f}% ann.  "
+                  f"High-vol folds: {len(high_vol_folds)}/{len(folds)}  "
+                  f"Low-vol folds: {len(low_vol_folds)}/{len(folds)}")
+
+    # Score each config only on high-vol folds
+    if high_vol_folds and len(high_vol_folds) >= 3:
+        high_vol_scores = []
+        for r in results:
+            hv_rets = [r.fold_returns[i] for i in high_vol_folds if i < len(r.fold_returns)]
+            if not hv_rets:
+                continue
+            hv_total = float(np.prod([1 + x for x in hv_rets]) - 1)
+            hv_dd = min(hv_rets)
+            n_hv_years = len(hv_rets) * 0.5  # each fold ~ 6 months
+            hv_ann = (1 + hv_total) ** (1 / n_hv_years) - 1 if n_hv_years > 0 else 0
+            high_vol_scores.append((r, hv_ann, hv_dd, hv_total))
+
+        # Best return in high-vol
+        high_vol_scores.sort(key=lambda x: x[1], reverse=True)
+        hv_table = Table(title=f"BEST IN HIGH-VOL REGIMES ({len(high_vol_folds)} folds, vol ≥ {high_vol_threshold*100:.0f}%)")
+        hv_table.add_column("#", style="dim", width=3)
+        hv_table.add_column("HV Ann.", justify="right", style="bold green")
+        hv_table.add_column("HV Worst Fold", justify="right", style="red")
+        hv_table.add_column("Full Ann.", justify="right")
+        hv_table.add_column("Full DD", justify="right", style="red")
+        hv_table.add_column("Config", style="")
+
+        for i, (r, hv_ann, hv_dd, _) in enumerate(high_vol_scores[:10]):
+            hv_table.add_row(
+                str(i + 1),
+                f"{hv_ann*100:+.1f}%",
+                f"{hv_dd*100:+.1f}%",
+                f"{r.oos_annualized*100:+.1f}%",
+                f"{r.oos_max_dd*100:.1f}%",
+                r.label(),
+            )
+        console.print(hv_table)
+
+        # Signal dominance in high-vol regime
+        top20_hv = [x[0] for x in high_vol_scores[:20]]
+        console.print(f"\n[bold]Signal dominance in high-vol (top 20):[/]")
+        hv_lv = Counter(r.params.log_variant.value for r in top20_hv)
+        console.print(f"  log-variant: {' '.join(f'{k}={v}' for k,v in sorted(hv_lv.items()))}")
+        for attr, label in [
+            ("use_vol_scaling", "vol-scl"), ("use_crash_prot", "crash-prot"),
+            ("use_abs_momentum", "dual-mom"), ("use_earnings", "earnings"),
+        ]:
+            y = sum(getattr(r.params, attr) for r in top20_hv)
+            console.print(f"  {label}: on={y}  off={20-y}")
+        hv_rf = Counter(r.params.rebal_freq for r in top20_hv)
+        console.print(f"  rebal: {' '.join(f'{k}d={v}' for k,v in sorted(hv_rf.items()))}")
+
+    # ── Scenario 14: COST IMPACT — How much do costs drag returns? ────────────
+    console.print(f"\n[bold]COST MODEL (IBKR C-Corp, ${PORTFOLIO_VALUE/1000:.0f}K):[/]")
+    console.print(f"  Commission: ${IBKR_COMMISSION_PER_SHARE}/share (tiered), min ${IBKR_MIN_COMMISSION}/order")
+    console.print(f"  Half-spread: {HALF_SPREAD_BPS:.0f} bps ({HALF_SPREAD_BPS/100:.2f}%)")
+    console.print(f"  C-Corp tax: {CCORP_TAX_RATE*100:.0f}% flat on realized gains")
+    console.print(f"  [dim]Note: all scenario returns above are AFTER costs[/]")
+
     # ══════════════════════════════════════════════════════════════════════════
     #  SUMMARY + SIGNAL DOMINANCE
     # ══════════════════════════════════════════════════════════════════════════
@@ -1083,7 +1429,7 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int, m
     console.print(f"\n[bold]Signal dominance (top 50 survivable):[/]")
     for attr, label in [
         ("skip", "skip"), ("use_sortino", "sortino"), ("use_smoothness", "smooth"),
-        ("use_earnings", "earnings"), ("use_log_returns", "log-ret"),
+        ("use_earnings", "earnings"),
         ("use_consistency", "8/12-cons"), ("use_abs_momentum", "dual-mom"),
         ("use_vol_scaling", "vol-scl"), ("use_crash_prot", "crash-prot"),
     ]:
@@ -1094,6 +1440,9 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int, m
         else:
             c = Counter(vals)
             console.print(f"  {label}: {' '.join(f'{k}={v}' for k,v in sorted(c.items()))}")
+    # Log variant breakdown
+    lv_counts = Counter(r.params.log_variant.value for r in top50)
+    console.print(f"  log-variant: {' '.join(f'{k}={v}' for k,v in sorted(lv_counts.items()))}")
 
     rf_counts = Counter(r.params.rebal_freq for r in top50)
     console.print(f"  rebal: {' '.join(f'{k}d={v}' for k,v in sorted(rf_counts.items()))}")

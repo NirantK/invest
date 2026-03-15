@@ -2,10 +2,11 @@
 
 import pickle
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import date
+from datetime import date, datetime
 from functools import wraps
 from pathlib import Path
 
+import httpx
 import numpy as np
 import yfinance as yf
 
@@ -33,17 +34,17 @@ def daily_disk_cache(func):
 
 
 def build_total_return(close: np.ndarray, divs: np.ndarray) -> np.ndarray:
-    """Build total return index from close prices and dividends."""
-    tri = close.copy()
-    cumulative_div_yield = 0.0
-    for i in range(1, len(close)):
-        if close[i - 1] != 0:
-            div_yield = divs[i] / close[i - 1]
-        else:
-            div_yield = 0
-        cumulative_div_yield = (1 + cumulative_div_yield) * (1 + div_yield) - 1
-        tri[i] = close[i] * (1 + cumulative_div_yield)
-    return tri
+    """Build total return index from close prices and dividends.
+
+    Vectorized: cumulative product of (1 + div_yield) applied to close prices.
+    """
+    shifted_close = np.roll(close, 1)
+    shifted_close[0] = close[0]  # avoid div by zero on first element
+    with np.errstate(divide="ignore", invalid="ignore"):
+        div_yields = np.where(shifted_close != 0, divs / shifted_close, 0.0)
+    div_yields[0] = 0.0  # no yield on first day
+    cumulative_div_factor = np.cumprod(1 + div_yields)
+    return close * cumulative_div_factor
 
 
 @daily_disk_cache
@@ -86,22 +87,24 @@ def fetch_all_numpy(
         indices = np.array([date_to_idx[d] for d in raw[t]["dates"]])
         prices[indices, j] = raw[t]["tri"]
 
-    # Forward-fill NaNs (leave leading NaN for late-starting tickers)
+    _forward_fill_columns(prices)
+    return prices, np.array(all_dates), fetched_tickers
+
+
+def _forward_fill_columns(prices: np.ndarray) -> None:
+    """Forward-fill NaN values column-wise in place. Vectorized per-column."""
     for j in range(prices.shape[1]):
         col = prices[:, j]
         mask = np.isnan(col)
         if mask.all():
             continue
-        first_valid = np.argmax(~mask)
-        # Vectorized forward fill using numpy
+        first_valid = int(np.argmax(~mask))
         valid_idx = np.where(~mask[first_valid:])[0] + first_valid
         if len(valid_idx) > 1:
             fill_idx = np.arange(first_valid, len(col))
             insert_points = np.searchsorted(valid_idx, fill_idx, side="right") - 1
             insert_points = np.clip(insert_points, 0, len(valid_idx) - 1)
             col[first_valid:] = col[valid_idx[insert_points]]
-
-    return prices, np.array(all_dates), fetched_tickers
 
 
 # ── Earnings momentum ────────────────────────────────────────────────────────
@@ -185,3 +188,92 @@ def build_earnings_momentum(
             earn_mom[start_idx:end_idx, j] = yoy_growth
 
     return earn_mom
+
+
+# ── Indian Mutual Fund data (mfapi.in) ──────────────────────────────────────
+
+MFAPI_BASE = "https://api.mfapi.in/mf"
+
+
+def search_mf_schemes(query: str) -> list[dict]:
+    """Search mfapi.in by name. Returns [{schemeCode, schemeName}, ...]."""
+    resp = httpx.get(f"{MFAPI_BASE}/search", params={"q": query}, timeout=30)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_all_mf_schemes() -> list[dict]:
+    """Get all scheme codes from mfapi.in. Returns [{schemeCode, schemeName}, ...]."""
+    resp = httpx.get(MFAPI_BASE, timeout=60)
+    resp.raise_for_status()
+    return resp.json()
+
+
+@daily_disk_cache
+def fetch_mf_nav_dict(scheme_code: int, _period: str = "max") -> dict | None:
+    """Fetch MF NAV history as numpy dict. Same interface as fetch_one_dict.
+
+    _period is unused (mfapi always returns full history) but kept for cache key compat.
+    Returns {"dates": np.array, "tri": np.array} or None.
+    """
+    resp = httpx.get(f"{MFAPI_BASE}/{scheme_code}", timeout=60)
+    resp.raise_for_status()
+    data = resp.json()
+    nav_entries = data.get("data", [])
+    if not nav_entries:
+        return None
+
+    # Parse dates (dd-mm-yyyy) and NAVs, sort chronologically
+    parsed = []
+    for entry in nav_entries:
+        nav_str = entry.get("nav", "")
+        date_str = entry.get("date", "")
+        if not nav_str or not date_str:
+            continue
+        nav_val = float(nav_str)
+        if nav_val <= 0:
+            continue
+        dt = datetime.strptime(date_str, "%d-%m-%Y")
+        parsed.append((dt.strftime("%Y-%m-%d"), nav_val))
+
+    if len(parsed) < 2:
+        return None
+
+    parsed.sort(key=lambda x: x[0])
+    dates = np.array([p[0] for p in parsed])
+    navs = np.array([p[1] for p in parsed])
+    # MF NAVs already include dividends reinvested (growth option), so NAV = total return
+    return {"dates": dates, "tri": navs}
+
+
+def fetch_all_mf_numpy(
+    scheme_codes: list[int], period: str = "max"
+) -> tuple[np.ndarray, np.ndarray, list[str]]:
+    """Fetch all MF schemes, align to common dates.
+
+    Returns (prices[n_days, n_schemes], dates[n_days], scheme_labels).
+    Same interface as fetch_all_numpy but for Indian mutual funds.
+    """
+    raw = {}
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        futures = {pool.submit(fetch_mf_nav_dict, sc, period): sc for sc in scheme_codes}
+        for future in as_completed(futures):
+            sc = futures[future]
+            result = future.result()
+            if result is not None and len(result["tri"]) > 0:
+                raw[str(sc)] = result
+
+    if not raw:
+        return np.array([]), np.array([]), []
+
+    all_dates = sorted(set().union(*(set(v["dates"]) for v in raw.values())))
+    date_to_idx = {d: i for i, d in enumerate(all_dates)}
+    fetched = sorted(raw.keys())
+
+    prices = np.full((len(all_dates), len(fetched)), np.nan)
+    for j, sc in enumerate(fetched):
+        indices = np.array([date_to_idx[d] for d in raw[sc]["dates"]])
+        prices[indices, j] = raw[sc]["tri"]
+
+    _forward_fill_columns(prices)
+    return prices, np.array(all_dates), fetched
