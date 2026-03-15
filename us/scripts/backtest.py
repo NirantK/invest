@@ -2348,6 +2348,36 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     with np.errstate(divide="ignore", invalid="ignore"):
         trace_daily_rets = np.nan_to_num(prices[1:] / prices[:-1] - 1, nan=0.0)
 
+    # Build scheme name lookup — load from local JSON, resolve unknowns via API
+    import json as _json
+    mf_names_file = Path(__file__).parent.parent / "data" / "mf_scheme_names.json"
+    mf_name_cache = {}
+    if mf_names_file.exists():
+        mf_name_cache = _json.loads(mf_names_file.read_text())
+
+    for ticker_id in fetched:
+        if not ticker_id.isdigit():
+            mf_name_cache[ticker_id] = ticker_id.replace(".NS", "")
+
+    def _resolve_name(ticker_id: str) -> str:
+        if ticker_id in mf_name_cache:
+            return mf_name_cache[ticker_id]
+        if ticker_id.isdigit():
+            import httpx as _hx
+            resp = _hx.get(f"https://api.mfapi.in/mf/{ticker_id}", timeout=5)
+            if resp.status_code == 200:
+                name = resp.json().get("meta", {}).get("scheme_name", ticker_id)
+                for drop in [" - Direct Plan", " Direct Plan", "-Direct Plan",
+                             " - Growth Option", " - Growth", "-Growth", " Growth",
+                             " Option", " Fund"]:
+                    name = name.replace(drop, "")
+                mf_name_cache[ticker_id] = name[:45]
+        return mf_name_cache.get(ticker_id, ticker_id)
+
+    def _save_name_cache():
+        mf_names_file.parent.mkdir(parents=True, exist_ok=True)
+        mf_names_file.write_text(_json.dumps(mf_name_cache, indent=2, sort_keys=True))
+
     for rank, r in enumerate(survivable[:3]):
         p = r.params
         console.print(f"\n[bold cyan]#{rank+1}: {p.label()}[/]  "
@@ -2364,11 +2394,27 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
         holdings_table.add_column("Holdings", style="bold")
         holdings_table.add_column("Scores", style="dim")
 
-        for fold_idx, (oos_start, oos_end) in enumerate(folds[-6:]):  # last 6 folds only
+        # Show holdings for specific periods of interest + last 6 folds
+        target_dates = ["2009-03", "2009-06", "2009-09",
+                        "2016-01", "2016-06", "2016-11",
+                        "2020-02", "2020-03", "2020-04", "2020-06"]
+        target_folds = set()
+        for fold_idx, (oos_start, oos_end) in enumerate(folds):
+            fold_start_date = dates[oos_start] if oos_start < len(dates) else ""
+            fold_end_date = dates[oos_end] if oos_end < len(dates) else ""
+            for td in target_dates:
+                if fold_start_date <= td <= fold_end_date or fold_start_date[:7] == td[:7]:
+                    target_folds.add(fold_idx)
+            if fold_idx >= len(folds) - 4:  # also last 4 folds
+                target_folds.add(fold_idx)
+
+        for fold_idx, (oos_start, oos_end) in enumerate(folds):
+            if fold_idx not in target_folds:
+                continue
             period_len = oos_end - oos_start
             rebal_offsets = list(range(0, period_len, p.rebal_freq))
 
-            for rb_offset in rebal_offsets[:3]:  # first 3 rebal points per fold
+            for rb_offset in rebal_offsets[:4]:  # first 4 rebal points per fold
                 rb_abs = oos_start + rb_offset
                 earn_row = em[rb_abs] if em is not None else None
                 scores = score_from_cache(rb_abs, p, trace_cache, earn_row)
@@ -2387,7 +2433,7 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
                 top_n = min(p.max_positions, len(sorted_valid))
                 top_idx = sorted_valid[-top_n:][::-1]  # descending by score
 
-                ticker_names = [fetched[i] for i in top_idx]
+                ticker_names = [_resolve_name(fetched[i]) for i in top_idx]
                 ticker_scores = [f"{scores[i]:.3f}" for i in top_idx]
 
                 holdings_table.add_row(
@@ -2398,6 +2444,9 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
                 )
 
         console.print(holdings_table)
+
+    _save_name_cache()
+    console.print(f"[dim]Saved {len(mf_name_cache)} scheme names to {mf_names_file}[/]")
 
 
 if __name__ == "__main__":
