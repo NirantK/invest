@@ -1870,8 +1870,10 @@ def _load_market_data(
               help="Market: 'us' for US equities (yfinance), 'india' for MFs (mfapi.in).")
 @click.option("--mf-max-per-query", default=15, help="Max schemes per search query (India).")
 @click.option("--mf-all", is_flag=True, help="Fetch ALL mfapi.in schemes (India only).")
+@click.option("--options", "use_options", is_flag=True, help="Add options overlay (PUTs on Core, CALLs on Max).")
 def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
-         max_dd_cap: float, market: str, mf_max_per_query: int, mf_all: bool):
+         max_dd_cap: float, market: str, mf_max_per_query: int, mf_all: bool,
+         use_options: bool):
     """Walk-forward momentum sweep — AQR + Alpha Architect signals."""
     prices, dates, fetched, earn_mom, cfg = _load_market_data(market, period, mf_max_per_query, mf_all)
 
@@ -1959,7 +1961,7 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
         needed_variants, need_smoothness, need_consistency, need_crash,
     )
     print_efficient_frontier(results, folds, fetched)
-    print_portfolio_allocation(results, prices, dates, fetched, earn_mom)
+    print_portfolio_allocation(results, prices, dates, fetched, earn_mom, use_options=use_options)
 
 
 if __name__ == "__main__":

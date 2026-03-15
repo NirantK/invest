@@ -892,6 +892,7 @@ def print_portfolio_allocation(
     fetched: list[str],
     earn_mom: np.ndarray | None,
     capital: float = 50000.0,
+    use_options: bool = False,
 ) -> None:
     """Split results into Core (60%, DD<=30%) and Max (30%, DD<=75%).
 
@@ -901,13 +902,15 @@ def print_portfolio_allocation(
     """
     CORE_DD_CAP = 0.30
     MAX_DD_CAP = 0.75
-    CORE_WEIGHT = 0.60
-    MAX_WEIGHT = 0.30
+    OPTIONS_BUDGET = 0.05 if use_options else 0.0  # 5% reserved
+    CORE_WEIGHT = 0.60 - OPTIONS_BUDGET * 0.6  # scale down proportionally
+    MAX_WEIGHT = 0.30 - OPTIONS_BUDGET * 0.3
     SAFE_WEIGHT = 0.10
 
     core_capital = capital * CORE_WEIGHT
     max_capital = capital * MAX_WEIGHT
     safe_capital = capital * SAFE_WEIGHT
+    options_budget = capital * OPTIONS_BUDGET
 
     def _is_validated_signal(p) -> bool:
         """MC-validated signal family: sort+earn+vnorm."""
@@ -933,9 +936,11 @@ def print_portfolio_allocation(
 
     print("\n<portfolio-allocation>")
     print(f"### Portfolio Split: ${capital:,.0f}")
-    print(f"  Core (60%): ${core_capital:,.0f} — DD cap {CORE_DD_CAP:.0%}")
-    print(f"  Max  (30%): ${max_capital:,.0f} — DD cap {MAX_DD_CAP:.0%}")
-    print(f"  Safe (10%): ${safe_capital:,.0f} — {', '.join(sorted(SAFE_HAVENS))}")
+    print(f"  Core: ${core_capital:,.0f} ({CORE_WEIGHT:.0%}) — DD cap {CORE_DD_CAP:.0%}")
+    print(f"  Max:  ${max_capital:,.0f} ({MAX_WEIGHT:.0%}) — DD cap {MAX_DD_CAP:.0%}")
+    print(f"  Safe: ${safe_capital:,.0f} ({SAFE_WEIGHT:.0%}) — {', '.join(sorted(SAFE_HAVENS))}")
+    if use_options:
+        print(f"  Options: ${options_budget:,.0f} ({OPTIONS_BUDGET:.0%}) — PUTs + CALLs")
 
     last_day = prices.shape[0] - 1
 
@@ -1138,4 +1143,80 @@ def print_portfolio_allocation(
     print(f"  Total invested: ${total:,.0f} / ${capital:,.0f} "
           f"({total/capital*100:.1f}%)")
     print(f"  Cash: ${capital - total:,.0f}")
+
+    # ── Options overlay ──────────────────────────────────────────────
+    if use_options:
+        from options_utils import options_overlay_for_portfolio
+
+        print(f"\n### OPTIONS OVERLAY")
+        print(f"  Core: protective PUTs (5% OTM, 90 DTE)")
+        print(f"  Max: conviction CALLs (10% OTM, 90 DTE)")
+        print(f"  Budget: PUTs ≤5% of position, CALLs ≤10% of bucket")
+
+        total_options_cost = 0
+
+        # Core PUTs
+        if core_best:
+            core_h, _ = _current_holdings(core_best, core_capital)
+            core_opts = options_overlay_for_portfolio(
+                core_h, prices, fetched, "core",
+                put_budget_pct=0.05,
+            )
+            if core_opts:
+                print(f"\n  **Core Protective PUTs:**")
+                rows = []
+                for o in core_opts:
+                    rows.append([
+                        o["ticker"],
+                        f"${o['strike']:.0f}",
+                        f"${o['premium']:.2f}",
+                        str(o["contracts"]),
+                        f"${o['total_cost']:,.0f}",
+                        f"{o['delta']:.2f}",
+                        f"{o['sigma']*100:.0f}%",
+                        f"{o['shares_protected']}sh",
+                    ])
+                    total_options_cost += o["total_cost"]
+                print(_md_table(
+                    ["Ticker", "Strike", "Prem/sh",
+                     "Ctrs", "Cost", "Delta",
+                     "Vol", "Protect"],
+                    rows,
+                ))
+
+        # Max CALLs
+        if max_best:
+            max_h, _ = _current_holdings(max_best, max_capital)
+            max_opts = options_overlay_for_portfolio(
+                max_h, prices, fetched, "max",
+                call_budget_pct=0.10,
+            )
+            if max_opts:
+                print(f"\n  **Max Conviction CALLs:**")
+                rows = []
+                for o in max_opts:
+                    rows.append([
+                        o["ticker"],
+                        f"${o['strike']:.0f}",
+                        f"${o['premium']:.2f}",
+                        str(o["contracts"]),
+                        f"${o['total_cost']:,.0f}",
+                        f"{o['delta']:.2f}",
+                        f"{o['sigma']*100:.0f}%",
+                        f"{o['leverage']:.0f}x",
+                        f"${o['breakeven']:.0f}",
+                    ])
+                    total_options_cost += o["total_cost"]
+                print(_md_table(
+                    ["Ticker", "Strike", "Prem/sh",
+                     "Ctrs", "Cost", "Delta",
+                     "Vol", "Lev", "B/E"],
+                    rows,
+                ))
+
+        print(f"\n  Total options cost: ${total_options_cost:,.0f} "
+              f"({total_options_cost/capital*100:.1f}% of capital)")
+        remaining = capital - total - total_options_cost
+        print(f"  Cash after options: ${remaining:,.0f}")
+
     print("</portfolio-allocation>")
