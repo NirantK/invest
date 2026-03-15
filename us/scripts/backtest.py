@@ -960,30 +960,39 @@ def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
 
                 daily_rets_slice = _G_DAILY_RETS[day_start:day_end]
 
-                for n_pos in all_max_pos:
-                    if len(sorted_valid) == 0:
-                        pv[n_pos][rb_offset + 1:next_offset + 1] = pv[n_pos][rb_offset]
-                        pos_counts[n_pos].append(0)
-                        continue
+                if len(sorted_valid) == 0:
+                    for n in all_max_pos:
+                        pv[n][rb_offset + 1:next_offset + 1] = pv[n][rb_offset]
+                        pos_counts[n].append(0)
+                    continue
 
+                # Build weight matrix for all position sizes at once: (n_sizes, n_tickers)
+                n_sizes = len(all_max_pos)
+                weight_matrix = np.zeros((n_sizes, n_tickers))
+                actual_counts = []
+
+                if use_vol_scaling and cache is not None:
+                    tv = cache.tv.get(rb_abs, np.ones(n_tickers) * 0.0001)
+
+                for si, n_pos in enumerate(all_max_pos):
                     top_n = min(n_pos, len(sorted_valid))
-                    top_idx = sorted_valid[-top_n:]  # top N from ascending sort
-
+                    top_idx = sorted_valid[-top_n:]
                     if use_vol_scaling and cache is not None:
-                        tv = cache.tv.get(rb_abs, np.ones(n_tickers) * 0.0001)
                         inv_vol = 1.0 / tv[top_idx]
-                        weights = np.zeros(n_tickers)
-                        weights[top_idx] = inv_vol / inv_vol.sum()
+                        weight_matrix[si, top_idx] = inv_vol / inv_vol.sum()
                     else:
-                        weights = np.zeros(n_tickers)
-                        weights[top_idx] = 1.0 / top_n
+                        weight_matrix[si, top_idx] = 1.0 / top_n
+                    actual_counts.append(top_n)
 
-                    pos_counts[n_pos].append(top_n)
-                    port_rets = daily_rets_slice @ weights
-                    cum = np.cumprod(1 + port_rets)
-                    actual = min(n_hold, next_offset - rb_offset)
+                # Single matmul: (n_hold, n_tickers) @ (n_tickers, n_sizes) → (n_hold, n_sizes)
+                all_port_rets = daily_rets_slice @ weight_matrix.T
+
+                actual = min(n_hold, next_offset - rb_offset)
+                for si, n_pos in enumerate(all_max_pos):
+                    pos_counts[n_pos].append(actual_counts[si])
+                    cum = np.cumprod(1 + all_port_rets[:actual, si])
                     pv[n_pos][rb_offset + 1:rb_offset + 1 + actual] = (
-                        pv[n_pos][rb_offset] * cum[:actual]
+                        pv[n_pos][rb_offset] * cum
                     )
 
             for n in all_max_pos:
