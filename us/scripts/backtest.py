@@ -908,13 +908,151 @@ def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
         earn_row = em[day] if em is not None else None
         score_at_day[day] = score_from_cache(day, ref, _G_CACHE, earn_row)
 
-    # Now run each variant using precomputed scores
+    # Group by rebal_freq, then batch all max_positions variants together
+    from collections import defaultdict
+    by_rebal = defaultdict(list)
+    for p in params_list:
+        by_rebal[p.rebal_freq].append(p)
+
+    results_dict = {}  # keyed by (max_positions, rebal_freq) → WalkForwardResult
+
+    for rf, rf_params in by_rebal.items():
+        all_max_pos = sorted({p.max_positions for p in rf_params})
+        max_max_pos = max(all_max_pos)
+        use_vol_scaling = rf_params[0].use_vol_scaling
+        use_abs_momentum = rf_params[0].use_abs_momentum
+
+        # For each fold, run the rebal loop ONCE with max(max_positions),
+        # and record portfolio values for all position sizes simultaneously
+        fold_data = {n: [] for n in all_max_pos}  # n_pos → list of (fold_return, daily_values)
+
+        for oos_start, oos_end in folds:
+            period_len = oos_end - oos_start
+            # One portfolio_value array per position size
+            pv = {n: np.ones(period_len + 1) for n in all_max_pos}
+            pos_counts = {n: [] for n in all_max_pos}
+
+            rebal_offsets = list(range(0, period_len, rf))
+
+            for idx_rb, rb_offset in enumerate(rebal_offsets):
+                next_offset = rebal_offsets[idx_rb + 1] if idx_rb + 1 < len(rebal_offsets) else period_len
+                rb_abs = oos_start + rb_offset
+
+                scores = score_at_day.get(rb_abs, np.full(n_tickers, -1.0))
+                valid = np.where(scores > 0)[0]
+                if safe_indices:
+                    valid = np.array([v for v in valid if v not in safe_indices])
+
+                # Sort valid descending by score (once)
+                if len(valid) > 0:
+                    sorted_valid = valid[np.argsort(scores[valid])]  # ascending
+                else:
+                    sorted_valid = np.array([], dtype=int)
+
+                # Daily returns slice (shared across all position sizes)
+                day_start = oos_start + rb_offset
+                day_end = min(oos_start + next_offset, _G_PRICES.shape[0] - 1)
+                n_hold = day_end - day_start
+                if n_hold <= 0:
+                    for n in all_max_pos:
+                        pos_counts[n].append(0)
+                    continue
+
+                daily_rets_slice = _G_DAILY_RETS[day_start:day_end]
+
+                for n_pos in all_max_pos:
+                    if len(sorted_valid) == 0:
+                        pv[n_pos][rb_offset + 1:next_offset + 1] = pv[n_pos][rb_offset]
+                        pos_counts[n_pos].append(0)
+                        continue
+
+                    top_n = min(n_pos, len(sorted_valid))
+                    top_idx = sorted_valid[-top_n:]  # top N from ascending sort
+
+                    if use_vol_scaling and cache is not None:
+                        tv = cache.tv.get(rb_abs, np.ones(n_tickers) * 0.0001)
+                        inv_vol = 1.0 / tv[top_idx]
+                        weights = np.zeros(n_tickers)
+                        weights[top_idx] = inv_vol / inv_vol.sum()
+                    else:
+                        weights = np.zeros(n_tickers)
+                        weights[top_idx] = 1.0 / top_n
+
+                    pos_counts[n_pos].append(top_n)
+                    port_rets = daily_rets_slice @ weights
+                    cum = np.cumprod(1 + port_rets)
+                    actual = min(n_hold, next_offset - rb_offset)
+                    pv[n_pos][rb_offset + 1:rb_offset + 1 + actual] = (
+                        pv[n_pos][rb_offset] * cum[:actual]
+                    )
+
+            for n in all_max_pos:
+                ret = pv[n][-1] / pv[n][0] - 1
+                fold_data[n].append((ret, pv[n], np.mean(pos_counts[n]) if pos_counts[n] else 0))
+
+        # Build WalkForwardResult for each (max_positions, rebal_freq) combo
+        for n_pos in all_max_pos:
+            fold_returns = [fd[0] for fd in fold_data[n_pos]]
+            all_daily = [fd[1] for fd in fold_data[n_pos]]
+            avg_pos_list = [fd[2] for fd in fold_data[n_pos]]
+
+            oos_total = float(np.prod([1 + r for r in fold_returns]) - 1)
+            scaled_segments = []
+            cumulative = 1.0
+            for dv in all_daily:
+                scale = cumulative / dv[0] if dv[0] != 0 else cumulative
+                scaled_segments.append(dv * scale)
+                cumulative = scaled_segments[-1][-1]
+            scaled = np.concatenate(scaled_segments)
+
+            running_max = np.maximum.accumulate(scaled)
+            with np.errstate(divide="ignore", invalid="ignore"):
+                dd_series = (scaled - running_max) / running_max
+            overall_dd = np.nan_to_num(dd_series, nan=0.0).min()
+
+            total_oos_days = sum(e - s for s, e in folds)
+            n_years = total_oos_days / 252
+            if n_years > 0 and (1 + oos_total) > 0:
+                ann_return = (1 + oos_total) ** (1 / n_years) - 1
+            else:
+                ann_return = -1.0 if oos_total < 0 else 0.0
+
+            fold_arr = np.array(fold_returns)
+            consist = float(fold_arr.std())
+            win_rate = float(np.mean(fold_arr > 0))
+
+            dr = np.diff(scaled) / scaled[:-1]
+            dr = dr[np.isfinite(dr)]
+            neg = dr[dr < 0]
+            dn_vol = float(neg.std() * np.sqrt(252)) if len(neg) > 0 else 0.0001
+            sortino = ann_return / dn_vol if dn_vol > 0 else 0
+            calmar = ann_return / abs(overall_dd) if overall_dd != 0 else 0
+            romad = min(oos_total / abs(overall_dd), 1e6) if overall_dd != 0 else 0
+
+            results_dict[(n_pos, rf)] = WalkForwardResult(
+                oos_total_return=oos_total, oos_annualized=ann_return,
+                oos_max_dd=overall_dd, oos_sortino=sortino, oos_calmar=calmar,
+                oos_romad=romad, oos_win_rate=win_rate, n_folds=len(folds),
+                avg_positions=float(np.mean(avg_pos_list)), consistency=consist,
+                params=None, fold_returns=fold_returns,  # params set below
+            )
+
+    # Map results back to original params
     results = []
     for p in params_list:
-        result = _walk_forward_with_prescored(
-            _G_PRICES, p, folds, score_at_day, _G_CACHE, _G_TICKERS,
-        )
-        results.append(result)
+        key = (p.max_positions, p.rebal_freq)
+        r = results_dict.get(key)
+        if r is not None:
+            # Create new result with correct params
+            results.append(WalkForwardResult(
+                oos_total_return=r.oos_total_return, oos_annualized=r.oos_annualized,
+                oos_max_dd=r.oos_max_dd, oos_sortino=r.oos_sortino, oos_calmar=r.oos_calmar,
+                oos_romad=r.oos_romad, oos_win_rate=r.oos_win_rate, n_folds=r.n_folds,
+                avg_positions=r.avg_positions, consistency=r.consistency,
+                params=p, fold_returns=r.fold_returns,
+            ))
+        else:
+            results.append(WalkForwardResult(0, 0, -1, 0, 0, 0, 0, 0, 0, 1.0, p))
     return results
 
 
