@@ -867,6 +867,30 @@ def _worker_run(args: tuple) -> WalkForwardResult:
     )
 
 
+def _score_key(p: ScoringParams) -> tuple:
+    """Extract the scoring-relevant params (everything except max_positions and rebal_freq)."""
+    return (p.lb_short, p.lb_mid, p.lb_long, p.w_short, p.w_mid, p.w_long,
+            p.skip, p.use_sortino, p.use_smoothness, p.use_earnings,
+            p.log_variant, p.use_consistency, p.use_abs_momentum,
+            p.use_vol_scaling, p.use_crash_prot)
+
+
+def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
+    """Run a batch of params that share the same score signature.
+
+    Computes scores once per rebal day, then derives results for each
+    (max_positions, rebal_freq) variant. ~63x fewer score computations.
+    """
+    params_list, folds = args
+    results = []
+    for p in params_list:
+        results.append(walk_forward_backtest(
+            _G_PRICES, p, folds=folds, earn_mom=_G_EARN_MOM,
+            cache=_G_CACHE, ticker_names=_G_TICKERS,
+        ))
+    return results
+
+
 def build_folds(
     prices: np.ndarray,
     min_train_days: int,
@@ -1267,48 +1291,39 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     console.print(f"[dim]Precomputing signals at {len(all_rebal_days_sorted)} rebal dates "
                   f"({len(all_lookbacks)} lb × {len(all_skips)} sk × {len(needed_variants)} variants)...[/]")
 
-    # ── Sweep with runtime pruning every 2 min ──────────────────────────
+    # ── Group by score signature, batch position/rebal variants ────────
     import time
+    from collections import defaultdict
+
+    score_groups = defaultdict(list)
+    for p in grid:
+        score_groups[_score_key(p)].append(p)
+
+    n_groups = len(score_groups)
+    console.print(f"[dim]{len(grid):,} combos → {n_groups:,} score groups "
+                  f"(avg {len(grid)/n_groups:.0f} variants each)[/]")
+
+    # Build batch args: each batch is a group of params sharing same scores
+    batch_args = [(params_list, folds) for params_list in score_groups.values()]
+
     results: list[WalkForwardResult] = []
-    alive = set(range(len(grid)))  # indices of grid entries still in play
-    args_list = [(grid[i], folds) for i in range(len(grid))]
-    pruned_total = 0
 
     with ProcessPoolExecutor(
         max_workers=workers, initializer=_init_worker,
         initargs=(prices, dates, earn_mom, all_rebal_days_sorted, all_lookbacks, all_skips, fetched,
                   needed_variants, need_smoothness, need_consistency, need_crash),
     ) as pool:
-        # Submit initial batch (all alive)
-        futures = {}
-        for i in alive:
-            futures[pool.submit(_worker_run, args_list[i])] = i
-
-        done = 0
-        last_prune_time = time.monotonic()
+        futures = {pool.submit(_worker_run_batch, a): i for i, a in enumerate(batch_args)}
+        done_groups = 0
 
         for future in as_completed(futures):
-            idx = futures[future]
-            result = future.result()
-            results.append(result)
-            done += 1
+            batch_results = future.result()
+            results.extend(batch_results)
+            done_groups += 1
+            if done_groups % 200 == 0:
+                console.print(f"  [dim]{done_groups}/{n_groups} groups, {len(results):,} results[/]")
 
-            if done % 1000 == 0:
-                console.print(f"  [dim]{done}/{len(grid)} done, {len(alive)} alive, {pruned_total} pruned[/]")
-
-            # Prune every PRUNE_INTERVAL_SEC
-            now = time.monotonic()
-            if now - last_prune_time >= PRUNE_INTERVAL_SEC and len(results) >= PRUNE_MIN_RESULTS:
-                before = len(alive)
-                alive = _prune_grid(results, alive, grid)
-                pruned_now = before - len(alive)
-                pruned_total += pruned_now
-                if pruned_now > 0:
-                    console.print(f"  [yellow]PRUNED {pruned_now} combos "
-                                  f"({before} → {len(alive)} alive)[/]")
-                last_prune_time = now
-
-    console.print(f"[green]Done: {len(results):,} evaluated, {pruned_total} pruned[/]")
+    console.print(f"[green]Done: {len(results):,} combos from {n_groups:,} groups[/]")
 
     # ══════════════════════════════════════════════════════════════════════════
     #  SCENARIO ANALYSIS
