@@ -1018,18 +1018,27 @@ _G_TICKERS: list[str] | None = None
 
 
 def _init_worker(
-    prices: np.ndarray, daily_rets: np.ndarray, dates: np.ndarray,
-    earn_mom: np.ndarray | None, cache: PrecomputedSignals,
-    ticker_names: list[str],
+    prices: np.ndarray, dates: np.ndarray,
+    earn_mom: np.ndarray | None, ticker_names: list[str],
+    rebal_days: list[int], lookbacks: list[int], skips: list[int],
+    needed_variants: set, need_smoothness: bool,
+    need_consistency: bool, need_crash: bool,
 ):
-    """Initialize worker with precomputed data from main process."""
+    """Initialize worker: precompute signals and daily returns."""
     global _G_PRICES, _G_DAILY_RETS, _G_DATES, _G_EARN_MOM, _G_CACHE, _G_TICKERS
     _G_PRICES = prices
-    _G_DAILY_RETS = daily_rets
+    with np.errstate(divide="ignore", invalid="ignore"):
+        _G_DAILY_RETS = np.nan_to_num(prices[1:] / prices[:-1] - 1, nan=0.0)
     _G_DATES = dates
     _G_EARN_MOM = earn_mom
     _G_TICKERS = ticker_names
-    _G_CACHE = cache
+    _G_CACHE = precompute_signals(
+        prices, rebal_days, lookbacks, skips,
+        needed_variants=needed_variants,
+        need_smoothness=need_smoothness,
+        need_consistency=need_consistency,
+        need_crash=need_crash,
+    )
 
 
 def _worker_run(args: tuple) -> WalkForwardResult:
@@ -1917,19 +1926,7 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     console.print(f"[dim]Precomputing signals at {len(all_rebal_days_sorted)} rebal dates "
                   f"({len(all_lookbacks)} lb × {len(all_skips)} sk × {len(needed_variants)} variants)...[/]")
 
-    # Precompute ONCE in main process (avoids 11x redundant computation in workers)
     import time
-    t_pre = time.monotonic()
-    cache = precompute_signals(
-        prices, all_rebal_days_sorted, all_lookbacks, all_skips,
-        needed_variants=needed_variants,
-        need_smoothness=need_smoothness,
-        need_consistency=need_consistency,
-        need_crash=need_crash,
-    )
-    with np.errstate(divide="ignore", invalid="ignore"):
-        daily_rets = np.nan_to_num(prices[1:] / prices[:-1] - 1, nan=0.0)
-    console.print(f"[dim]Precompute done in {time.monotonic() - t_pre:.1f}s[/]")
 
     # ── Group by score signature, batch position/rebal variants ────────
     from collections import defaultdict
@@ -1946,18 +1943,16 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
 
     results: list[WalkForwardResult] = []
 
-    # Set globals directly — workers inherit via fork (no pickling 630MB cache)
-    import multiprocessing as mp
-    global _G_PRICES, _G_DAILY_RETS, _G_DATES, _G_EARN_MOM, _G_CACHE, _G_TICKERS
-    _G_PRICES = prices
-    _G_DAILY_RETS = daily_rets
-    _G_DATES = dates
-    _G_EARN_MOM = earn_mom
-    _G_CACHE = cache
-    _G_TICKERS = fetched
+    # Each worker precomputes its own signals (avoids pickling 630MB cache)
+    console.print(f"[dim]Workers will precompute signals on init ({len(all_rebal_days_sorted)} rebal dates, "
+                  f"{len(needed_variants)} variants)...[/]")
 
-    ctx = mp.get_context("fork")
-    with ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as pool:
+    with ProcessPoolExecutor(
+        max_workers=workers, initializer=_init_worker,
+        initargs=(prices, dates, earn_mom, fetched,
+                  all_rebal_days_sorted, all_lookbacks, all_skips,
+                  needed_variants, need_smoothness, need_consistency, need_crash),
+    ) as pool:
         futures = {pool.submit(_worker_run_batch, a): i for i, a in enumerate(batch_args)}
         done_groups = 0
 
