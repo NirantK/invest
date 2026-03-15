@@ -561,44 +561,164 @@ def precompute_signals(
             for i, day in enumerate(rebal_days):
                 momentum_cache[(lb, skip, LogVariant.BASIC)][day] = result[i]
 
-    # ── Complex variants: per-day (need price windows) ───────────────────
-    complex_keys = [(lb, skip, lv) for lb, skip, lv in mom_keys
-                    if lv not in (LogVariant.NONE, LogVariant.BASIC)]
+    # ── Batch ACCEL momentum (same structure as NONE/BASIC) ────────────
+    if LogVariant.ACCEL in variants:
+        for lb, skip in {(lb, sk) for lb, sk, lv in mom_keys if lv == LogVariant.ACCEL}:
+            ends = rebal_arr + 1 - skip
+            starts = ends - lb
+            mids = starts + lb // 2
+            valid = (starts >= 0) & (ends > 0) & (ends <= prices.shape[0])
+            result = np.zeros((len(rebal_days), n_tickers))
+            v_idx = np.where(valid)[0]
+            if len(v_idx) > 0:
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    first_half = np.log(prices[mids[v_idx]] / prices[starts[v_idx]])
+                    second_half = np.log(prices[ends[v_idx] - 1] / prices[mids[v_idx]])
+                    base = np.log(prices[ends[v_idx] - 1] / prices[starts[v_idx]])
+                result[v_idx] = np.nan_to_num(base + 0.5 * (second_half - first_half), nan=0.0)
+            for i, day in enumerate(rebal_days):
+                momentum_cache[(lb, skip, LogVariant.ACCEL)][day] = result[i]
 
+    # ── Batch quality signals across all rebal days ──────────────────────
+    # Precompute full daily returns once
+    with np.errstate(divide="ignore", invalid="ignore"):
+        full_daily_rets = np.nan_to_num(prices[1:] / prices[:-1] - 1, nan=0.0)
+
+    # Downside vol and total vol: rolling std of trailing returns
     for day in rebal_days:
         n = day + 1
+        w_dn = min(252, n - 1)
+        w_tv = min(126, n - 1)
 
-        for lb, skip, variant in complex_keys:
-            if n < lb + skip + 1:
-                momentum_cache[(lb, skip, variant)][day] = np.zeros(n_tickers)
-            else:
-                momentum_cache[(lb, skip, variant)][day] = momentum_fn_by_variant[variant](prices[:n], lb, skip)
-
-        pw = prices[:n]
-
-        if need_smoothness:
-            qual = trend_quality(pw, min(252, n))
-            fip = fip_score(pw, min(252, n - 1))
-            smoothness[day] = np.sqrt(qual * fip)
+        if w_dn > 1:
+            rets_dn = full_daily_rets[day - w_dn:day]
+            neg = np.minimum(rets_dn, 0.0)
+            dv = np.sqrt(252) * np.std(neg, axis=0)
+            dn_vol_cache[day] = np.where(dv > 0, dv, 0.0001)
         else:
-            smoothness[day] = np.ones(n_tickers)
+            dn_vol_cache[day] = np.full(n_tickers, 0.0001)
 
-        dn_vol_cache[day] = downside_vol(pw, min(252, n))
-        tv_cache[day] = total_vol(pw, min(126, n))
-
-        if need_consistency:
-            consistency_cache[day] = consistency_filter(pw, 21)
+        if w_tv > 1:
+            rets_tv = full_daily_rets[day - w_tv:day]
+            tv = np.sqrt(252) * np.std(rets_tv, axis=0)
+            tv_cache[day] = np.where(tv > 0, tv, 0.0001)
         else:
-            consistency_cache[day] = np.ones(n_tickers)
+            tv_cache[day] = np.full(n_tickers, 0.0001)
 
+        # Abs 12m momentum
         lb12 = min(252, n)
         with np.errstate(divide="ignore", invalid="ignore"):
             abs_mom_cache[day] = np.nan_to_num(prices[day] / prices[max(0, day - lb12)] - 1, nan=0.0)
 
-        if need_crash:
-            crash_cache[day] = crash_protection_signal_at(mkt, day)
-        else:
-            crash_cache[day] = 1.0
+        # Crash protection (scalar, fast)
+        crash_cache[day] = crash_protection_signal_at(mkt, day) if need_crash else 1.0
+
+    # Smoothness and consistency: skip the expensive per-day functions if not needed
+    if need_smoothness:
+        # FIP: fraction of positive daily returns in trailing 252 days
+        for day in rebal_days:
+            w = min(252, day)
+            if w > 1:
+                rets_w = full_daily_rets[day - w:day]
+                fip_val = np.mean(rets_w > 0, axis=0)
+                # R² trend quality — vectorized
+                log_p = np.log(np.maximum(prices[day - w:day + 1], 1e-10))
+                x = np.arange(w + 1, dtype=np.float64)
+                x_mean = x.mean()
+                x_var = ((x - x_mean) ** 2).sum()
+                if x_var > 0:
+                    y_mean = log_p.mean(axis=0)
+                    slope = ((x - x_mean)[:, np.newaxis] * (log_p - y_mean)).sum(axis=0) / x_var
+                    fitted = slope * (x[:, np.newaxis] - x_mean) + y_mean
+                    ss_res = ((log_p - fitted) ** 2).sum(axis=0)
+                    ss_tot = ((log_p - y_mean) ** 2).sum(axis=0)
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        r2 = np.maximum(np.where(ss_tot > 0, 1.0 - ss_res / ss_tot, 0.0), 0.0)
+                else:
+                    r2 = np.zeros(n_tickers)
+                smoothness[day] = np.sqrt(r2 * fip_val)
+            else:
+                smoothness[day] = np.ones(n_tickers)
+    else:
+        for day in rebal_days:
+            smoothness[day] = np.ones(n_tickers)
+
+    if need_consistency:
+        for day in rebal_days:
+            n = day + 1
+            if n < 252 + 21:
+                consistency_cache[day] = np.ones(n_tickers)
+                continue
+            end = n - 21
+            # Vectorized: compute 11 monthly returns at once
+            m_ends = np.array([end - m * 21 for m in range(1, 12) if end - (m + 1) * 21 >= 0])
+            m_starts = m_ends - 21
+            if len(m_ends) < 8:
+                consistency_cache[day] = np.ones(n_tickers)
+                continue
+            with np.errstate(divide="ignore", invalid="ignore"):
+                month_rets = np.nan_to_num(prices[m_ends] / prices[m_starts] - 1, nan=0.0)
+            pos_count = np.sum(month_rets > 0, axis=0)
+            consistency_cache[day] = np.where(pos_count >= 8, 1.0, 0.0)
+    else:
+        for day in rebal_days:
+            consistency_cache[day] = np.ones(n_tickers)
+
+    # ── Batch VOLNORM: log_return / (std * sqrt(lb)) ───────────────────
+    # Reuses BASIC log returns + rolling std of daily log returns
+    full_log_prices = np.log(np.maximum(prices, 1e-10))
+    full_daily_log_rets = np.nan_to_num(np.diff(full_log_prices, axis=0), nan=0.0, posinf=0.0, neginf=0.0)
+
+    if LogVariant.VOLNORM in variants:
+        for lb, skip in {(lb, sk) for lb, sk, lv in mom_keys if lv == LogVariant.VOLNORM}:
+            ends = rebal_arr + 1 - skip
+            starts = ends - lb
+            valid = (starts >= 0) & (ends > 0) & (ends <= prices.shape[0])
+            result = np.zeros((len(rebal_days), n_tickers))
+            v_idx = np.where(valid)[0]
+            if len(v_idx) > 0:
+                # Log return (same as BASIC)
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    log_ret = np.nan_to_num(np.log(prices[ends[v_idx] - 1] / prices[starts[v_idx]]), nan=0.0)
+                # Per-window std of daily log returns
+                for ii, vi in enumerate(v_idx):
+                    s, e = int(starts[vi]), int(ends[vi])
+                    window_rets = full_daily_log_rets[s:e - 1]
+                    vol = np.std(window_rets, axis=0)
+                    vol = np.where(vol > 0, vol, 0.0001)
+                    result[vi] = np.nan_to_num(log_ret[ii] / (vol * np.sqrt(lb)), nan=0.0, posinf=0.0, neginf=0.0)
+            for i, day in enumerate(rebal_days):
+                momentum_cache[(lb, skip, LogVariant.VOLNORM)][day] = result[i]
+
+    # ── Remaining complex variants: EWMA, TRIMMED (per-day, smaller loops) ──
+    remaining_keys = [(lb, skip, lv) for lb, skip, lv in mom_keys
+                      if lv in (LogVariant.EWMA, LogVariant.TRIMMED)]
+
+    if remaining_keys:
+        # Precompute EWMA weights for each lookback (reusable across days)
+        ewma_weights = {}
+        for lb, _, lv in remaining_keys:
+            if lv == LogVariant.EWMA and lb not in ewma_weights:
+                decay = np.log(2) / 63  # halflife=63
+                w = np.exp(decay * np.arange(lb - 1, dtype=np.float64))
+                ewma_weights[lb] = w / w.sum()
+
+        for day in rebal_days:
+            n = day + 1
+            for lb, skip, variant in remaining_keys:
+                if n < lb + skip + 1:
+                    momentum_cache[(lb, skip, variant)][day] = np.zeros(n_tickers)
+                elif variant == LogVariant.EWMA:
+                    end = n - skip
+                    start = end - lb
+                    daily_log = full_daily_log_rets[start:end - 1]
+                    w = ewma_weights[lb]
+                    # Trim weight vector if daily_log is shorter
+                    ww = w[:daily_log.shape[0]]
+                    ww = ww / ww.sum()
+                    momentum_cache[(lb, skip, variant)][day] = (ww[:, np.newaxis] * daily_log).sum(axis=0)
+                else:  # TRIMMED
+                    momentum_cache[(lb, skip, variant)][day] = momentum_log_trimmed(prices[:n], lb, skip)
 
     return PrecomputedSignals(
         momentum_cache=momentum_cache,
