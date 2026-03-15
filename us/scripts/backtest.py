@@ -466,31 +466,47 @@ def precompute_signals(
         LogVariant.TRIMMED: momentum_log_trimmed,
     }
 
+    # Precompute all momentum using direct indexing (no slice copies)
+    # For simple momentum variants (NONE, BASIC), compute via price ratios directly
     for day in rebal_days:
-        pw = prices[:day + 1]
-        n = pw.shape[0]
+        n = day + 1  # effective length
 
-        # Momentum for all (lookback, skip, LogVariant) combos
+        # Fast momentum: index directly into prices array, no slicing
         for lb, skip, variant in mom_keys:
-            if n < lb + skip:
+            if n < lb + skip + 1:
                 momentum_cache[(lb, skip, variant)][day] = np.zeros(n_tickers)
+            elif variant == LogVariant.NONE:
+                # Arithmetic: prices[end-1] / prices[start] - 1
+                end = n - skip
+                start = end - lb
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    mom = prices[end - 1] / prices[start] - 1
+                momentum_cache[(lb, skip, variant)][day] = np.nan_to_num(mom, nan=0.0)
+            elif variant == LogVariant.BASIC:
+                end = n - skip
+                start = end - lb
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    mom = np.log(prices[end - 1] / prices[start])
+                momentum_cache[(lb, skip, variant)][day] = np.nan_to_num(mom, nan=0.0)
             else:
+                # Complex variants need price window — use view (not copy)
+                pw = prices[:n]
                 momentum_cache[(lb, skip, variant)][day] = momentum_fn_by_variant[variant](pw, lb, skip)
 
-        # Smoothness: sqrt(R² * FIP)
+        # Quality signals — use views instead of copies
+        pw = prices[:n]
         qual = trend_quality(pw, min(252, n))
         fip = fip_score(pw, min(252, n - 1))
         smoothness[day] = np.sqrt(qual * fip)
 
-        # Volatility
         dn_vol_cache[day] = downside_vol(pw, min(252, n))
         tv_cache[day] = total_vol(pw, min(126, n))
-
-        # Consistency (8-of-12)
         consistency_cache[day] = consistency_filter(pw, 21)
 
-        # Absolute 12m momentum (for dual momentum filter)
-        abs_mom_cache[day] = momentum_arithmetic(pw, min(252, n), 0)
+        # Absolute 12m momentum (for dual momentum)
+        lb12 = min(252, n)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            abs_mom_cache[day] = np.nan_to_num(prices[day] / prices[max(0, day - lb12)] - 1, nan=0.0)
 
         # Crash protection
         crash_cache[day] = crash_protection_signal_at(mkt, day)
