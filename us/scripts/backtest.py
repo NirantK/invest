@@ -913,15 +913,18 @@ def build_param_grid() -> list[ScoringParams]:
     """
     configs = []
 
-    # Base: 3 lookbacks × 4 weight schemes × 2 skips = 24 base combos
+    # Base: 5 lookbacks × 5 weight schemes × 2 skips = 50 base combos
     lookbacks = [
+        (10, 42, 126),    # 2W/2M/6M — aggressive short-term
         (21, 63, 252),    # 1M/3M/12M
         (42, 126, 252),   # 2M/6M/12M
         (63, 126, 252),   # 3M/6M/12M
+        (21, 42, 63),     # All short: 1M/2M/3M — pure recent momentum
     ]
     weight_schemes = [
         (0.4, 0.4, 0.2),   # Recency bias (top performer)
         (0.5, 0.3, 0.2),   # Strong recency
+        (0.7, 0.2, 0.1),   # Ultra-short bias
         (0.1, 0.3, 0.6),   # Trend-following
         (0.33, 0.34, 0.33), # Equal
     ]
@@ -1041,8 +1044,22 @@ ALL_COLS = ["ret", "ann", "dd", "sortino", "calmar", "win", "pos", "params"]
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 
-def _discover_india_mf_schemes(max_per_query: int = 5) -> list[int]:
-    """Discover India MF scheme codes by searching common fund categories."""
+def _discover_india_mf_schemes(max_per_query: int = 5, fetch_all: bool = False) -> list[int]:
+    """Discover India MF scheme codes.
+
+    If fetch_all=True, fetches every scheme from mfapi.in (~45K schemes).
+    Otherwise, searches by category queries with max_per_query limit.
+    """
+    if fetch_all:
+        all_schemes = get_all_mf_schemes()
+        # Filter to direct+growth plans only (skip regular/dividend/IDCW)
+        codes = []
+        for s in all_schemes:
+            name = s.get("schemeName", "").lower()
+            if "direct" in name and ("growth" in name or "gr" in name):
+                codes.append(s["schemeCode"])
+        return codes
+
     seen = set()
     codes = []
     for query in INDIA_MF_QUERIES:
@@ -1065,26 +1082,28 @@ def _discover_india_mf_schemes(max_per_query: int = 5) -> list[int]:
 @click.option("--market", default="us", type=click.Choice(["us", "india"]),
               help="Market: 'us' for US equities (yfinance), 'india' for MFs (mfapi.in).")
 @click.option("--mf-max-per-query", default=5, help="Max schemes per search query (India).")
+@click.option("--mf-all", is_flag=True, help="Fetch ALL mfapi.in schemes (India only).")
 def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
-         max_dd_cap: float, market: str, mf_max_per_query: int):
+         max_dd_cap: float, market: str, mf_max_per_query: int, mf_all: bool):
     """Walk-forward momentum sweep — AQR + Alpha Architect signals."""
     global PORTFOLIO_VALUE, IBKR_COMMISSION_PER_SHARE, IBKR_MIN_COMMISSION
     global AVG_SHARE_PRICE, HALF_SPREAD_BPS, CCORP_TAX_RATE, SEC_FINRA_FEE_PER_SHARE
 
     if market == "india":
-        # India cost model: no C-Corp tax, lower commissions, wider spreads
+        # India individual tax model (no other income):
+        # STCG (<1yr): 20%, LTCG (>1yr): 12.5% above ₹1.25L exemption
+        # Since we rebalance frequently, conservatively use 20% (STCG rate)
+        # MF switches: no commission, no spread (NAV-based), 1% exit load <1yr
         PORTFOLIO_VALUE = 2_500_000.0       # ₹25L starting capital
         IBKR_COMMISSION_PER_SHARE = 0.0     # MF switches are free
         IBKR_MIN_COMMISSION = 0.0           # No per-order min
         AVG_SHARE_PRICE = 100.0             # Avg NAV
         HALF_SPREAD_BPS = 0.0               # MFs trade at NAV (no spread)
-        CCORP_TAX_RATE = 0.125              # 12.5% LTCG on equity MFs (>1yr)
+        CCORP_TAX_RATE = 0.20               # 20% STCG (conservative for frequent rebal)
         SEC_FINRA_FEE_PER_SHARE = 0.0       # No regulatory fees
-        # Exit load: 1% if redeemed within 1 year for most equity MFs
-        # We'll model this as a flat cost on sells for rebal < 252 days
 
         console.print(f"[bold]Discovering India MF schemes...[/]")
-        scheme_codes = _discover_india_mf_schemes(mf_max_per_query)
+        scheme_codes = _discover_india_mf_schemes(mf_max_per_query, fetch_all=mf_all)
         console.print(f"[green]Found {len(scheme_codes)} schemes[/]")
 
         console.print(f"[bold]Fetching NAV history ({period})...[/]")
