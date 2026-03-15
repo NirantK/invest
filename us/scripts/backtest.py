@@ -876,19 +876,203 @@ def _score_key(p: ScoringParams) -> tuple:
 
 
 def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
-    """Run a batch of params that share the same score signature.
+    """Run a batch of params sharing the same score signature.
 
-    Computes scores once per rebal day, then derives results for each
-    (max_positions, rebal_freq) variant. ~63x fewer score computations.
+    Precomputes scores at all possible rebal days ONCE, then derives
+    results for each (max_positions, rebal_freq) variant cheaply.
     """
     params_list, folds = args
+    if not params_list:
+        return []
+
+    # All params in batch share the same scoring — use first to compute scores
+    ref = params_list[0]
+
+    # Collect all rebal days across all folds × all rebal_freqs in this batch
+    all_rebal_freqs = sorted({p.rebal_freq for p in params_list})
+    rebal_day_set = set()
+    for oos_start, oos_end in folds:
+        period_len = oos_end - oos_start
+        for rf in all_rebal_freqs:
+            for offset in range(0, period_len, rf):
+                rebal_day_set.add(oos_start + offset)
+
+    # Precompute scores at all needed rebal days (ONCE for the batch)
+    em = _G_EARN_MOM if ref.use_earnings else None
+    score_at_day = {}
+    for day in sorted(rebal_day_set):
+        earn_row = em[day] if em is not None else None
+        score_at_day[day] = score_from_cache(day, ref, _G_CACHE, earn_row)
+
+    # Now run each variant using precomputed scores
     results = []
     for p in params_list:
-        results.append(walk_forward_backtest(
-            _G_PRICES, p, folds=folds, earn_mom=_G_EARN_MOM,
-            cache=_G_CACHE, ticker_names=_G_TICKERS,
-        ))
+        result = _walk_forward_with_prescored(
+            _G_PRICES, p, folds, score_at_day, _G_CACHE, _G_TICKERS,
+        )
+        results.append(result)
     return results
+
+
+def _walk_forward_with_prescored(
+    prices: np.ndarray,
+    params: ScoringParams,
+    folds: list[tuple[int, int]],
+    score_at_day: dict[int, np.ndarray],
+    cache: PrecomputedSignals,
+    ticker_names: list[str] | None,
+) -> WalkForwardResult:
+    """Walk-forward using precomputed scores (avoids redundant score_from_cache calls)."""
+    if not folds:
+        return WalkForwardResult(0, 0, -1, 0, 0, 0, 0, 0, 0, 1.0, params)
+
+    fold_returns = []
+    all_daily_values = []
+    total_positions = []
+    n_tickers = prices.shape[1]
+
+    safe_indices = []
+    if ticker_names and params.use_abs_momentum:
+        safe_indices = [i for i, t in enumerate(ticker_names) if t in SAFE_HAVENS]
+
+    prev_weights = np.zeros(n_tickers)
+    cost_basis = np.ones(n_tickers)
+
+    for oos_start, oos_end in folds:
+        period_len = oos_end - oos_start
+        portfolio_value = np.ones(period_len + 1)
+        position_counts = []
+        prev_weights[:] = 0
+        cost_basis[:] = 1.0
+
+        rebal_offsets = list(range(0, period_len, params.rebal_freq))
+
+        for idx, rb_offset in enumerate(rebal_offsets):
+            next_offset = rebal_offsets[idx + 1] if idx + 1 < len(rebal_offsets) else period_len
+            rb_abs = oos_start + rb_offset
+
+            # Use precomputed scores
+            scores = score_at_day.get(rb_abs)
+            if scores is None:
+                scores = np.full(n_tickers, -1.0)
+
+            valid = np.where(scores > 0)[0]
+            if safe_indices:
+                valid = np.array([v for v in valid if v not in safe_indices])
+
+            if len(valid) == 0:
+                if safe_indices and params.use_abs_momentum:
+                    sh_mom = cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers))
+                    best_sh = max(safe_indices, key=lambda i: sh_mom[i])
+                    weights = np.zeros(n_tickers)
+                    weights[best_sh] = 1.0
+                    position_counts.append(1)
+                else:
+                    portfolio_value[rb_offset + 1:next_offset + 1] = portfolio_value[rb_offset]
+                    position_counts.append(0)
+                    prev_weights[:] = 0
+                    continue
+            else:
+                top_n = min(params.max_positions, len(valid))
+                top_idx = valid[np.argsort(scores[valid])[-top_n:]]
+
+                if params.use_abs_momentum and safe_indices and top_n < params.max_positions:
+                    n_risk = top_n
+                    sh_mom = cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers))
+                    best_sh = max(safe_indices, key=lambda i: sh_mom[i])
+                    weights = np.zeros(n_tickers)
+                    risk_share = n_risk / params.max_positions
+                    if params.use_vol_scaling and cache is not None:
+                        tv = cache.tv[rb_abs]
+                        inv_vol = 1.0 / tv[top_idx]
+                        weights[top_idx] = risk_share * inv_vol / inv_vol.sum()
+                    else:
+                        weights[top_idx] = risk_share / n_risk
+                    weights[best_sh] += (1.0 - risk_share)
+                elif params.use_vol_scaling and cache is not None:
+                    tv = cache.tv[rb_abs]
+                    inv_vol = 1.0 / tv[top_idx]
+                    weights = np.zeros(n_tickers)
+                    weights[top_idx] = inv_vol / inv_vol.sum()
+                else:
+                    weights = np.zeros(n_tickers)
+                    weights[top_idx] = 1.0 / top_n
+
+                position_counts.append(top_n)
+
+            # Rebalance cost
+            current_price_ratio = prices[rb_abs] / prices[oos_start] if prices[oos_start].sum() > 0 else np.ones(n_tickers)
+            rebal_cost_frac = _compute_rebalance_cost(
+                prev_weights, weights, cost_basis, current_price_ratio,
+            )
+            new_positions = (weights > 0.001) & (prev_weights < 0.001)
+            cost_basis[new_positions] = current_price_ratio[new_positions]
+            portfolio_value[rb_offset] *= (1.0 - rebal_cost_frac)
+            prev_weights = weights.copy()
+
+            # Daily returns
+            day_start = oos_start + rb_offset
+            day_end = min(oos_start + next_offset, prices.shape[0] - 1)
+            n_hold = day_end - day_start
+            if n_hold <= 0:
+                continue
+
+            with np.errstate(divide="ignore", invalid="ignore"):
+                daily_rets = prices[day_start + 1:day_end + 1] / prices[day_start:day_end] - 1
+            daily_rets = np.nan_to_num(daily_rets, nan=0.0)
+            port_rets = daily_rets @ weights
+            cum = np.cumprod(1 + port_rets)
+            actual = min(n_hold, next_offset - rb_offset)
+            portfolio_value[rb_offset + 1:rb_offset + 1 + actual] = (
+                portfolio_value[rb_offset] * cum[:actual]
+            )
+
+        oos_return = portfolio_value[-1] / portfolio_value[0] - 1
+        fold_returns.append(oos_return)
+        total_positions.append(np.mean(position_counts) if position_counts else 0)
+        all_daily_values.append(portfolio_value)
+
+    # Aggregate folds
+    oos_total = float(np.prod([1 + r for r in fold_returns]) - 1)
+    scaled_segments = []
+    cumulative = 1.0
+    for dv in all_daily_values:
+        scale = cumulative / dv[0] if dv[0] != 0 else cumulative
+        scaled_segments.append(dv * scale)
+        cumulative = scaled_segments[-1][-1]
+    scaled = np.concatenate(scaled_segments)
+
+    running_max = np.maximum.accumulate(scaled)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        dd_series = (scaled - running_max) / running_max
+    overall_dd = np.nan_to_num(dd_series, nan=0.0).min()
+
+    total_oos_days = sum(e - s for s, e in folds)
+    n_years = total_oos_days / 252
+    if n_years > 0 and (1 + oos_total) > 0:
+        ann_return = (1 + oos_total) ** (1 / n_years) - 1
+    else:
+        ann_return = -1.0 if oos_total < 0 else 0.0
+
+    fold_arr = np.array(fold_returns)
+    consist = float(fold_arr.std())
+    win_rate = float(np.mean(fold_arr > 0))
+
+    daily_rets = np.diff(scaled) / scaled[:-1]
+    daily_rets = daily_rets[np.isfinite(daily_rets)]
+    neg_rets = daily_rets[daily_rets < 0]
+    dn_vol = float(neg_rets.std() * np.sqrt(252)) if len(neg_rets) > 0 else 0.0001
+    sortino = ann_return / dn_vol if dn_vol > 0 else 0
+    calmar = ann_return / abs(overall_dd) if overall_dd != 0 else 0
+    romad = min(oos_total / abs(overall_dd), 1e6) if overall_dd != 0 else 0
+
+    return WalkForwardResult(
+        oos_total_return=oos_total, oos_annualized=ann_return,
+        oos_max_dd=overall_dd, oos_sortino=sortino, oos_calmar=calmar,
+        oos_romad=romad, oos_win_rate=win_rate, n_folds=len(folds),
+        avg_positions=float(np.mean(total_positions)), consistency=consist,
+        params=params, fold_returns=fold_returns,
+    )
 
 
 def build_folds(
