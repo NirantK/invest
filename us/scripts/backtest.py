@@ -1103,7 +1103,12 @@ def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
         by_rebal[p.rebal_freq].append(p)
 
     n_tickers = _G_PRICES.shape[1]
-    results_dict = {}  # keyed by (max_positions, rebal_freq) → WalkForwardResult
+    safe_indices = []
+    if _G_TICKERS and ref.use_abs_momentum:
+        safe_indices = [i for i, t in enumerate(_G_TICKERS) if t in SAFE_HAVENS]
+    cache = _G_CACHE
+
+    results_dict = {}
 
     for rf, rf_params in by_rebal.items():
         all_max_pos = sorted({p.max_positions for p in rf_params})
