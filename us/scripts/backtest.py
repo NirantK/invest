@@ -2331,6 +2331,74 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     for wt, cnt in wc.most_common(3):
         console.print(f"    w={wt[0]:.1f}/{wt[1]:.1f}/{wt[2]:.1f}: {cnt}")
 
+    # ══════════════════════════════════════════════════════════════════════════
+    #  HOLDINGS TRACE — re-run top configs, log ticker selections at each rebal
+    # ══════════════════════════════════════════════════════════════════════════
+
+    console.print(f"\n[bold]HOLDINGS TRACE (top 3 survivable configs):[/]")
+
+    # Build cache in main process for the trace (single-threaded, small cost)
+    trace_cache = precompute_signals(
+        prices, all_rebal_days_sorted, all_lookbacks, all_skips,
+        needed_variants=needed_variants,
+        need_smoothness=need_smoothness,
+        need_consistency=need_consistency,
+        need_crash=need_crash,
+    )
+    with np.errstate(divide="ignore", invalid="ignore"):
+        trace_daily_rets = np.nan_to_num(prices[1:] / prices[:-1] - 1, nan=0.0)
+
+    for rank, r in enumerate(survivable[:3]):
+        p = r.params
+        console.print(f"\n[bold cyan]#{rank+1}: {p.label()}[/]  "
+                      f"Ann={r.oos_annualized*100:+.1f}%  DD={r.oos_max_dd*100:.1f}%")
+
+        em = earn_mom if p.use_earnings else None
+        safe_idx = []
+        if fetched and p.use_abs_momentum:
+            safe_idx = [i for i, t in enumerate(fetched) if t in SAFE_HAVENS]
+
+        holdings_table = Table(title=f"Rebalance Holdings — Config #{rank+1}")
+        holdings_table.add_column("Date", style="dim")
+        holdings_table.add_column("Fold", justify="right", style="dim")
+        holdings_table.add_column("Holdings", style="bold")
+        holdings_table.add_column("Scores", style="dim")
+
+        for fold_idx, (oos_start, oos_end) in enumerate(folds[-6:]):  # last 6 folds only
+            period_len = oos_end - oos_start
+            rebal_offsets = list(range(0, period_len, p.rebal_freq))
+
+            for rb_offset in rebal_offsets[:3]:  # first 3 rebal points per fold
+                rb_abs = oos_start + rb_offset
+                earn_row = em[rb_abs] if em is not None else None
+                scores = score_from_cache(rb_abs, p, trace_cache, earn_row)
+
+                valid = np.where(scores > 0)[0]
+                if safe_idx:
+                    valid = np.array([v for v in valid if v not in safe_idx])
+
+                if len(valid) == 0:
+                    holdings_table.add_row(
+                        dates[rb_abs] if rb_abs < len(dates) else "?",
+                        str(fold_idx), "[red]CASH[/]", "—")
+                    continue
+
+                sorted_valid = valid[np.argsort(scores[valid])]
+                top_n = min(p.max_positions, len(sorted_valid))
+                top_idx = sorted_valid[-top_n:][::-1]  # descending by score
+
+                ticker_names = [fetched[i] for i in top_idx]
+                ticker_scores = [f"{scores[i]:.3f}" for i in top_idx]
+
+                holdings_table.add_row(
+                    dates[rb_abs] if rb_abs < len(dates) else "?",
+                    str(len(folds) - 6 + fold_idx + 1),
+                    ", ".join(ticker_names[:5]) + (f" +{len(ticker_names)-5}" if len(ticker_names) > 5 else ""),
+                    ", ".join(ticker_scores[:5]),
+                )
+
+        console.print(holdings_table)
+
 
 if __name__ == "__main__":
     main()
