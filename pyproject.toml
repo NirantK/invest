@@ -20,6 +20,7 @@ dependencies = [
     "plotnine>=0.15.3",
     "pyarrow>=23.0.1",
     "tenacity>=9.1.4",
+    "numba>=0.64.0",
 ]
 
 [build-system]

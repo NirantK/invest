@@ -18,6 +18,7 @@ from enum import Enum
 from itertools import product
 
 import click
+import numba
 import numpy as np
 from rich.console import Console
 from rich.table import Table
@@ -162,6 +163,65 @@ INDIA_MF_QUERIES = [
     "equity savings fund direct growth",
     # ── Tax saver ──
     "elss tax saver direct growth",
+    # ── Additional categories for full coverage ──
+    "contra fund direct growth",
+    "special situations fund direct growth",
+    "international opportunities direct growth",
+    "multicap direct growth",
+    "thematic fund direct growth",
+    "arbitrage fund direct growth",
+    "dynamic bond fund direct growth",
+    "corporate bond fund direct growth",
+    "medium duration fund direct growth",
+    "short duration fund direct growth",
+    "long duration fund direct growth",
+    "microcap fund direct growth",
+    "mining fund direct growth",
+    "international equity direct growth",
+    # ── Sector index funds ──
+    "nifty bank index direct growth",
+    "nifty it index direct growth",
+    "nifty pharma index direct growth",
+    "nifty auto index direct growth",
+    "nifty metal index direct growth",
+    "nifty fmcg index direct growth",
+    "nifty private bank index direct growth",
+    "nifty financial services index direct growth",
+    "nifty realty index direct growth",
+    "nifty energy index direct growth",
+    # ── Broad index funds ──
+    "bse sensex index direct growth",
+    "nifty 100 index direct growth",
+    "nifty 200 index direct growth",
+    "nifty midcap 100 index direct growth",
+    "nifty midcap 50 index direct growth",
+    # ── International region funds ──
+    "japan fund direct growth",
+    "asean fund direct growth",
+    "european fund direct growth",
+    # ── Precious metals ──
+    "silver fund direct growth",
+]
+
+# Indian ETFs tradeable on NSE/BSE (fetched via yfinance with .NS suffix)
+INDIA_ETF_TICKERS = [
+    # Broad market
+    "NIFTYBEES.NS", "JUNIORBEES.NS", "BANKBEES.NS", "SETFNIF50.NS",
+    # Thematic / International
+    "MAFANG.NS", "MON100.NS", "NASDAQ100.NS", "N100.NS",
+    # Gold / Silver / Commodities
+    "GOLDBEES.NS", "SILVERBEES.NS", "GOLDCASE.NS",
+    # Sector
+    "ITBEES.NS", "PHARMABEES.NS", "PSUBNKBEES.NS", "INFRAEES.NS",
+    # Factor / Smart-beta
+    "NIFTYQLTY.NS", "ALPHAETF.NS", "MOVALUE.NS", "MOMENTUM.NS",
+    "LOWVOLIETF.NS", "NV20IETF.NS",
+    # Debt / Cash proxy
+    "LIQUIDBEES.NS", "LIQUIDCASE.NS", "LIQUID.NS",
+    # Midcap / Smallcap
+    "MIDCAPETF.NS", "MID150BEES.NS",
+    # International
+    "HNGSNGBEES.NS", "MOMESETF.NS",
 ]
 
 MIN_TICKERS_PER_FOLD = 15
@@ -1384,6 +1444,100 @@ def build_param_grid() -> list[ScoringParams]:
     return configs
 
 
+@numba.njit(cache=True)
+def _run_fold_numba(
+    daily_rets: np.ndarray,       # (n_days, n_tickers)
+    scores_at_offsets: np.ndarray, # (n_rebal, n_tickers) — scores at each rebal point
+    rebal_offsets: np.ndarray,     # (n_rebal,) — offset within fold
+    period_len: int,
+    all_max_pos: np.ndarray,       # (n_sizes,) e.g. [2, 3, 5, 8, 10, 15, 30]
+    oos_start: int,
+) -> np.ndarray:
+    """Numba-JIT inner loop: compute portfolio values for all position sizes.
+
+    Returns: (n_sizes, period_len+1) portfolio value arrays.
+    """
+    n_sizes = len(all_max_pos)
+    n_tickers = daily_rets.shape[1]
+    pv = np.ones((n_sizes, period_len + 1))
+
+    for idx_rb in range(len(rebal_offsets)):
+        rb_offset = rebal_offsets[idx_rb]
+        next_offset = rebal_offsets[idx_rb + 1] if idx_rb + 1 < len(rebal_offsets) else period_len
+
+        scores = scores_at_offsets[idx_rb]
+
+        # Count valid (score > 0) and get sorted indices
+        valid_count = 0
+        for k in range(n_tickers):
+            if scores[k] > 0:
+                valid_count += 1
+
+        if valid_count == 0:
+            for si in range(n_sizes):
+                for t in range(rb_offset + 1, min(next_offset + 1, period_len + 1)):
+                    pv[si, t] = pv[si, rb_offset]
+            continue
+
+        # Partial sort: get indices of top max(all_max_pos) scores
+        # Use simple selection for numba compatibility
+        max_n = int(all_max_pos[-1])  # largest position size
+        top_n = min(max_n, valid_count)
+
+        # Get indices of top_n scores
+        top_indices = np.empty(top_n, dtype=numba.int64)
+        used = np.zeros(n_tickers, dtype=numba.boolean)
+        for i in range(top_n):
+            best_idx = -1
+            best_score = -1e30
+            for k in range(n_tickers):
+                if not used[k] and scores[k] > best_score and scores[k] > 0:
+                    best_score = scores[k]
+                    best_idx = k
+                    break  # Not correct — need to find true max
+            # Actually find the max properly
+            best_idx = -1
+            best_score = -1e30
+            for k in range(n_tickers):
+                if not used[k] and scores[k] > best_score and scores[k] > 0:
+                    best_score = scores[k]
+                    best_idx = k
+            if best_idx >= 0:
+                top_indices[i] = best_idx
+                used[best_idx] = True
+            else:
+                top_indices[i] = 0
+
+        # Daily returns for hold period
+        day_start = oos_start + rb_offset
+        day_end = day_start + min(next_offset - rb_offset, daily_rets.shape[0] - day_start)
+        n_hold = day_end - day_start
+        if n_hold <= 0:
+            continue
+
+        # For each position size, compute equal-weight portfolio return
+        for si in range(n_sizes):
+            n_pos = int(all_max_pos[si])
+            actual_n = min(n_pos, top_n)
+            if actual_n == 0:
+                for t in range(rb_offset + 1, rb_offset + 1 + n_hold):
+                    if t <= period_len:
+                        pv[si, t] = pv[si, rb_offset]
+                continue
+
+            inv_n = 1.0 / actual_n
+            cumval = pv[si, rb_offset]
+            for d in range(n_hold):
+                port_ret = 0.0
+                for j in range(actual_n):
+                    port_ret += daily_rets[day_start + d, top_indices[j]] * inv_n
+                cumval *= (1.0 + port_ret)
+                if rb_offset + 1 + d <= period_len:
+                    pv[si, rb_offset + 1 + d] = cumval
+
+    return pv
+
+
 PRUNE_INTERVAL_SEC = 120  # prune every 2 minutes wall clock
 PRUNE_KEEP_RATIO = 0.5    # keep top 50% at each prune pass
 PRUNE_MIN_RESULTS = 500   # need at least this many results before first prune
@@ -1566,14 +1720,43 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
         scheme_codes = _discover_india_mf_schemes(mf_max_per_query, fetch_all=mf_all)
         console.print(f"[green]Found {len(scheme_codes)} schemes[/]")
 
-        console.print(f"[bold]Fetching NAV history ({period})...[/]")
-        prices, dates, fetched = fetch_all_mf_numpy(scheme_codes, period)
+        console.print(f"[bold]Fetching MF NAV history ({period})...[/]")
+        mf_prices, mf_dates, mf_fetched = fetch_all_mf_numpy(scheme_codes, period)
+
+        # Also fetch Indian ETFs via yfinance
+        console.print(f"[bold]Fetching {len(INDIA_ETF_TICKERS)} Indian ETFs...[/]")
+        etf_prices, etf_dates, etf_fetched = fetch_all_numpy(INDIA_ETF_TICKERS, period)
+        console.print(f"[green]Got {len(etf_fetched)} ETFs[/]")
+
+        # Merge MF + ETF data on common dates
+        if mf_prices.shape[0] > 0 and etf_prices.shape[0] > 0:
+            all_dates_set = sorted(set(mf_dates.tolist()) | set(etf_dates.tolist()))
+            date_to_idx = {d: i for i, d in enumerate(all_dates_set)}
+            n_combined = len(mf_fetched) + len(etf_fetched)
+            prices = np.full((len(all_dates_set), n_combined), np.nan)
+
+            # MF data
+            mf_idx = np.array([date_to_idx[d] for d in mf_dates])
+            prices[np.ix_(mf_idx, range(len(mf_fetched)))] = mf_prices
+            # ETF data
+            etf_idx = np.array([date_to_idx[d] for d in etf_dates])
+            prices[np.ix_(etf_idx, range(len(mf_fetched), n_combined))] = etf_prices
+
+            from data_utils import _forward_fill_columns
+            _forward_fill_columns(prices)
+            dates = np.array(all_dates_set)
+            fetched = mf_fetched + etf_fetched
+        elif mf_prices.shape[0] > 0:
+            prices, dates, fetched = mf_prices, mf_dates, mf_fetched
+        else:
+            prices, dates, fetched = etf_prices, etf_dates, etf_fetched
+
         n_days = prices.shape[0]
         if n_days == 0:
             console.print("[red]No data fetched![/]")
             return
-        console.print(f"[green]Got {len(fetched)} schemes, {n_days} days ({dates[0]} → {dates[-1]})[/]")
-        # No earnings data for MFs
+        console.print(f"[green]Got {len(fetched)} total ({len(mf_fetched)} MFs + {len(etf_fetched)} ETFs), "
+                      f"{n_days} days ({dates[0]} → {dates[-1]})[/]")
         earn_mom = None
     else:
         console.print(f"[bold]Fetching {len(TICKERS)} tickers ({period})...[/]")
