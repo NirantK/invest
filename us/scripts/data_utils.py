@@ -1,6 +1,7 @@
 """Shared data fetching and caching for investment scripts."""
 
 import pickle
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime
 from functools import wraps
@@ -209,21 +210,48 @@ def get_all_mf_schemes() -> list[dict]:
     return resp.json()
 
 
-@daily_disk_cache
-def fetch_mf_nav_dict(scheme_code: int, _period: str = "max") -> dict | None:
-    """Fetch MF NAV history as numpy dict. Same interface as fetch_one_dict.
+MF_CACHE_DIR = Path(__file__).parent.parent / "data" / "mf_nav_cache"
 
-    _period is unused (mfapi always returns full history) but kept for cache key compat.
-    Returns {"dates": np.array, "tri": np.array} or None.
+
+def _load_mf_cache(scheme_code: int) -> dict | None:
+    """Load cached MF NAV data. Returns {"dates": np.array, "tri": np.array} or None."""
+    cache_file = MF_CACHE_DIR / f"{scheme_code}.pkl"
+    if cache_file.exists():
+        return pickle.loads(cache_file.read_bytes())
+    return None
+
+
+def _save_mf_cache(scheme_code: int, data: dict) -> None:
+    """Save MF NAV data to incremental cache."""
+    MF_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_file = MF_CACHE_DIR / f"{scheme_code}.pkl"
+    cache_file.write_bytes(pickle.dumps(data))
+
+
+def _fetch_mf_nav_incremental(scheme_code: int) -> dict | None:
+    """Fetch MF NAV with incremental caching.
+
+    If cached data exists, only fetches new data points after the last cached date.
+    Merges new data with cached, saves back, returns full history.
     """
-    resp = httpx.get(f"{MFAPI_BASE}/{scheme_code}", timeout=60)
-    resp.raise_for_status()
+    cached = _load_mf_cache(scheme_code)
+    last_cached_date = cached["dates"][-1] if cached else None
+
+    # Fetch from API with retries
+    for attempt in range(3):
+        resp = httpx.get(f"{MFAPI_BASE}/{scheme_code}", timeout=60)
+        if resp.status_code == 200:
+            break
+        time.sleep(1 * (attempt + 1))
+    else:
+        return cached  # return stale cache if API fails
+
     data = resp.json()
     nav_entries = data.get("data", [])
     if not nav_entries:
-        return None
+        return cached
 
-    # Parse dates (dd-mm-yyyy) and NAVs, sort chronologically
+    # Parse new entries
     parsed = []
     for entry in nav_entries:
         nav_str = entry.get("nav", "")
@@ -234,34 +262,65 @@ def fetch_mf_nav_dict(scheme_code: int, _period: str = "max") -> dict | None:
         if nav_val <= 0:
             continue
         dt = datetime.strptime(date_str, "%d-%m-%Y")
-        parsed.append((dt.strftime("%Y-%m-%d"), nav_val))
+        iso = dt.strftime("%Y-%m-%d")
+        # Skip dates already in cache
+        if last_cached_date and iso <= last_cached_date:
+            continue
+        parsed.append((iso, nav_val))
 
-    if len(parsed) < 2:
+    if cached and not parsed:
+        return cached  # no new data, return cache as-is
+
+    # Merge with cached data
+    if cached and parsed:
+        parsed.sort(key=lambda x: x[0])
+        new_dates = np.array([p[0] for p in parsed])
+        new_navs = np.array([p[1] for p in parsed])
+        merged_dates = np.concatenate([cached["dates"], new_dates])
+        merged_navs = np.concatenate([cached["tri"], new_navs])
+        result = {"dates": merged_dates, "tri": merged_navs}
+    elif parsed:
+        parsed.sort(key=lambda x: x[0])
+        result = {
+            "dates": np.array([p[0] for p in parsed]),
+            "tri": np.array([p[1] for p in parsed]),
+        }
+    else:
         return None
 
-    parsed.sort(key=lambda x: x[0])
-    dates = np.array([p[0] for p in parsed])
-    navs = np.array([p[1] for p in parsed])
-    # MF NAVs already include dividends reinvested (growth option), so NAV = total return
-    return {"dates": dates, "tri": navs}
+    if len(result["tri"]) < 2:
+        return None
+
+    _save_mf_cache(scheme_code, result)
+    return result
 
 
 def fetch_all_mf_numpy(
     scheme_codes: list[int], period: str = "max"
 ) -> tuple[np.ndarray, np.ndarray, list[str]]:
-    """Fetch all MF schemes, align to common dates.
+    """Fetch all MF schemes with incremental caching, align to common dates.
 
     Returns (prices[n_days, n_schemes], dates[n_days], scheme_labels).
-    Same interface as fetch_all_numpy but for Indian mutual funds.
+    Fetches in batches of 50 to avoid overwhelming mfapi.in.
     """
+    import time as _time
     raw = {}
-    with ThreadPoolExecutor(max_workers=8) as pool:
-        futures = {pool.submit(fetch_mf_nav_dict, sc, period): sc for sc in scheme_codes}
-        for future in as_completed(futures):
-            sc = futures[future]
-            result = future.result()
-            if result is not None and len(result["tri"]) > 0:
-                raw[str(sc)] = result
+    batch_size = 50
+    total = len(scheme_codes)
+
+    for batch_start in range(0, total, batch_size):
+        batch = scheme_codes[batch_start:batch_start + batch_size]
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            futures = {pool.submit(_fetch_mf_nav_incremental, sc): sc for sc in batch}
+            for future in as_completed(futures):
+                sc = futures[future]
+                result = future.result()
+                if result is not None and len(result["tri"]) > 0:
+                    raw[str(sc)] = result
+        done = min(batch_start + batch_size, total)
+        if done < total:
+            print(f"  Fetched {done}/{total} schemes ({len(raw)} valid)...")
+            _time.sleep(0.5)  # brief pause between batches
 
     if not raw:
         return np.array([]), np.array([]), []
