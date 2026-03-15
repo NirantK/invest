@@ -830,6 +830,7 @@ class WalkForwardResult:
 # ── Walk-forward engine ──────────────────────────────────────────────────────
 
 _G_PRICES: np.ndarray | None = None
+_G_DAILY_RETS: np.ndarray | None = None  # precomputed: prices[t+1]/prices[t] - 1
 _G_DATES: np.ndarray | None = None
 _G_EARN_MOM: np.ndarray | None = None
 _G_CACHE: PrecomputedSignals | None = None
@@ -845,8 +846,11 @@ def _init_worker(
     need_consistency: bool = True,
     need_crash: bool = True,
 ):
-    global _G_PRICES, _G_DATES, _G_EARN_MOM, _G_CACHE, _G_TICKERS
+    global _G_PRICES, _G_DAILY_RETS, _G_DATES, _G_EARN_MOM, _G_CACHE, _G_TICKERS
     _G_PRICES = prices
+    # Precompute daily returns once per worker (used by all combos)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        _G_DAILY_RETS = np.nan_to_num(prices[1:] / prices[:-1] - 1, nan=0.0)
     _G_DATES = dates
     _G_EARN_MOM = earn_mom
     _G_TICKERS = ticker_names
@@ -1010,16 +1014,14 @@ def _walk_forward_with_prescored(
             portfolio_value[rb_offset] *= (1.0 - rebal_cost_frac)
             prev_weights = weights.copy()
 
-            # Daily returns
+            # Daily returns (from precomputed matrix — no division needed)
             day_start = oos_start + rb_offset
             day_end = min(oos_start + next_offset, prices.shape[0] - 1)
             n_hold = day_end - day_start
             if n_hold <= 0:
                 continue
 
-            with np.errstate(divide="ignore", invalid="ignore"):
-                daily_rets = prices[day_start + 1:day_end + 1] / prices[day_start:day_end] - 1
-            daily_rets = np.nan_to_num(daily_rets, nan=0.0)
+            daily_rets = _G_DAILY_RETS[day_start:day_end]
             port_rets = daily_rets @ weights
             cum = np.cumprod(1 + port_rets)
             actual = min(n_hold, next_offset - rb_offset)
