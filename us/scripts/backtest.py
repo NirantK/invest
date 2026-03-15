@@ -840,6 +840,52 @@ def score_from_cache(
 # ── Vectorized OOS period ────────────────────────────────────────────────────
 
 
+def _compute_weights(
+    scores: np.ndarray,
+    valid: np.ndarray,
+    n_tickers: int,
+    max_positions: int,
+    use_vol_scaling: bool,
+    use_abs_momentum: bool,
+    safe_arr: np.ndarray,
+    tv: np.ndarray | None,
+    abs_mom_12m: np.ndarray | None,
+) -> tuple[np.ndarray, int]:
+    """Select top-N positions and compute weights. Returns (weights, n_positions)."""
+    if len(valid) == 0:
+        # Dual momentum risk-off: allocate to best safe haven
+        if len(safe_arr) > 0 and use_abs_momentum and abs_mom_12m is not None:
+            best_sh = safe_arr[np.argmax(abs_mom_12m[safe_arr])]
+            weights = np.zeros(n_tickers)
+            weights[best_sh] = 1.0
+            return weights, 1
+        return np.zeros(n_tickers), 0
+
+    top_n = min(max_positions, len(valid))
+    top_idx = valid[np.argsort(scores[valid])[-top_n:]]
+
+    if use_abs_momentum and len(safe_arr) > 0 and top_n < max_positions:
+        n_risk = top_n
+        best_sh = safe_arr[np.argmax(abs_mom_12m[safe_arr])] if abs_mom_12m is not None else safe_arr[0]
+        weights = np.zeros(n_tickers)
+        risk_share = n_risk / max_positions
+        if use_vol_scaling and tv is not None:
+            inv_vol = 1.0 / tv[top_idx]
+            weights[top_idx] = risk_share * inv_vol / inv_vol.sum()
+        else:
+            weights[top_idx] = risk_share / n_risk
+        weights[best_sh] += (1.0 - risk_share)
+    elif use_vol_scaling and tv is not None:
+        inv_vol = 1.0 / tv[top_idx]
+        weights = np.zeros(n_tickers)
+        weights[top_idx] = inv_vol / inv_vol.sum()
+    else:
+        weights = np.zeros(n_tickers)
+        weights[top_idx] = 1.0 / top_n
+
+    return weights, top_n
+
+
 def _compute_rebalance_cost(
     old_weights: np.ndarray,
     new_weights: np.ndarray,
@@ -900,9 +946,11 @@ def run_oos_period(
     cost_basis = np.ones(n_tickers)  # normalized price at which position was entered
 
     # Pre-identify safe-haven ticker indices for dual momentum risk-off
-    safe_indices = []
+    safe_mask = np.zeros(n_tickers, dtype=bool)
+    safe_arr = np.empty(0, dtype=np.intp)
     if ticker_names and params.use_abs_momentum:
-        safe_indices = [i for i, t in enumerate(ticker_names) if t in SAFE_HAVENS]
+        safe_arr = np.array([i for i, t in enumerate(ticker_names) if t in SAFE_HAVENS])
+        safe_mask[safe_arr] = True
 
     rebal_offsets = list(range(0, period_len, params.rebal_freq))
 
@@ -912,53 +960,21 @@ def run_oos_period(
         rb_abs = oos_start + rb_offset
         earn_row = earn_mom[rb_abs] if earn_mom is not None else None
         scores = score_from_cache(rb_abs, params, cache, earn_row)
-        valid = np.where(scores > 0)[0]
+        valid = np.where((scores > 0) & ~safe_mask)[0]
 
-        # Exclude safe havens from the risky scoring (they're risk-off destinations)
-        if safe_indices:
-            valid = np.array([v for v in valid if v not in safe_indices])
-
-        if len(valid) == 0:
-            # Dual momentum risk-off: all risky assets failed → allocate to best safe haven
-            if safe_indices and params.use_abs_momentum:
-                sh_mom = cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers))
-                best_sh = max(safe_indices, key=lambda i: sh_mom[i])
-                weights = np.zeros(n_tickers)
-                weights[best_sh] = 1.0
-                position_counts.append(1)
-            else:
-                portfolio_value[rb_offset + 1:next_offset + 1] = portfolio_value[rb_offset]
-                position_counts.append(0)
-                prev_weights = np.zeros(n_tickers)
-                continue
-        else:
-            top_n = min(params.max_positions, len(valid))
-            top_idx = valid[np.argsort(scores[valid])[-top_n:]]
-
-            if params.use_abs_momentum and safe_indices and top_n < params.max_positions:
-                n_risk = top_n
-                sh_mom = cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers))
-                best_sh = max(safe_indices, key=lambda i: sh_mom[i])
-
-                weights = np.zeros(n_tickers)
-                risk_share = n_risk / params.max_positions
-                if params.use_vol_scaling and cache is not None:
-                    tv = cache.tv[rb_abs]
-                    inv_vol = 1.0 / tv[top_idx]
-                    weights[top_idx] = risk_share * inv_vol / inv_vol.sum()
-                else:
-                    weights[top_idx] = risk_share / n_risk
-                weights[best_sh] += (1.0 - risk_share)
-            elif params.use_vol_scaling and cache is not None:
-                tv = cache.tv[rb_abs]
-                inv_vol = 1.0 / tv[top_idx]
-                weights = np.zeros(n_tickers)
-                weights[top_idx] = inv_vol / inv_vol.sum()
-            else:
-                weights = np.zeros(n_tickers)
-                weights[top_idx] = 1.0 / top_n
-
-            position_counts.append(top_n)
+        weights, n_pos = _compute_weights(
+            scores, valid, n_tickers, params.max_positions,
+            params.use_vol_scaling, params.use_abs_momentum,
+            safe_arr,
+            cache.tv.get(rb_abs) if cache is not None else None,
+            cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers)) if cache is not None else None,
+        )
+        if n_pos == 0 and len(valid) == 0 and not (len(safe_arr) > 0 and params.use_abs_momentum):
+            portfolio_value[rb_offset + 1:next_offset + 1] = portfolio_value[rb_offset]
+            position_counts.append(0)
+            prev_weights = np.zeros(n_tickers)
+            continue
+        position_counts.append(n_pos)
 
         # Compute rebalance costs (commission + slippage + tax on gains)
         current_price_ratio = prices[rb_abs] / prices[oos_start] if prices[oos_start].sum() > 0 else np.ones(n_tickers)
@@ -1073,6 +1089,93 @@ def _score_key(p: ScoringParams) -> tuple:
             p.use_vol_scaling, p.use_crash_prot)
 
 
+@numba.njit(cache=True)
+def _run_fold_numba(
+    daily_rets: np.ndarray,
+    scores_at_offsets: np.ndarray,
+    rebal_offsets: np.ndarray,
+    period_len: np.int64,
+    all_max_pos: np.ndarray,
+    safe_mask: np.ndarray,
+) -> np.ndarray:
+    """Numba-accelerated inner fold loop for equal-weight configs (no vol-scaling, no cost model).
+
+    Args:
+        daily_rets: (period_len, n_tickers) daily returns for this fold
+        scores_at_offsets: (n_rebal, n_tickers) precomputed scores at each rebal offset
+        rebal_offsets: (n_rebal,) offsets within the fold
+        period_len: total days in fold
+        all_max_pos: (n_sizes,) sorted array of position sizes to evaluate
+        safe_mask: (n_tickers,) boolean mask for safe-haven tickers
+
+    Returns:
+        portfolio_values: (n_sizes, period_len+1) portfolio value curves
+    """
+    n_sizes = len(all_max_pos)
+    n_tickers = daily_rets.shape[1]
+    n_rebal = len(rebal_offsets)
+    pv = np.ones((n_sizes, period_len + 1))
+
+    for idx_rb in range(n_rebal):
+        rb_offset = rebal_offsets[idx_rb]
+        next_offset = rebal_offsets[idx_rb + 1] if idx_rb + 1 < n_rebal else period_len
+
+        scores = scores_at_offsets[idx_rb]
+
+        # Count valid (score > 0 and not safe-haven)
+        n_valid = 0
+        for j in range(n_tickers):
+            if scores[j] > 0 and not safe_mask[j]:
+                n_valid += 1
+
+        if n_valid == 0:
+            for si in range(n_sizes):
+                for d in range(rb_offset + 1, min(next_offset + 1, period_len + 1)):
+                    pv[si, d] = pv[si, rb_offset]
+            continue
+
+        # Sort valid indices by score ascending (last elements = highest scores)
+        valid_indices = np.empty(n_valid, dtype=np.int64)
+        vi = 0
+        for j in range(n_tickers):
+            if scores[j] > 0 and not safe_mask[j]:
+                valid_indices[vi] = j
+                vi += 1
+
+        # Simple insertion sort (n_valid is typically small, < 100)
+        for i in range(1, n_valid):
+            key_idx = valid_indices[i]
+            key_score = scores[key_idx]
+            j = i - 1
+            while j >= 0 and scores[valid_indices[j]] > key_score:
+                valid_indices[j + 1] = valid_indices[j]
+                j -= 1
+            valid_indices[j + 1] = key_idx
+
+        n_hold = min(next_offset, period_len) - rb_offset
+        if n_hold <= 0:
+            continue
+
+        actual = min(n_hold, next_offset - rb_offset)
+
+        for si in range(n_sizes):
+            top_n = min(all_max_pos[si], n_valid)
+            # Equal weight: 1/top_n for top-N tickers
+            w = 1.0 / top_n
+
+            # Compute daily portfolio returns and cumprod inline
+            cum = pv[si, rb_offset]
+            for d in range(actual):
+                port_ret = 0.0
+                for k in range(top_n):
+                    tidx = valid_indices[n_valid - 1 - k]  # descending
+                    port_ret += daily_rets[rb_offset + d, tidx] * w
+                cum *= (1.0 + port_ret)
+                pv[si, rb_offset + 1 + d] = cum
+
+    return pv
+
+
 def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
     """Run a batch of params sharing the same score signature.
 
@@ -1109,9 +1212,10 @@ def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
         by_rebal[p.rebal_freq].append(p)
 
     n_tickers = _G_PRICES.shape[1]
-    safe_indices = []
+    safe_mask = np.zeros(n_tickers, dtype=bool)
     if _G_TICKERS and ref.use_abs_momentum:
-        safe_indices = [i for i, t in enumerate(_G_TICKERS) if t in SAFE_HAVENS]
+        safe_arr = np.array([i for i, t in enumerate(_G_TICKERS) if t in SAFE_HAVENS])
+        safe_mask[safe_arr] = True
     cache = _G_CACHE
 
     results_dict = {}
@@ -1126,22 +1230,45 @@ def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
         # and record portfolio values for all position sizes simultaneously
         fold_data = {n: [] for n in all_max_pos}  # n_pos → list of (fold_return, daily_values)
 
+        # Numba fast path: equal-weight only (no vol-scaling, no dual-momentum safe-haven)
+        use_numba = not use_vol_scaling and not use_abs_momentum
+        all_max_pos_arr = np.array(all_max_pos, dtype=np.int64)
+
         for oos_start, oos_end in folds:
             period_len = oos_end - oos_start
-            # One portfolio_value array per position size
+            rebal_offsets_list = list(range(0, period_len, rf))
+            rebal_offsets_arr = np.array(rebal_offsets_list, dtype=np.int64)
+
+            if use_numba:
+                # Build scores_at_offsets: (n_rebal, n_tickers)
+                n_rebal = len(rebal_offsets_list)
+                scores_at_offsets = np.full((n_rebal, n_tickers), -1.0)
+                for idx_rb, rb_offset in enumerate(rebal_offsets_list):
+                    rb_abs = oos_start + rb_offset
+                    scores_at_offsets[idx_rb] = score_at_day.get(rb_abs, np.full(n_tickers, -1.0))
+
+                # daily_rets for this fold period (relative to fold start)
+                fold_daily_rets = _G_DAILY_RETS[oos_start:oos_start + period_len]
+
+                pv_all = _run_fold_numba(
+                    fold_daily_rets, scores_at_offsets, rebal_offsets_arr,
+                    np.int64(period_len), all_max_pos_arr, safe_mask,
+                )
+                for si, n_pos in enumerate(all_max_pos):
+                    ret = pv_all[si, -1] / pv_all[si, 0] - 1
+                    fold_data[n_pos].append((ret, pv_all[si].copy(), float(n_pos)))
+                continue
+
+            # Python path: vol-scaling or dual-momentum configs
             pv = {n: np.ones(period_len + 1) for n in all_max_pos}
             pos_counts = {n: [] for n in all_max_pos}
 
-            rebal_offsets = list(range(0, period_len, rf))
-
-            for idx_rb, rb_offset in enumerate(rebal_offsets):
-                next_offset = rebal_offsets[idx_rb + 1] if idx_rb + 1 < len(rebal_offsets) else period_len
+            for idx_rb, rb_offset in enumerate(rebal_offsets_list):
+                next_offset = rebal_offsets_list[idx_rb + 1] if idx_rb + 1 < len(rebal_offsets_list) else period_len
                 rb_abs = oos_start + rb_offset
 
                 scores = score_at_day.get(rb_abs, np.full(n_tickers, -1.0))
-                valid = np.where(scores > 0)[0]
-                if safe_indices:
-                    valid = np.array([v for v in valid if v not in safe_indices])
+                valid = np.where((scores > 0) & ~safe_mask)[0]
 
                 # Sort valid descending by score (once)
                 if len(valid) > 0:
@@ -1245,9 +1372,11 @@ def _walk_forward_with_prescored(
     total_positions = []
     n_tickers = prices.shape[1]
 
-    safe_indices = []
+    safe_mask = np.zeros(n_tickers, dtype=bool)
+    safe_arr = np.empty(0, dtype=np.intp)
     if ticker_names and params.use_abs_momentum:
-        safe_indices = [i for i, t in enumerate(ticker_names) if t in SAFE_HAVENS]
+        safe_arr = np.array([i for i, t in enumerate(ticker_names) if t in SAFE_HAVENS])
+        safe_mask[safe_arr] = True
 
     prev_weights = np.zeros(n_tickers)
     cost_basis = np.ones(n_tickers)
@@ -1270,49 +1399,21 @@ def _walk_forward_with_prescored(
             if scores is None:
                 scores = np.full(n_tickers, -1.0)
 
-            valid = np.where(scores > 0)[0]
-            if safe_indices:
-                valid = np.array([v for v in valid if v not in safe_indices])
+            valid = np.where((scores > 0) & ~safe_mask)[0]
 
-            if len(valid) == 0:
-                if safe_indices and params.use_abs_momentum:
-                    sh_mom = cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers))
-                    best_sh = max(safe_indices, key=lambda i: sh_mom[i])
-                    weights = np.zeros(n_tickers)
-                    weights[best_sh] = 1.0
-                    position_counts.append(1)
-                else:
-                    portfolio_value[rb_offset + 1:next_offset + 1] = portfolio_value[rb_offset]
-                    position_counts.append(0)
-                    prev_weights[:] = 0
-                    continue
-            else:
-                top_n = min(params.max_positions, len(valid))
-                top_idx = valid[np.argsort(scores[valid])[-top_n:]]
-
-                if params.use_abs_momentum and safe_indices and top_n < params.max_positions:
-                    n_risk = top_n
-                    sh_mom = cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers))
-                    best_sh = max(safe_indices, key=lambda i: sh_mom[i])
-                    weights = np.zeros(n_tickers)
-                    risk_share = n_risk / params.max_positions
-                    if params.use_vol_scaling and cache is not None:
-                        tv = cache.tv[rb_abs]
-                        inv_vol = 1.0 / tv[top_idx]
-                        weights[top_idx] = risk_share * inv_vol / inv_vol.sum()
-                    else:
-                        weights[top_idx] = risk_share / n_risk
-                    weights[best_sh] += (1.0 - risk_share)
-                elif params.use_vol_scaling and cache is not None:
-                    tv = cache.tv[rb_abs]
-                    inv_vol = 1.0 / tv[top_idx]
-                    weights = np.zeros(n_tickers)
-                    weights[top_idx] = inv_vol / inv_vol.sum()
-                else:
-                    weights = np.zeros(n_tickers)
-                    weights[top_idx] = 1.0 / top_n
-
-                position_counts.append(top_n)
+            weights, n_pos = _compute_weights(
+                scores, valid, n_tickers, params.max_positions,
+                params.use_vol_scaling, params.use_abs_momentum,
+                safe_arr,
+                cache.tv.get(rb_abs) if cache is not None else None,
+                cache.abs_mom_12m.get(rb_abs, np.zeros(n_tickers)),
+            )
+            if n_pos == 0 and len(valid) == 0 and not (len(safe_arr) > 0 and params.use_abs_momentum):
+                portfolio_value[rb_offset + 1:next_offset + 1] = portfolio_value[rb_offset]
+                position_counts.append(0)
+                prev_weights[:] = 0
+                continue
+            position_counts.append(n_pos)
 
             # Rebalance cost
             current_price_ratio = prices[rb_abs] / prices[oos_start] if prices[oos_start].sum() > 0 else np.ones(n_tickers)
@@ -1660,18 +1761,142 @@ def _discover_india_mf_schemes(max_per_query: int = 5, fetch_all: bool = False) 
                 codes.append(s["schemeCode"])
         return codes
 
-    seen = set()
+    # Dedup: only keep Direct Plan Growth variants
+    # Exclude: IDCW, Dividend, Regular Plan, Bonus, Payout, Institutional
+    exclude_keywords = ["idcw", "dividend", "regular plan", "bonus", "payout",
+                        "institutional", "segregated", "annual", "monthly",
+                        "quarterly", "weekly", "reinvestment"]
+
+    seen_codes = set()
+    seen_base_names = set()  # track base fund name to avoid Growth/IDCW dupes
     codes = []
     for query in INDIA_MF_QUERIES:
         results = search_mf_schemes(query)
         for r in results[:max_per_query]:
             sc = r["schemeCode"]
-            if sc not in seen:
-                seen.add(sc)
-                codes.append(sc)
+            name = r.get("schemeName", "").lower()
+
+            # Skip if already seen
+            if sc in seen_codes:
+                continue
+
+            # Skip non-growth, non-direct variants
+            if any(kw in name for kw in exclude_keywords):
+                continue
+
+            # Dedup by base fund name (strip "direct plan", "growth", "option")
+            base = name
+            for strip in [" - direct plan", " direct plan", "-direct plan",
+                          " - growth option", " - growth", "-growth", " growth",
+                          " option", " - ", "  "]:
+                base = base.replace(strip, " ")
+            base = " ".join(base.split()).strip()
+
+            if base in seen_base_names:
+                continue
+
+            seen_codes.add(sc)
+            seen_base_names.add(base)
+            codes.append(sc)
             if len(codes) >= 1000:
                 return codes
     return codes
+
+
+@dataclass
+class MarketConfig:
+    portfolio_value: float
+    commission_per_share: float
+    min_commission: float
+    avg_share_price: float
+    half_spread_bps: float
+    tax_rate: float
+    sec_finra_fee: float
+    label: str
+
+
+def _load_market_data(
+    market: str, period: str, mf_max_per_query: int, mf_all: bool,
+) -> tuple[np.ndarray, np.ndarray, list[str], np.ndarray | None, MarketConfig]:
+    """Load prices, dates, tickers, earnings, and cost config for a market."""
+    global PORTFOLIO_VALUE, IBKR_COMMISSION_PER_SHARE, IBKR_MIN_COMMISSION
+    global AVG_SHARE_PRICE, HALF_SPREAD_BPS, CCORP_TAX_RATE, SEC_FINRA_FEE_PER_SHARE
+
+    if market == "india":
+        # India cost model (2026 rates)
+        # STT 0.1% buy+sell, exchange fees, stamp duty, STCG 20%
+        # Blended (70% MF exit load, 30% stocks): ~38 bps half-spread
+        cfg = MarketConfig(
+            portfolio_value=2_500_000.0, commission_per_share=0.0,
+            min_commission=0.0, avg_share_price=500.0,
+            half_spread_bps=38.0, tax_rate=0.20, sec_finra_fee=0.0,
+            label="India (Zerodha/Groww, ₹25L)",
+        )
+
+        console.print("[bold]Discovering India MF schemes...[/]")
+        scheme_codes = _discover_india_mf_schemes(mf_max_per_query, fetch_all=mf_all)
+        console.print(f"[green]Found {len(scheme_codes)} schemes[/]")
+
+        console.print(f"[bold]Fetching MF NAV history ({period})...[/]")
+        mf_prices, mf_dates, mf_fetched = fetch_all_mf_numpy(scheme_codes, period)
+
+        console.print(f"[bold]Fetching {len(INDIA_ETF_TICKERS)} Indian ETFs...[/]")
+        etf_prices, etf_dates, etf_fetched = fetch_all_numpy(INDIA_ETF_TICKERS, period)
+        console.print(f"[green]Got {len(etf_fetched)} ETFs[/]")
+
+        # Merge MF + ETF data on common dates
+        if mf_prices.shape[0] > 0 and etf_prices.shape[0] > 0:
+            all_dates_set = sorted(set(mf_dates.tolist()) | set(etf_dates.tolist()))
+            date_to_idx = {d: i for i, d in enumerate(all_dates_set)}
+            n_combined = len(mf_fetched) + len(etf_fetched)
+            prices = np.full((len(all_dates_set), n_combined), np.nan)
+            mf_idx = np.array([date_to_idx[d] for d in mf_dates])
+            prices[np.ix_(mf_idx, range(len(mf_fetched)))] = mf_prices
+            etf_idx = np.array([date_to_idx[d] for d in etf_dates])
+            prices[np.ix_(etf_idx, range(len(mf_fetched), n_combined))] = etf_prices
+            from data_utils import _forward_fill_columns
+            _forward_fill_columns(prices)
+            dates = np.array(all_dates_set)
+            fetched = mf_fetched + etf_fetched
+        elif mf_prices.shape[0] > 0:
+            prices, dates, fetched = mf_prices, mf_dates, mf_fetched
+        else:
+            prices, dates, fetched = etf_prices, etf_dates, etf_fetched
+
+        if prices.shape[0] == 0:
+            console.print("[red]No data fetched![/]")
+            raise SystemExit(1)
+        console.print(f"[green]Got {len(fetched)} total ({len(mf_fetched)} MFs + {len(etf_fetched)} ETFs), "
+                      f"{prices.shape[0]} days ({dates[0]} → {dates[-1]})[/]")
+        earn_mom = None
+    else:
+        cfg = MarketConfig(
+            portfolio_value=PORTFOLIO_VALUE, commission_per_share=IBKR_COMMISSION_PER_SHARE,
+            min_commission=IBKR_MIN_COMMISSION, avg_share_price=AVG_SHARE_PRICE,
+            half_spread_bps=HALF_SPREAD_BPS, tax_rate=CCORP_TAX_RATE,
+            sec_finra_fee=SEC_FINRA_FEE_PER_SHARE,
+            label=f"US (IBKR C-Corp, ${PORTFOLIO_VALUE/1000:.0f}K)",
+        )
+
+        console.print(f"[bold]Fetching {len(TICKERS)} tickers ({period})...[/]")
+        prices, dates, fetched = fetch_all_numpy(TICKERS, period)
+        console.print(f"[green]Got {len(fetched)} tickers, {prices.shape[0]} days ({dates[0]} → {dates[-1]})[/]")
+
+        console.print("[bold]Fetching earnings...[/]")
+        earnings = fetch_all_earnings(fetched)
+        console.print(f"[green]Earnings for {len(earnings)}/{len(fetched)} tickers[/]")
+        earn_mom = build_earnings_momentum(earnings, dates, fetched)
+
+    # Apply cost config to globals (used by _compute_rebalance_cost)
+    PORTFOLIO_VALUE = cfg.portfolio_value
+    IBKR_COMMISSION_PER_SHARE = cfg.commission_per_share
+    IBKR_MIN_COMMISSION = cfg.min_commission
+    AVG_SHARE_PRICE = cfg.avg_share_price
+    HALF_SPREAD_BPS = cfg.half_spread_bps
+    CCORP_TAX_RATE = cfg.tax_rate
+    SEC_FINRA_FEE_PER_SHARE = cfg.sec_finra_fee
+
+    return prices, dates, fetched, earn_mom, cfg
 
 
 @click.command()
@@ -1688,99 +1913,7 @@ def _discover_india_mf_schemes(max_per_query: int = 5, fetch_all: bool = False) 
 def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
          max_dd_cap: float, market: str, mf_max_per_query: int, mf_all: bool):
     """Walk-forward momentum sweep — AQR + Alpha Architect signals."""
-    global PORTFOLIO_VALUE, IBKR_COMMISSION_PER_SHARE, IBKR_MIN_COMMISSION
-    global AVG_SHARE_PRICE, HALF_SPREAD_BPS, CCORP_TAX_RATE, SEC_FINRA_FEE_PER_SHARE
-
-    if market == "india":
-        # ── India individual cost model (2026 rates) ─────────────────────
-        # Source: Zerodha/Groww charges pages, ClearTax STT guide, SEBI circulars
-        #
-        # Tax:
-        #   STCG (<1yr): 20% on gains (Budget 2025)
-        #   LTCG (>1yr): 12.5% on gains above ₹1.25L exemption
-        #   With 42d rebal (~2 months), all trades are STCG
-        #
-        # Transaction costs per equity delivery trade (buy+sell round-trip):
-        #   STT: 0.1% on buy + 0.1% on sell = 0.2% round-trip
-        #   Exchange txn charges (NSE): 0.00297% on buy + sell
-        #   SEBI turnover fee: 0.0001% on buy + sell
-        #   Stamp duty: ~0.015% on buy side (varies by state, using Maharashtra)
-        #   GST: 18% on (brokerage + exchange charges)
-        #   DP charges: ₹18.5 per sell transaction (Zerodha/Groww)
-        #   Brokerage: ₹0 for equity delivery (Zerodha, Groww, Dhan)
-        #
-        # For MF switches: ₹0 brokerage, no STT, but 1% exit load if < 1yr
-        #
-        # Blended model (portfolio = mix of MFs + stocks):
-        #   Stocks: ~0.22% round-trip (STT 0.2% + exchange + stamp + GST)
-        #   MFs: ~0% if > 1yr, ~1% if < 1yr (exit load)
-        #   We model as half-spread since costs are proportional to turnover
-        PORTFOLIO_VALUE = 2_500_000.0       # ₹25L starting capital
-        IBKR_COMMISSION_PER_SHARE = 0.0     # ₹0 brokerage (Zerodha/Groww delivery)
-        IBKR_MIN_COMMISSION = 0.0
-        AVG_SHARE_PRICE = 500.0             # Avg stock price (₹500 for large-caps)
-        # Half-spread = half of round-trip cost
-        # Stocks: 0.22% round-trip → 11 bps half-spread
-        # MF exit load: 1% if < 1yr, 0% if > 1yr → ~50 bps avg for 42d rebal
-        # Blended (70% MF, 30% stocks): 0.7*50 + 0.3*11 = ~38 bps
-        HALF_SPREAD_BPS = 38.0
-        CCORP_TAX_RATE = 0.20               # 20% STCG (all trades < 1yr at 42d rebal)
-        SEC_FINRA_FEE_PER_SHARE = 0.0       # STT/exchange fees absorbed in half-spread
-        # Note: MF NAVs already include expense ratios (deducted daily from NAV)
-        # Note: DP charges (₹18.5/sell) are negligible on ₹25L portfolio
-
-        console.print(f"[bold]Discovering India MF schemes...[/]")
-        scheme_codes = _discover_india_mf_schemes(mf_max_per_query, fetch_all=mf_all)
-        console.print(f"[green]Found {len(scheme_codes)} schemes[/]")
-
-        console.print(f"[bold]Fetching MF NAV history ({period})...[/]")
-        mf_prices, mf_dates, mf_fetched = fetch_all_mf_numpy(scheme_codes, period)
-
-        # Also fetch Indian ETFs via yfinance
-        console.print(f"[bold]Fetching {len(INDIA_ETF_TICKERS)} Indian ETFs...[/]")
-        etf_prices, etf_dates, etf_fetched = fetch_all_numpy(INDIA_ETF_TICKERS, period)
-        console.print(f"[green]Got {len(etf_fetched)} ETFs[/]")
-
-        # Merge MF + ETF data on common dates
-        if mf_prices.shape[0] > 0 and etf_prices.shape[0] > 0:
-            all_dates_set = sorted(set(mf_dates.tolist()) | set(etf_dates.tolist()))
-            date_to_idx = {d: i for i, d in enumerate(all_dates_set)}
-            n_combined = len(mf_fetched) + len(etf_fetched)
-            prices = np.full((len(all_dates_set), n_combined), np.nan)
-
-            # MF data
-            mf_idx = np.array([date_to_idx[d] for d in mf_dates])
-            prices[np.ix_(mf_idx, range(len(mf_fetched)))] = mf_prices
-            # ETF data
-            etf_idx = np.array([date_to_idx[d] for d in etf_dates])
-            prices[np.ix_(etf_idx, range(len(mf_fetched), n_combined))] = etf_prices
-
-            from data_utils import _forward_fill_columns
-            _forward_fill_columns(prices)
-            dates = np.array(all_dates_set)
-            fetched = mf_fetched + etf_fetched
-        elif mf_prices.shape[0] > 0:
-            prices, dates, fetched = mf_prices, mf_dates, mf_fetched
-        else:
-            prices, dates, fetched = etf_prices, etf_dates, etf_fetched
-
-        n_days = prices.shape[0]
-        if n_days == 0:
-            console.print("[red]No data fetched![/]")
-            return
-        console.print(f"[green]Got {len(fetched)} total ({len(mf_fetched)} MFs + {len(etf_fetched)} ETFs), "
-                      f"{n_days} days ({dates[0]} → {dates[-1]})[/]")
-        earn_mom = None
-    else:
-        console.print(f"[bold]Fetching {len(TICKERS)} tickers ({period})...[/]")
-        prices, dates, fetched = fetch_all_numpy(TICKERS, period)
-        n_days = prices.shape[0]
-        console.print(f"[green]Got {len(fetched)} tickers, {n_days} days ({dates[0]} → {dates[-1]})[/]")
-
-        console.print("[bold]Fetching earnings...[/]")
-        earnings = fetch_all_earnings(fetched)
-        console.print(f"[green]Earnings for {len(earnings)}/{len(fetched)} tickers[/]")
-        earn_mom = build_earnings_momentum(earnings, dates, fetched)
+    prices, dates, fetched, earn_mom, cfg = _load_market_data(market, period, mf_max_per_query, mf_all)
 
     folds = build_folds(prices, min_train, oos_window)
     console.print(f"[bold]{len(folds)} folds[/] ({dates[folds[0][0]]} → {dates[folds[-1][1]]})")
@@ -1849,11 +1982,30 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
 
     console.print(f"[green]Done: {len(results):,} combos from {n_groups:,} groups[/]")
 
-    # ══════════════════════════════════════════════════════════════════════════
-    #  SCENARIO ANALYSIS
-    # ══════════════════════════════════════════════════════════════════════════
-
     results.sort(key=lambda r: r.oos_total_return, reverse=True)
+    survivable = _print_scenario_analysis(results, folds, prices, dates, top, max_dd_cap, cfg)
+
+    if not survivable:
+        return
+
+    _print_holdings_trace(
+        survivable, prices, dates, folds, fetched, earn_mom,
+        all_rebal_days_sorted, all_lookbacks, all_skips,
+        needed_variants, need_smoothness, need_consistency, need_crash,
+    )
+    _print_efficient_frontier(results, folds, fetched)
+
+
+def _print_scenario_analysis(
+    results: list[WalkForwardResult],
+    folds: list[tuple[int, int]],
+    prices: np.ndarray,
+    dates: np.ndarray,
+    top: int,
+    max_dd_cap: float,
+    cfg: MarketConfig,
+) -> list[WalkForwardResult]:
+    """Scenarios 1-14: YOLO, risk tiers, never lose, etc. Returns survivable list."""
 
     # ── Scenario 1: YOLO — Unconstrained max return ──────────────────────────
     console.print(build_table(
@@ -2252,9 +2404,10 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
                       f"Ann={r.oos_annualized*100:+.1f}%  DD={r.oos_max_dd*100:.1f}%")
 
         em = earn_mom if p.use_earnings else None
-        safe_idx = []
+        n_tk = prices.shape[1]
+        safe_idx_mask = np.zeros(n_tk, dtype=bool)
         if fetched and p.use_abs_momentum:
-            safe_idx = [i for i, t in enumerate(fetched) if t in SAFE_HAVENS]
+            safe_idx_mask[np.array([i for i, t in enumerate(fetched) if t in SAFE_HAVENS])] = True
 
         holdings_table = Table(title=f"Rebalance Holdings — Config #{rank+1}")
         holdings_table.add_column("Date", style="dim")
@@ -2287,9 +2440,7 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
                 earn_row = em[rb_abs] if em is not None else None
                 scores = score_from_cache(rb_abs, p, trace_cache, earn_row)
 
-                valid = np.where(scores > 0)[0]
-                if safe_idx:
-                    valid = np.array([v for v in valid if v not in safe_idx])
+                valid = np.where((scores > 0) & ~safe_idx_mask)[0]
 
                 if len(valid) == 0:
                     holdings_table.add_row(
@@ -2317,9 +2468,9 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
     console.print(f"\n[bold]HOLDING PERIOD ANALYSIS (Config #1):[/]")
     best_p = survivable[0].params
     em_trace = earn_mom if best_p.use_earnings else None
-    safe_idx_trace = []
+    safe_mask_trace = np.zeros(prices.shape[1], dtype=bool)
     if fetched and best_p.use_abs_momentum:
-        safe_idx_trace = [i for i, t in enumerate(fetched) if t in SAFE_HAVENS]
+        safe_mask_trace[np.array([i for i, t in enumerate(fetched) if t in SAFE_HAVENS])] = True
 
     # Track all holdings across all folds
     all_holdings = []  # list of (date_str, [ticker_names])
@@ -2330,9 +2481,7 @@ def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
             rb_abs = oos_start + rb_offset
             earn_row = em_trace[rb_abs] if em_trace is not None else None
             scores = score_from_cache(rb_abs, best_p, trace_cache, earn_row)
-            valid = np.where(scores > 0)[0]
-            if safe_idx_trace:
-                valid = np.array([v for v in valid if v not in safe_idx_trace])
+            valid = np.where((scores > 0) & ~safe_mask_trace)[0]
             if len(valid) == 0:
                 all_holdings.append((dates[rb_abs], ["CASH"]))
                 continue
