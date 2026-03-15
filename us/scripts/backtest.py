@@ -1102,6 +1102,7 @@ def _worker_run_batch(args: tuple) -> list[WalkForwardResult]:
     for p in params_list:
         by_rebal[p.rebal_freq].append(p)
 
+    n_tickers = _G_PRICES.shape[1]
     results_dict = {}  # keyed by (max_positions, rebal_freq) → WalkForwardResult
 
     for rf, rf_params in by_rebal.items():
