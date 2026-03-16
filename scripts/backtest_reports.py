@@ -651,18 +651,19 @@ def _mc_underwater_analysis(
     n_sims: int = 200,
     horizon_days: int = 756,  # 3 years
     rng_seed: int = 42,
+    use_puts: bool = False,
 ) -> dict:
     """Monte Carlo underwater analysis with random entry points.
 
     For a given config, picks random entry dates, runs the strategy forward,
-    and computes:
-    - Duration underwater (days below previous peak)
-    - Duration below -10% from entry
-    - Duration below -20% from entry
-    - Max drawdown distribution
+    and computes returns, drawdowns, and underwater duration.
 
-    Returns dict with percentile stats.
+    If use_puts=True, buys protective PUTs (5% OTM, 90 DTE) at each
+    rebalance. PUT payoff caps per-position loss at strike. Premium
+    is deducted from portfolio value as a drag.
     """
+    from options_utils import realized_vol, black_scholes_put
+
     n_days = prices.shape[0]
     n_tickers = prices.shape[1]
     rng = np.random.RandomState(rng_seed)
@@ -684,22 +685,27 @@ def _mc_underwater_analysis(
             safe_mask[i] = True
 
     results = {
-        "total_return": [],         # total return over horizon
-        "cagr": [],                 # annualized return
-        "max_dd": [],               # max drawdown
-        "max_underwater_streak": [],  # longest streak below peak (days)
-        "below_10_days": [],        # days below -10% from entry
-        "below_20_days": [],        # days below -20% from entry
+        "total_return": [],
+        "cagr": [],
+        "max_dd": [],
+        "max_underwater_streak": [],
+        "below_10_days": [],
+        "below_20_days": [],
     }
 
     em = earn_mom if params.use_earnings else None
+    PUT_OTM = 0.05       # 5% out of the money
+    PUT_DTE = 90
+    PUT_RFREE = 0.05
 
     for entry in entry_days:
         sim_len = min(horizon_days, n_days - entry)
         portfolio = np.ones(sim_len)
         rebal_freq = params.rebal_freq
 
-        prev_weights = np.zeros(n_tickers)
+        # Track PUT positions: {ticker_idx: (strike, entry_price, days_left)}
+        active_puts = {}
+
         for t in range(0, sim_len - 1, rebal_freq):
             day = entry + t
             earn_row = em[day] if em is not None else None
@@ -708,10 +714,9 @@ def _mc_underwater_analysis(
             valid = np.where(scores > 0)[0]
 
             if len(valid) == 0:
-                # Hold cash — portfolio flat
                 hold_end = min(t + rebal_freq, sim_len)
                 portfolio[t + 1:hold_end] = portfolio[t]
-                prev_weights[:] = 0
+                active_puts.clear()
                 continue
 
             sorted_v = valid[np.argsort(scores[valid])]
@@ -720,6 +725,29 @@ def _mc_underwater_analysis(
 
             weights = np.zeros(n_tickers)
             weights[top_idx] = 1.0 / top_n
+
+            # Buy PUTs at rebalance if enabled
+            # Model: each PUT costs premium upfront, then at period
+            # end provides a floor on per-position return at -PUT_OTM
+            put_cost_frac = 0.0
+            if use_puts:
+                for idx in top_idx:
+                    px = prices[day, idx]
+                    if np.isnan(px) or px <= 0:
+                        continue
+                    valid_hist = prices[max(0, day - 90):day + 1, idx]
+                    valid_hist = valid_hist[~np.isnan(valid_hist)]
+                    sigma = realized_vol(valid_hist) if len(valid_hist) > 10 else 0.30
+                    strike = px * (1 - PUT_OTM)
+                    premium = black_scholes_put(
+                        px, strike, PUT_DTE / 365, PUT_RFREE, sigma
+                    )
+                    put_cost_frac += (premium / px) / top_n
+                # Deduct premium
+                portfolio[t] *= (1 - put_cost_frac)
+
+            # Entry prices at this rebalance for PUT floor calc
+            entry_prices = prices[day].copy() if use_puts else None
 
             hold_end = min(t + rebal_freq, sim_len)
             for d in range(t, hold_end - 1):
@@ -731,10 +759,33 @@ def _mc_underwater_analysis(
                     daily_ret = np.nan_to_num(
                         prices[abs_d + 1] / prices[abs_d] - 1, nan=0.0
                     )
+
+                # PUT floor: cap each position's cumulative loss
+                # at -PUT_OTM from rebalance entry price
+                if use_puts and entry_prices is not None:
+                    for idx in top_idx:
+                        ep = entry_prices[idx]
+                        if np.isnan(ep) or ep <= 0:
+                            continue
+                        cur_px = prices[abs_d + 1, idx]
+                        if np.isnan(cur_px):
+                            continue
+                        floor_px = ep * (1 - PUT_OTM)
+                        if cur_px < floor_px:
+                            # PUT kicks in: position value frozen
+                            # at floor, daily return = 0 (floored)
+                            prev_px = prices[abs_d, idx]
+                            if not np.isnan(prev_px) and prev_px > 0:
+                                # What return would keep us at floor?
+                                if prev_px >= floor_px:
+                                    # Just crossed below: cap at floor
+                                    daily_ret[idx] = (floor_px / prev_px) - 1
+                                else:
+                                    # Already below floor: no further loss
+                                    daily_ret[idx] = 0.0
+
                 port_ret = float(np.dot(weights, daily_ret))
                 portfolio[d + 1] = portfolio[d] * (1 + port_ret)
-
-            prev_weights = weights
 
         # Compute underwater stats
         running_max = np.maximum.accumulate(portfolio)
@@ -800,8 +851,8 @@ def _mc_entry_points(prices, n_sims, min_start, max_start, seed=42):
     return rng.randint(min_start, max_start, size=n_sims)
 
 
-def _print_mc_table(label: str, candidates, prices, earn_mom, fetched, top_n=50):
-    """Run MC analysis on top N configs and print full results."""
+def _print_mc_table(label: str, candidates, prices, earn_mom, fetched, top_n=50, use_options=False):
+    """Run MC analysis on top N configs. If use_options, runs both with and without PUTs."""
     n_days = prices.shape[0]
     horizon = 756
     # Shared entry points across all configs
@@ -819,70 +870,74 @@ def _print_mc_table(label: str, candidates, prices, earn_mom, fetched, top_n=50)
     print(f"  {min(top_n, len(candidates))} configs × 200 shared entries × 3yr")
     print(f"  Seed=42, entries from day {min_start} to {max_start}")
 
-    mc_results = []
-    for r in candidates[:top_n]:
-        mc = _mc_underwater_analysis(
-            prices, r.params, earn_mom, fetched,
-            n_sims=200, horizon_days=horizon,
-            rng_seed=42,
-        )
-        if mc is None:
-            continue
-        mc_results.append({"r": r, "mc": mc})
+    def _run_mc_variant(put_flag, variant_label):
+        mc_results = []
+        for r in candidates[:top_n]:
+            mc = _mc_underwater_analysis(
+                prices, r.params, earn_mom, fetched,
+                n_sims=200, horizon_days=horizon,
+                rng_seed=42, use_puts=put_flag,
+            )
+            if mc is None:
+                continue
+            mc_results.append({"r": r, "mc": mc})
 
-    # Sort by median CAGR descending
-    mc_results.sort(key=lambda x: x["mc"]["cagr"]["median"], reverse=True)
+        mc_results.sort(key=lambda x: x["mc"]["cagr"]["median"], reverse=True)
 
-    table_rows = []
-    for i, m in enumerate(mc_results):
-        r = m["r"]
-        mc = m["mc"]
-        cagr = mc["cagr"]
-        dd = mc["max_dd"]
-        streak = mc["max_underwater_streak"]
-        b10 = mc["below_10_days"]
-        b20 = mc["below_20_days"]
-        table_rows.append([
-            f"{i+1}",
-            r.params.label()[:40],
-            # MC Returns
-            f"{cagr['p5']*100:+.0f}%",
-            f"{cagr['p25']*100:+.0f}%",
-            f"{cagr['median']*100:+.0f}%",
-            f"{cagr['p75']*100:+.0f}%",
-            f"{cagr['p95']*100:+.0f}%",
-            # MC Drawdown
-            f"{dd['median']*100:.0f}%",
-            f"{dd['p5']*100:.0f}%",
-            # Underwater streak (days)
-            f"{streak['median']:.0f}",
-            f"{streak['p75']:.0f}",
-            # Days below entry -10%, -20%
-            f"{b10['median']:.0f}",
-            f"{b20['median']:.0f}",
-            # Walk-forward for reference
-            f"{r.oos_annualized*100:+.0f}%",
-        ])
+        table_rows = []
+        for i, m in enumerate(mc_results[:20]):
+            r = m["r"]
+            mc = m["mc"]
+            cagr = mc["cagr"]
+            dd = mc["max_dd"]
+            streak = mc["max_underwater_streak"]
+            b10 = mc["below_10_days"]
+            b20 = mc["below_20_days"]
+            table_rows.append([
+                f"{i+1}",
+                r.params.label()[:40],
+                f"{cagr['p5']*100:+.0f}%",
+                f"{cagr['p25']*100:+.0f}%",
+                f"{cagr['median']*100:+.0f}%",
+                f"{cagr['p75']*100:+.0f}%",
+                f"{cagr['p95']*100:+.0f}%",
+                f"{dd['median']*100:.0f}%",
+                f"{dd['p5']*100:.0f}%",
+                f"{streak['median']:.0f}",
+                f"{streak['p75']:.0f}",
+                f"{b10['median']:.0f}",
+                f"{b20['median']:.0f}",
+                f"{r.oos_annualized*100:+.0f}%",
+            ])
 
-    print(_md_table(
-        ["#", "Config",
-         "P5", "P25", "Med", "P75", "P95",
-         "DD Med", "DD Wst",
-         "Strk", "Strk75",
-         "<-10%", "<-20%",
-         "WF Ann"],
-        table_rows,
-    ))
+        print(f"\n  **{variant_label}** (top 20 by MC median CAGR):")
+        print(_md_table(
+            ["#", "Config",
+             "P5", "P25", "Med", "P75", "P95",
+             "DD Med", "DD Wst",
+             "Strk", "Strk75",
+             "<-10%", "<-20%",
+             "WF Ann"],
+            table_rows,
+        ))
 
-    # Summary stats
-    if mc_results:
-        meds = [m["mc"]["cagr"]["median"] for m in mc_results]
-        p5s = [m["mc"]["cagr"]["p5"] for m in mc_results]
-        print(f"\n  Across {len(mc_results)} configs:")
-        print(f"    MC median CAGR: best={max(meds)*100:+.0f}% "
-              f"worst={min(meds)*100:+.0f}% avg={np.mean(meds)*100:+.0f}%")
-        print(f"    MC P5 CAGR (worst 5%): best={max(p5s)*100:+.0f}% "
-              f"worst={min(p5s)*100:+.0f}%")
+        if mc_results:
+            meds = [m["mc"]["cagr"]["median"] for m in mc_results]
+            p5s = [m["mc"]["cagr"]["p5"] for m in mc_results]
+            dds = [m["mc"]["max_dd"]["median"] for m in mc_results]
+            print(f"\n  {variant_label} across {len(mc_results)} configs:")
+            print(f"    MC median CAGR: best={max(meds)*100:+.0f}% "
+                  f"worst={min(meds)*100:+.0f}% avg={np.mean(meds)*100:+.0f}%")
+            print(f"    MC P5 CAGR: best={max(p5s)*100:+.0f}% "
+                  f"worst={min(p5s)*100:+.0f}%")
+            print(f"    MC median DD: best={max(dds)*100:.0f}% "
+                  f"worst={min(dds)*100:.0f}%")
+        return mc_results
+
+    _run_mc_variant(False, "Equity Only")
+
+    if use_options:
+        _run_mc_variant(True, "Equity + Protective PUTs (5% OTM, 90 DTE)")
 
 
 def print_portfolio_allocation(
@@ -1047,8 +1102,8 @@ def print_portfolio_allocation(
     max_best = _print_bucket("MAX (30%)", max_candidates, max_capital)
 
     # Monte Carlo underwater analysis
-    _print_mc_table("CORE", core_candidates, prices, earn_mom, fetched)
-    _print_mc_table("MAX", max_candidates, prices, earn_mom, fetched)
+    _print_mc_table("CORE", core_candidates, prices, earn_mom, fetched, use_options=use_options)
+    _print_mc_table("MAX", max_candidates, prices, earn_mom, fetched, use_options=use_options)
 
     # Safe haven allocation
     safe_tickers = [t for t in fetched if t in SAFE_HAVENS]
