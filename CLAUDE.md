@@ -33,6 +33,7 @@ uv run ruff format --check us/scripts/ india/scripts/
 - Vectorize with numpy; use polars over pandas for new code
 - Descriptive variable names, enums not magic ints
 - Runtime pruning over dead code (filter at execution, don't leave commented blocks)
+- **Parquet for all data caches** — never use npz, pickle only for legacy per-scheme MF caches
 
 ## Architecture
 
@@ -92,14 +93,50 @@ Composite momentum score: `(weighted_momentum × smoothness) / downside_volatili
 
 ### IBKR Integration
 
-Managed via skill at `~/.claude/skills/ibkr/ibkr.py` — not in this repo. Requires TWS/Gateway running with API enabled on port 7497.
+Managed via skill at `~/.claude/skills/ibkr/ibkr.py` — not in this repo. Requires TWS/Gateway running with API enabled.
+
+```bash
+# Read operations
+uv run ~/.claude/skills/ibkr/ibkr.py positions        # All positions with P&L
+uv run ~/.claude/skills/ibkr/ibkr.py account           # Account summary (cash, equity, margin)
+uv run ~/.claude/skills/ibkr/ibkr.py quote AAPL        # Real-time quote
+uv run ~/.claude/skills/ibkr/ibkr.py quotes AAPL MSFT  # Multiple quotes
+uv run ~/.claude/skills/ibkr/ibkr.py value              # Portfolio value breakdown
+uv run ~/.claude/skills/ibkr/ibkr.py orders             # Open orders
+
+# Buy/Sell (dry-run by default, add --execute to place)
+uv run ~/.claude/skills/ibkr/ibkr.py buy VALE 1000              # Buy $1000 of VALE (dry run)
+uv run ~/.claude/skills/ibkr/ibkr.py buy VALE 1000 --execute    # Actually place order
+uv run ~/.claude/skills/ibkr/ibkr.py sell VALE                  # Sell all (dry run)
+uv run ~/.claude/skills/ibkr/ibkr.py sell VALE --shares 50      # Sell 50 shares
+uv run ~/.claude/skills/ibkr/ibkr.py sell VALE --amount 500     # Sell $500 worth
+
+# Cancel orders
+uv run ~/.claude/skills/ibkr/ibkr.py cancel 12345               # By order ID
+uv run ~/.claude/skills/ibkr/ibkr.py cancel --symbol VALE       # All for symbol
+uv run ~/.claude/skills/ibkr/ibkr.py cancel --all               # Cancel everything
+
+# JSON output (any command)
+uv run ~/.claude/skills/ibkr/ibkr.py positions --format json
+```
+
+| Mode | Gateway Port | TWS Port |
+|------|--------------|----------|
+| Paper | 4002 | 7497 |
+| Live | 4001 | 7496 |
 
 ## Data Directories
 
 - `us/data/price_cache/` — yfinance pickle cache (gitignored, regenerates)
-- `us/data/mf_nav_cache/` — MF NAV cache (gitignored, regenerates)
+- `us/data/mf_nav_cache/` — MF NAV per-scheme pickle cache (legacy, gitignored)
+- `us/data/mf_nav_consolidated.parquet` — consolidated MF NAV matrix (fast reload)
+- `us/data/mf_schemes_direct_growth.parquet` — master list of Direct Growth MF schemes
 - `india/data/` — portfolio snapshots, allocation docs
 - `docs/` — decision log, research notes, brainstorms
+
+## Caching Policy
+
+**All caches must use parquet.** Do not use pickle, npz, or Python disk caches for new code. Existing pickle caches (`price_cache/`, `mf_nav_cache/`) are legacy — migrate to parquet when touched. Consolidated parquet caches (e.g. `mf_nav_consolidated.parquet`) should be the primary read path; per-file caches are only for incremental API updates.
 
 ## Decision Log
 
