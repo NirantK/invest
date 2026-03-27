@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["ib-async", "typer", "rich", "python-dotenv"]
+# dependencies = ["ib-async", "typer", "rich", "python-dotenv", "yfinance"]
 # ///
 """
 Interactive Brokers CLI
@@ -84,15 +84,46 @@ def positions(
             console.print("[yellow]No positions found[/yellow]")
             return
 
-        # Fetch real-time prices for all positions
+        # Fetch real-time prices from IBKR first
         ib.reqMarketDataType(3)  # Delayed data
         contracts = []
         for p in positions_list:
-            contract = Stock(p.contract.symbol, "SMART", "USD")
-            ib.qualifyContracts(contract)
-            contracts.append((p, contract, ib.reqMktData(contract)))
+            if p.contract.secType == "STK":
+                contract = Stock(p.contract.symbol, "SMART", "USD")
+                ib.qualifyContracts(contract)
+                contracts.append((p, contract, ib.reqMktData(contract)))
+            else:
+                contracts.append((p, None, None))
 
         util.sleep(2)  # Wait for data
+
+        # Collect symbols with stale/missing IBKR prices for yfinance fallback
+        ibkr_prices = {}
+        stale_symbols = []
+        for p, contract, ticker in contracts:
+            sym = p.contract.symbol
+            avg_cost = float(p.avgCost)
+            current_price = None
+            if ticker:
+                for price in [ticker.last, ticker.close, ticker.bid]:
+                    if price and price > 0 and not (isinstance(price, float) and price != price):
+                        current_price = price
+                        break
+            # Stale if no price or price equals avg cost exactly (IBKR default)
+            if current_price and abs(current_price - avg_cost) > 0.001:
+                ibkr_prices[sym] = current_price
+            else:
+                stale_symbols.append(sym)
+
+        # Fetch stale prices from yfinance
+        if stale_symbols:
+            import yfinance as yf
+            console.print(f"[dim]Fetching live prices for {', '.join(stale_symbols)} via yfinance...[/dim]")
+            tickers = yf.Tickers(" ".join(stale_symbols))
+            for sym in stale_symbols:
+                hist = tickers.tickers[sym].history(period="1d")
+                if not hist.empty:
+                    ibkr_prices[sym] = float(hist["Close"].iloc[-1])
 
         # Build position data with P&L
         position_data = []
@@ -100,23 +131,18 @@ def positions(
         total_value = 0
 
         for p, contract, ticker in contracts:
+            sym = p.contract.symbol
             qty = float(p.position)
             avg_cost = float(p.avgCost)
             cost_basis = qty * avg_cost
 
-            # Get current price (try last, then close, then bid)
-            current_price = None
-            for price in [ticker.last, ticker.close, ticker.bid]:
-                if price and price > 0 and not (isinstance(price, float) and price != price):
-                    current_price = price
-                    break
-
+            current_price = ibkr_prices.get(sym)
             if current_price:
                 market_value = qty * current_price
                 pnl = market_value - cost_basis
                 pnl_pct = (pnl / cost_basis) * 100 if cost_basis > 0 else 0
             else:
-                market_value = cost_basis  # Fallback
+                market_value = cost_basis
                 pnl = 0
                 pnl_pct = 0
                 current_price = avg_cost
@@ -125,7 +151,7 @@ def positions(
             total_value += market_value
 
             position_data.append({
-                "symbol": p.contract.symbol,
+                "symbol": sym,
                 "secType": p.contract.secType,
                 "qty": qty,
                 "avgCost": avg_cost,
