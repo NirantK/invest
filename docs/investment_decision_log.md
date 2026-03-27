@@ -781,3 +781,182 @@ uv run python nbs/portfolio_simulation.py
 - **Method:** Block bootstrap with 5-day blocks
 - **Simulations:** 10,000 paths
 - **Horizon:** 63 trading days (~3 months)
+
+---
+
+## Part 14: Awesome Portfolio Rebalance (March 21, 2026)
+
+### Context
+
+Portfolio had drifted to ~$7.3K in thematic/commodity positions with ~$71K in cash. Decision to restructure around Jared Dillian's **Awesome Portfolio** framework: equal 20% allocation across 5 uncorrelated asset classes.
+
+**Account state before trades:**
+- Net Liquidation: $78,852
+- Cash: $71,637
+- Positions: $7,289 (all underwater, -15.2% aggregate)
+
+### Framework: Jared Dillian "Awesome Portfolio"
+
+| Slice | Allocation | Target (~$15,800 each) |
+|-------|-----------|------------------------|
+| Stocks | 20% | Existing positions + new |
+| Bonds | 20% | BND |
+| Gold | 20% | WPM, FNV, RGLD, GDX |
+| Real Estate | 20% | VNQ |
+| Cash | 20% | SGOV |
+
+**Philosophy:** Maximum diversification across uncorrelated asset classes. In any given year, at least 1-2 buckets perform well, smoothing the ride and making it psychologically easier to hold.
+
+**Key distinction:** SGOV (0-3 month T-bills, ~zero volatility) serves as *cash*, while BND (aggregate bonds, ~6yr duration) serves as *bonds*. They behave very differently — SGOV is a savings account, BND is a rate-cut hedge.
+
+### Trades Executed (March 21, 2026)
+
+#### Cash Slice — SGOV
+| Time | Action | Ticker | Shares | Price | Total | Order ID | Status |
+|------|--------|--------|--------|-------|-------|----------|--------|
+| ~10:00 ET | BUY | SGOV | 100 | $100.60 | $10,060 | 86 | Filled |
+
+#### Gold Slice — Royalty/Streaming + Miners
+| Time | Action | Ticker | Shares | Price | Total | Order ID | Status |
+|------|--------|--------|--------|-------|-------|----------|--------|
+| ~10:15 ET | BUY | WPM | 25 | $118.15 | $2,954 | 90 | Filled |
+| ~10:15 ET | BUY | FNV | 13 | $223.75 | $2,909 | 95 | Filled |
+| ~10:15 ET | BUY | GDX | 46 | $80.50 | $3,703 | 100 | Filled |
+| ~10:15 ET | BUY | RGLD | 16 | $221.00 | $3,536 | 104 | Filled (limit) |
+
+**Gold slice rationale:** Equal split across 4 positions. WPM/FNV/RGLD are royalty/streaming companies (low-risk gold exposure). GDX adds miner exposure (higher beta). RING was considered but GDX chosen for liquidity. SIL rejected — WPM already provides heavy silver streaming exposure.
+
+#### Real Estate Slice — VNQ
+| Time | Action | Ticker | Shares | Price | Total | Order ID | Status |
+|------|--------|--------|--------|-------|-------|----------|--------|
+| ~10:25 ET | BUY | VNQ | 175 | $90.28 | $15,799 | 109 | Filled |
+
+**Real estate rationale:** VNQ (broad US REITs) chosen over data center ETFs (SRVR, DTCR) because: (1) data centers correlate with tech/AI sentiment, defeating uncorrelation goal, (2) SRVR/DTCR have 0.50-0.60% expense vs VNQ 0.12%, (3) both are 30%+ concentrated in just EQIX + DLR.
+
+#### Bond Slice — BND
+| Time | Action | Ticker | Shares | Price | Total | Order ID | Status |
+|------|--------|--------|--------|-------|-------|----------|--------|
+| ~10:30 ET | BUY | BND | 210 | $73.28 | $15,389 | 114 | Filled |
+
+### Trade Summary
+
+| Slice | Instrument(s) | Invested | Target | Status |
+|-------|--------------|----------|--------|--------|
+| Cash | SGOV | $10,060 | $15,800 | Partial |
+| Bonds | BND | $15,389 | $15,800 | Done |
+| Gold | WPM+FNV+RGLD+GDX | $13,102 + existing $1,393 | $15,800 | Done |
+| Real Estate | VNQ | $15,799 | $15,800 | Done |
+| Stocks | Existing positions | $5,823 | $15,800 | ~$10K gap |
+
+**Total deployed today: ~$58,350**
+
+### Existing Stock Positions (counted toward Stocks slice)
+
+| Ticker | Value | Type |
+|--------|-------|------|
+| NU | $1,548 | LatAm fintech |
+| PPLT | $1,081 | Platinum ETF |
+| COPX | $854 | Copper miners |
+| MSTR | $836 | Bitcoin proxy |
+| ILF | $496 | LatAm ETF |
+| IMTM | $427 | Intl momentum |
+| AVDV | $292 | Intl value |
+| URA | $289 | Uranium ETF |
+| **Total** | **$5,823** | |
+
+### Open: Stocks Slice Candidates
+
+Researching Tavi Costa (Azuria Capital) and Rick Rule for commodity-focused stock ideas to fill the ~$10K stocks gap. Key findings:
+
+**Costa's macro thesis (March 2026):** Sequenced commodity rotation — Gold → Copper → Energy (now) → Agriculture (next). Agriculture commodities broke out from 20 years of resistance. Fuel prices lead food prices with a lag.
+
+**Costa's specific picks:**
+- ORLA (Orla Mining) — disclosed long position, "free cash flow machine"
+- NFGC (New Found Gold) — high-grade discovery play
+- GDX/GDXJ — gold miners broadly
+
+**Rick Rule's top picks (Jan 2026):**
+- SLB (Schlumberger) — oilfield services, contrarian energy
+- BTG (B2Gold) — gold mining
+- ARG (Amerigo Resources) — copper from tailings
+
+**Fertilizer/agriculture tickers under consideration:**
+- IPI (Intrepid Potash) — pure-play US potash, "sleeper pick", no DOJ risk
+- MOS (Mosaic) — phosphate + potash, but DOJ price-fixing probe
+- NTR (Nutrien) — world's largest potash, but DOJ probe
+- CF (CF Industries) — nitrogen, Iran war supply catalyst
+- DBA — broad agriculture commodity ETF
+
+### Pending Trades (IB Gateway down — execute when back up)
+
+#### Bond Slice Addition: TLT from remaining cash
+
+Costa's 4th asymmetric trade is TLT call options ("nobody believes rates will fall substantially"). Adding TLT from leftover cash — no BND sell needed. BND stays as-is.
+
+| Action | Ticker | ~Amount | Reason |
+|--------|--------|---------|--------|
+| BUY | TLT | ~$10,000 | Costa rate-cut bet, from remaining cash |
+
+#### Stocks Slice: Agriculture Commodities (~$10K)
+
+Costa's agri thesis from PDAC interview (March 7, 2026): natural gas up → fertilizers/ammonia up → agricultural commodities follow. He names potash, phosphate, and corn specifically. "Agriculture will be your most asymmetric path in the next two years."
+
+| Action | Ticker | ~Amount | Reason |
+|--------|--------|---------|--------|
+| BUY | DBA | $3,300 | Broad agri commodity basket — Costa's 20-year breakout |
+| BUY | CF | $1,650 | Nitrogen/ammonia producer — exact transmission mechanism Costa described |
+| BUY | IPI | $1,650 | Pure-play US potash — "sleeper pick", no DOJ risk unlike MOS/NTR |
+
+CF and IPI also added to the momentum scoring universe in `us_portfolio_allocation.py` for ongoing tracking.
+
+#### Stocks Slice Rebalance: Momentum-Based (March 21, 2026)
+
+Ran momentum screener with 20% max allocation. AI infra dominates (61%). Current holdings NU, PPLT, ILF, IMTM, URA have zero momentum signal — sell all.
+
+**Sell (no momentum):**
+
+| Ticker | Shares | ~Proceeds |
+|--------|--------|-----------|
+| NU | 111 | $1,548 |
+| PPLT | 6 | $1,081 |
+| ILF | 15 | $496 |
+| IMTM | 9 | $427 |
+| URA | 6 | $289 |
+| **Total** | | **~$3,841** |
+
+**Buy (momentum top 8, proportional to $15,800 stocks slice):**
+
+| Ticker | Weight | Amount | Already Hold | Net Buy |
+|--------|--------|--------|-------------|---------|
+| SNDK | 20% | $3,160 | $0 | $3,160 |
+| LITE | 20% | $3,160 | $0 | $3,160 |
+| BE | 12.5% | $1,975 | $0 | $1,975 |
+| SGDJ | 12.5% | $1,975 | $0 | $1,975 |
+| FRDM | 10% | $1,580 | $0 | $1,580 |
+| AVDV | 10% | $1,580 | $292 | $1,288 |
+| COPX | 10% | $1,580 | $854 | $726 |
+| TSEM | 7.5% | $1,185 | $0 | $1,185 |
+
+**DBA DCA (like MSTR):** 3% of $15,800 = $474 total, 3 txns of ~$158 each. Costa's agri thesis is anticipatory — momentum hasn't started yet, so DCA in slowly.
+
+**CF and IPI:** Halved allocations ($1,650 each) from remaining cash. Not momentum-driven, thesis-driven (Costa's fertilizer chain).
+
+**MSTR:** Hold existing $836 position. No new DCA buys.
+
+#### Costa-Style Asymmetric Options Bet
+
+| Ticker | Type | Amount | Expiry | Rationale |
+|--------|------|--------|--------|-----------|
+| INTC | CALL | $500 | ~March 2027 (1yr out) | Cheap calls on beaten-down semi. Costa's "buy what's hated" framework — exceptionally cheap options that if right, pay off big. |
+
+*Note: ibkr.py doesn't support options yet — need to add or place manually via TWS.*
+
+### Portfolio State After All Pending Trades
+
+| Slice | Target | Instruments | Invested | Status |
+|-------|--------|-------------|----------|--------|
+| Cash (20%) | $15,800 | SGOV (100 shares) | $10,060 | Partial |
+| Bonds (20%) | $15,800 | BND (210 shares, $15,389) + TLT (~$10K) | ~$25,389 | Overweight, pending TLT buy |
+| Gold (20%) | $15,800 | WPM (31), FNV (16), RGLD (16), GDX (46) | ~$14,500 | Done |
+| Real Estate (20%) | $15,800 | VNQ (175 shares) | $15,799 | Done |
+| Stocks (20%) | $15,800 | Existing ($5,823) + DBA + CF + IPI | ~$15,700 | Pending buys |
