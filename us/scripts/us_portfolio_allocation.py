@@ -147,6 +147,20 @@ TICKERS = [
     "DBA",     # Invesco DB Agriculture Fund - broad agri commodity basket
     "CF",      # CF Industries - nitrogen/ammonia producer
     "IPI",     # Intrepid Potash - pure-play US potash
+    # === Rick Rule picks (Jan 2026 BNN Bloomberg + Streetwise Dec 2025) ===
+    "BTG",     # B2Gold - gold miner, Rule top pick
+    "SLB",     # SLB (Schlumberger) - oilfield services, Rule top pick
+    "NXE",     # NextGen Energy - uranium developer, Rule pick
+    # === Costa disclosed positions / named picks ===
+    "ORLA",    # Orla Mining - Costa disclosed personal long position
+    "AUGO",    # Aura Minerals - Costa named top mining stock pick
+    "NFGC",    # New Found Gold - Costa named as company to watch
+    "SNWGF",   # Snowline Gold (OTC) - Costa named as company to watch
+    # === Costa/Rule thematic ETFs ===
+    "GDXJ",    # VanEck Junior Gold Miners - Costa favors juniors on rebounds
+    "SILJ",    # ETFMG Prime Junior Silver Miners - Rule: "real money is in stocks"
+    "XOP",     # SPDR S&P Oil & Gas E&P - Rule: chronic underinvestment
+    "MOO",     # VanEck Agribusiness - Costa agri thesis
 ]
 
 BITCOIN_DCA_TARGET_PCT = 0.05
@@ -163,11 +177,12 @@ MAX_POSITIONS = 25
 # Category groupings (for reporting only)
 GOLD_STREAMERS = ["WPM", "FNV", "RGLD"]           # Royalty/streaming (no op risk)
 SILVER_MINERS  = ["PAAS", "HL"]                   # Primary silver miners
-GOLD_MINERS    = ["AEM"]                           # Individual gold producers
-GOLD_ETFs      = ["GOAU", "SGDM", "SGDJ", "GBUG"] # Gold/silver miner ETF wrappers
-PRECIOUS_METALS = GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + GOLD_ETFs
+GOLD_MINERS    = ["AEM", "BTG"]                    # Individual gold producers
+GOLD_ETFs      = ["GOAU", "SGDM", "SGDJ", "GBUG", "GDXJ"] # Gold/silver miner ETF wrappers
+SILVER_ETFs    = ["SILJ"]                          # Silver miner ETFs
+PRECIOUS_METALS = GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + GOLD_ETFs + SILVER_ETFs
 INDUSTRIAL_METALS = ["COPX", "COPP"]
-URANIUM = ["URA", "URNM", "URNJ"]
+URANIUM = ["URA", "URNM", "URNJ", "NXE"]
 PLATINUM = ["PPLT"]
 ENERGY = [
     "XOM",
@@ -188,6 +203,8 @@ ENERGY = [
     "COP",
     "DVN",
     "OXY",
+    "SLB",     # Oilfield services - Rick Rule top pick
+    "XOP",     # SPDR S&P Oil & Gas E&P
 ]
 FACTOR_US = ["QVAL", "QMOM", "AVUV", "DFSV"]
 FACTOR_INTL = ["IVAL", "IMOM", "IMTM", "DXIV", "AVDV", "DFE", "EWJV", "DFJ"]
@@ -198,16 +215,19 @@ AI_INFRA = [
     "BE", "CRWV", "INTC", "LITE", "CORZ", "IREN", "APLD", "SNDK",
     "CIFR", "EQT", "COHR", "SEI", "TSEM", "RIOT", "KRC", "HUT", "WYFI",
 ]
+AGRICULTURE = ["DBA", "CF", "IPI", "MOO"]
 
 CATEGORIES = [
     ("Gold Streamers", GOLD_STREAMERS),
     ("Silver Miners", SILVER_MINERS),
+    ("Silver ETFs", SILVER_ETFs),
     ("Gold Miners", GOLD_MINERS),
     ("Gold/Silver ETFs", GOLD_ETFs),
     ("Industrial Metals", INDUSTRIAL_METALS),
     ("Uranium", URANIUM),
     ("Platinum", PLATINUM),
     ("Energy", ENERGY),
+    ("Agriculture", AGRICULTURE),
     ("Factor: US", FACTOR_US),
     ("Factor: Intl", FACTOR_INTL),
     ("Factor: EM", FACTOR_EM),
@@ -377,6 +397,46 @@ def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray) -> dict:
     # 12-1 momentum score (pure 12M skip-1M signal, common academic factor)
     score_12_1 = (mom_12m * smoothness) / dn_vol if dn_vol > 0 else 0.0
 
+    # --- WTMF composite signal (WisdomTree Managed Futures style) ---
+    # Binary sign at each horizon: +1 if positive, -1 if negative
+    # Composite ranges from -3 (all bearish) to +3 (all bullish)
+    # Weight: +3 → full, +1 → 2/3, 0 → zero
+    m3_sign = 1.0 if mom_3m > 0 else (-1.0 if mom_3m < 0 else 0.0)
+    m6_sign = 1.0 if mom_6m > 0 else (-1.0 if mom_6m < 0 else 0.0)
+    m12_sign = 1.0 if mom_12m > 0 else (-1.0 if mom_12m < 0 else 0.0)
+    wtmf_composite = m3_sign + m6_sign + m12_sign  # -3 to +3
+
+    # WTMF score: composite signal scaled by momentum magnitude, vol-adjusted
+    wtmf_weight = abs(wtmf_composite) / 3.0  # 0, 1/3, 2/3, or 1
+    wtmf_mom = wtmf_weight * wt_mom
+    score_wtmf = (wtmf_mom * smoothness) / dn_vol if dn_vol > 0 else 0.0
+
+    # --- Baltas-Kosowski trend-fit signal ---
+    # Instead of return sign, fit a linear trend to price path and use:
+    # 1. Slope (annualized) as the momentum signal
+    # 2. t-statistic of slope as the confidence filter
+    # This reduces turnover ~2/3 vs simple return sign (Baltas & Kosowski 2013)
+    if len(window) >= 20:
+        log_w = np.log(window)
+        x_w = np.arange(len(log_w))
+        # Linear regression: log_price = slope * t + intercept
+        slope_bk, intercept_bk = np.polyfit(x_w, log_w, 1)
+        # Annualized slope (daily slope * 252)
+        baltas_slope = slope_bk * 252
+        # t-statistic of slope
+        residuals = log_w - (slope_bk * x_w + intercept_bk)
+        se_slope = np.sqrt(np.sum(residuals**2) / (len(x_w) - 2)) / np.sqrt(np.sum((x_w - x_w.mean())**2))
+        baltas_tstat = slope_bk / se_slope if se_slope > 0 else 0.0
+        # Only take position when trend is statistically significant (|t| > 1.5)
+        baltas_signal = baltas_slope if abs(baltas_tstat) > 1.5 else 0.0
+    else:
+        baltas_slope = 0.0
+        baltas_tstat = 0.0
+        baltas_signal = 0.0
+
+    # Baltas score: trend-fit slope (vol-adjusted), only when significant
+    score_baltas = (baltas_signal * quality) / dn_vol if dn_vol > 0 else 0.0
+
     # Drawdown metrics
     running_max = np.maximum.accumulate(prices)
     drawdown = (prices - running_max) / running_max
@@ -423,6 +483,11 @@ def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray) -> dict:
         "dn_vol": dn_vol,
         "score": score,
         "score_12_1": score_12_1,
+        "wtmf_composite": wtmf_composite,
+        "score_wtmf": score_wtmf,
+        "baltas_slope": baltas_slope,
+        "baltas_tstat": baltas_tstat,
+        "score_baltas": score_baltas,
         "max_dd": max_dd,
         "max_dd_dur": max_dd_dur,
         "avg_dd_dur": avg_dd_dur,
