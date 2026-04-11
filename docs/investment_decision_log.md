@@ -913,16 +913,16 @@ CF and IPI also added to the momentum scoring universe in `us_portfolio_allocati
 
 Ran momentum screener with 20% max allocation. AI infra dominates (61%). Current holdings NU, PPLT, ILF, IMTM, URA have zero momentum signal — sell all.
 
-**Sell (no momentum):**
+**Sell (no momentum) — EXECUTED:**
 
-| Ticker | Shares | ~Proceeds |
-|--------|--------|-----------|
-| NU | 111 | $1,548 |
-| PPLT | 6 | $1,081 |
-| ILF | 15 | $496 |
-| IMTM | 9 | $427 |
-| URA | 6 | $289 |
-| **Total** | | **~$3,841** |
+| Ticker | Shares | ~Proceeds | Status |
+|--------|--------|-----------|--------|
+| NU | 111 | $1,548 | Sold |
+| PPLT | 6 | $1,081 | Sold |
+| ILF | 15 | $496 | Sold |
+| IMTM | 9 | $427 | Sold |
+| URA | 6 | $289 | Sold |
+| **Total** | | **~$3,841** | All executed between March–April 2026 |
 
 **Buy (momentum top 8, proportional to $15,800 stocks slice):**
 
@@ -960,6 +960,58 @@ Ran momentum screener with 20% max allocation. AI infra dominates (61%). Current
 | Gold (20%) | $15,800 | WPM (31), FNV (16), RGLD (16), GDX (46) | ~$14,500 | Done |
 | Real Estate (20%) | $15,800 | VNQ (175 shares) | $15,799 | Done |
 | Stocks (20%) | $15,800 | Existing ($5,823) + DBA + CF + IPI | ~$15,700 | Pending buys |
+
+---
+
+## Part 8: April 2026 Rebalance
+
+**Date:** 2026-04-12
+
+### Research Inputs
+
+1. **Leopold Aschenbrenner / Situational Awareness LP 13F** (Q4 2025, filed 2026-02-11): $5.5B AI infrastructure fund. Top 3: CoreWeave ($1.21B, 21.9%), Bloom Energy ($911M, 16.5%), Intel calls ($747M, 13.5%). Full holdings saved to `data/leo-aschenbrenner-13f-q4-2025.md`.
+
+2. **Rick Rule updated picks** (Apr 10, 2026 BNN Bloomberg + Triangle Investor Dec 2025): Replaced old Rule picks in momentum universe:
+   - BTG → GMIN.TO (G Mining Ventures, score 3.11)
+   - SLB → IPCO.TO (International Petroleum, score 1.28)
+   - NXE → CCJ (Cameco, score 2.18, "surest money in uranium")
+
+3. **Momentum scores run** April 12. Top scorers: SNDK (8.92), LITE (8.34), BE (3.85), SGDJ (3.22), SILJ (3.01).
+
+### Sells Executed
+
+| Ticker | Shares | Proceeds | P&L | Date | Reason |
+|--------|--------|----------|-----|------|--------|
+| BND | 210 | ~$15,498 | +$116 | Queued Apr 12, fills Mon Apr 13 | Freeing bond slice for redeployment; SGOV remains as cash buffer |
+
+### Sells NOT Executed (held)
+
+| Ticker | Value | Reason to Keep |
+|--------|-------|---------------|
+| MSTR | $1,012 | User decision to hold despite negative momentum (-0.53) |
+
+### Prior Sells Confirmed (from March 21 plan)
+
+NU, PPLT, ILF, IMTM, URA — all sold between March–April 2026. ~$3,841 total proceeds.
+
+### Portfolio State (April 12, post-BND sell)
+
+| Ticker | Shares | Value | Slice |
+|--------|-------:|------:|-------|
+| SGOV | 100 | $10,050 | Cash |
+| VNQ | 175 | $16,179 | Real Estate |
+| GDX | 46 | $4,560 | Gold |
+| WPM | 31 | $4,480 | Gold |
+| RGLD | 16 | $4,269 | Gold |
+| FNV | 16 | $4,185 | Gold |
+| COPX | 12 | $1,002 | Stocks |
+| MSTR | 7 | $1,012 | Stocks |
+| AVDV | 3 | $317 | Stocks |
+| **Cash** | | **~$36,500** | (existing $21K + BND proceeds $15.5K) |
+
+### Pending Buys (not yet executed)
+
+Detailed in `data/rebalance-2026-04-12.md`. Allocation approach: Leo top 3 at his % weights (30%), momentum-filtered rest (63%), Costa thesis (7%).
 
 ---
 

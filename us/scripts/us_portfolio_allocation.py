@@ -149,7 +149,7 @@ TICKERS = [
     "IPI",     # Intrepid Potash - pure-play US potash
     # === Rick Rule picks (Apr 2026 BNN Bloomberg + Triangle Investor Dec 2025) ===
     "CCJ",     # Cameco - Rule's top uranium conviction, "surest money in uranium"
-    "GMIN",    # G Mining Ventures - Rule top pick Apr 10 2026 BNN Bloomberg
+    "GMIN.TO",    # G Mining Ventures - Rule top pick Apr 10 2026 BNN Bloomberg
     "IPCO.TO", # International Petroleum - Rule top pick Apr 10 2026 BNN Bloomberg
     # === Costa disclosed positions / named picks ===
     "ORLA",    # Orla Mining - Costa disclosed personal long position
@@ -203,7 +203,7 @@ ENERGY = [
     "COP",
     "DVN",
     "OXY",
-    "SLB",     # Oilfield services - Rick Rule top pick
+    "IPCO.TO", # International Petroleum - Rick Rule top pick Apr 2026
     "XOP",     # SPDR S&P Oil & Gas E&P
 ]
 FACTOR_US = ["QVAL", "QMOM", "AVUV", "DFSV"]
