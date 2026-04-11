@@ -147,10 +147,10 @@ TICKERS = [
     "DBA",     # Invesco DB Agriculture Fund - broad agri commodity basket
     "CF",      # CF Industries - nitrogen/ammonia producer
     "IPI",     # Intrepid Potash - pure-play US potash
-    # === Rick Rule picks (Jan 2026 BNN Bloomberg + Streetwise Dec 2025) ===
-    "BTG",     # B2Gold - gold miner, Rule top pick
-    "SLB",     # SLB (Schlumberger) - oilfield services, Rule top pick
-    "NXE",     # NextGen Energy - uranium developer, Rule pick
+    # === Rick Rule picks (Apr 2026 BNN Bloomberg + Triangle Investor Dec 2025) ===
+    "CCJ",     # Cameco - Rule's top uranium conviction, "surest money in uranium"
+    "GMIN",    # G Mining Ventures - Rule top pick Apr 10 2026 BNN Bloomberg
+    "IPCO.TO", # International Petroleum - Rule top pick Apr 10 2026 BNN Bloomberg
     # === Costa disclosed positions / named picks ===
     "ORLA",    # Orla Mining - Costa disclosed personal long position
     "AUGO",    # Aura Minerals - Costa named top mining stock pick
@@ -177,12 +177,12 @@ MAX_POSITIONS = 25
 # Category groupings (for reporting only)
 GOLD_STREAMERS = ["WPM", "FNV", "RGLD"]           # Royalty/streaming (no op risk)
 SILVER_MINERS  = ["PAAS", "HL"]                   # Primary silver miners
-GOLD_MINERS    = ["AEM", "BTG"]                    # Individual gold producers
+GOLD_MINERS    = ["AEM", "GMIN"]                   # Individual gold producers
 GOLD_ETFs      = ["GOAU", "SGDM", "SGDJ", "GBUG", "GDXJ"] # Gold/silver miner ETF wrappers
 SILVER_ETFs    = ["SILJ"]                          # Silver miner ETFs
 PRECIOUS_METALS = GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + GOLD_ETFs + SILVER_ETFs
 INDUSTRIAL_METALS = ["COPX", "COPP"]
-URANIUM = ["URA", "URNM", "URNJ", "NXE"]
+URANIUM = ["URA", "URNM", "URNJ", "CCJ"]
 PLATINUM = ["PPLT"]
 ENERGY = [
     "XOM",
