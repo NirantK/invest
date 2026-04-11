@@ -960,3 +960,49 @@ Ran momentum screener with 20% max allocation. AI infra dominates (61%). Current
 | Gold (20%) | $15,800 | WPM (31), FNV (16), RGLD (16), GDX (46) | ~$14,500 | Done |
 | Real Estate (20%) | $15,800 | VNQ (175 shares) | $15,799 | Done |
 | Stocks (20%) | $15,800 | Existing ($5,823) + DBA + CF + IPI | ~$15,700 | Pending buys |
+
+---
+
+# INR Portfolio — Emergency Fund Allocation
+
+## Decision: Emergency Fund Parking (April 2026)
+
+**Date:** 2026-04-11
+**Amount:** ₹10,00,000
+**Instrument:** HDFC Multi Asset Active FOF — Direct Plan — Growth
+
+### Rationale
+
+Analyzed 25+ BAFs, equity savings funds, multi-asset funds, and conservative hybrid funds across:
+- Rolling 1Y and 3Y CAGR distributions
+- Ulcer Index, Pain Ratio, UPI (Martin Ratio), Sortino, Calmar
+- Max drawdown, calendar year returns
+- Full history and common-period (Sep 2021+) composites
+
+**Shortlisted finalists:**
+
+| Fund | CAGR | Ulcer | Pain Ratio | Max DD | History |
+|------|------|-------|------------|--------|---------|
+| PPFAS Cons Hybrid | 9.8% | 0.006 | 11.0 | -2.3% | 4.9y (debt-taxed, ruled out) |
+| HDFC MA FOF | 15.1% | 0.019 | 7.8 | -8.8% | 4.9y |
+| SBI BAF | 11.1% | 0.018 | 4.3 | -7.4% | 4.6y |
+| Mirae BAF | 11.6% | 0.020 | 4.5 | -7.5% | 3.7y |
+
+**Why HDFC MA FOF over SBI BAF:**
+- 4% higher CAGR (15.1% vs 11.1%) at nearly identical Ulcer Index (0.019 vs 0.018)
+- Pain Ratio nearly 2x better (7.8 vs 4.3)
+- 4% CAGR compounding: ₹10L becomes ₹41L vs ₹29L over 10 years
+- Max DD difference is only 1.4% (-8.8% vs -7.4%) — negligible
+- 24-month LTCG holding period (vs 12M for BAF) is irrelevant — never sold in 10 years
+- Taxation: 12.5% LTCG after 24 months (post-2024 FOF amendment)
+
+**Underlying allocation:** ~60-70% equity (HDFC Top 100, Flexi Cap), ~20-25% debt (Corporate Bond), remainder in gold. Essentially an aggressive BAF with gold diversification.
+
+**Risk accepted:** 4.9 years of history, no COVID-era track record. Higher equity allocation means ~20-25% drawdown possible in severe crash. Acceptable given 10-year demonstrated holding behavior.
+
+### Structure
+
+| Tier | Amount | Vehicle | Purpose |
+|------|--------|---------|---------|
+| Instant access | ~3 months expenses | Liquid/overnight fund | Break glass |
+| Core reserve | ₹10,00,000 | HDFC Multi Asset Active FOF Direct Growth | Emergency corpus |
