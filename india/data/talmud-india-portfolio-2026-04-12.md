@@ -46,13 +46,14 @@ Based on the Babylonian Talmud's 1/3 rule, adapted: growth-heavy tilt given ₹9
 | Tata Consumer | 0.6L | +28.5% |
 | ABSL ELSS | 2.8L | Locked |
 
-### BUY (₹68.3L deployed) — ALL VERIFIED BUYABLE
+### BUY (₹80.4L deployed) — ALL VERIFIED BUYABLE
 
 | Buy | ₹ | Bucket | Verified | Cap |
 |-----|--:|--------|:--------:|----:|
 | Tata Multi-Asset | 21.0L | Hybrid (20.8% real, 65% growth, 14% reserves) | OPEN (domestic) | None |
-| Embassy REIT | 17.1L | Real Assets | OPEN (exchange traded) | None |
 | Nippon Small Cap | 13.1L | Growth | OPEN (domestic) | None |
+| Embassy REIT | 9.1L | Real Assets | OPEN (exchange traded) | None |
+| ICICI Pru Commodities Fund | 8.0L | Growth (commodity-linked equity) | OPEN (domestic) | None |
 | Nippon Multi-Asset | 7.0L | Hybrid (13.5% real, 63% growth, 23% reserves) | OPEN (domestic) | None |
 | Kotak Global Innovation FoF | 6.7L | Growth (replaces FANG+) | OPEN | None |
 | Nippon Taiwan Equity | 5.0L | Growth (semiconductor substrates) | OPEN (Mar 18, 2026) | ₹5L/PAN/mo |
@@ -60,7 +61,7 @@ Based on the Babylonian Talmud's 1/3 rule, adapted: growth-heavy tilt given ₹9
 | Edelweiss Europe Dynamic | 3.0L | Growth (Europe defense/infra) | OPEN | ₹1L/PAN/mo |
 | Edelweiss Greater China | 2.5L | Growth (replaces MAHKTECH) | OPEN | ₹1L/PAN/mo |
 
-**Buffer: ₹12.1L** (sells ₹80.4L - buys ₹68.3L) → absorbed into Embassy REIT (₹5L base + ₹12.1L buffer = ₹17.1L)
+**Sells = Buys = ₹80.4L. Balanced exactly.**
 
 ---
 
@@ -71,18 +72,31 @@ Based on the Babylonian Talmud's 1/3 rule, adapted: growth-heavy tilt given ₹9
 | Holding | ₹ | Sub-type |
 |---------|--:|---------|
 | SGB Dec 2031 | 30.0L | Gold (illiquid, 2.5% coupon, 12.5% LTCG — secondary market, Budget 2026) |
-| **Embassy REIT (NEW)** | **17.1L** | Indian office REITs, ~7% distribution, exchange traded |
+| **Embassy REIT (NEW)** | **9.1L** | Indian office REITs, ~7% distribution, exchange traded |
 | Tata MA commodity slice (21L × 20.8%) | 4.4L | Gold 1.6L + silver 1.5L + aluminium+crude futures 1.3L |
 | Nippon MA commodity slice (7L × 13.5%) | 1.0L | Gold ETF 0.7L + silver ETF 0.3L |
 
-**By type:**
+**ICICI Pru Commodities Fund (₹8L)** — technically growth bucket (equity) but provides commodity producer exposure: Freeport-McMoRan 4.1% (copper), Southern Copper 2.8%, Cameco 2.1% (uranium), Vedanta 8.9% (zinc/aluminium), Hindalco 4.7%, NALCO 3.1%, Jindal Steel 9.5%. 9% foreign equity. TER 0.97%.
+
+**By type (pure real assets):**
 
 | Type | ₹ | % of Real Assets |
 |------|--:|:----------------:|
-| Gold (SGB + fund slices) | 32.3L | 62% |
-| REITs (Embassy) | 17.1L | 33% |
-| Silver (fund slices) | 1.8L | 3% |
-| Aluminium + crude (Tata MA futures) | 1.3L | 2% |
+| Gold (SGB + fund slices) | 32.3L | 73% |
+| REITs (Embassy) | 9.1L | 20% |
+| Silver (fund slices) | 1.8L | 4% |
+| Aluminium + crude (Tata MA futures) | 1.3L | 3% |
+
+**Commodity producer equity (in growth bucket but commodity-linked):**
+
+| Via ICICI Pru Commodities | ₹8L |
+|--------------------------|------|
+| Copper (Freeport + Southern Copper) | ~₹0.6L |
+| Uranium (Cameco) | ~₹0.2L |
+| Zinc/Aluminium (Vedanta, Hindalco, NALCO) | ~₹1.3L |
+| Steel (Jindal, JSW, Tata Steel) | ~₹1.5L |
+| Chemicals/Fertilizer (UPL, Paradeep, Deepak Fert) | ~₹0.6L |
+| Cement (UltraTech, Ambuja) | ~₹0.9L |
 
 ### Reserves (₹52.4L — 27%)
 
