@@ -57,30 +57,39 @@ Based on the Babylonian Talmud's 1/3 rule (Bava Metzia 42a): "A man should alway
 
 ## Final Portfolio — All Holdings
 
-### Real Assets (₹80.2L — 33.5%)
+### Real Assets (₹63.5L — 26.6%, range 27-33% with DM Quant)
 
 | Holding | ₹ | Sub-type | Status |
 |---------|--:|---------|--------|
-| SGBs (Dec 2031 + Jan 2029) | 37.5L | Gold (illiquid, tax-free, 2.5% coupon) | Hold to maturity |
-| DM Quant → Gold BeES | 16.3L | Gold (system-managed) | Keep — rotates with DM strategy |
-| GOLDCASE | 6.0L | Gold (liquid) | Keep |
-| **ICICI Strategic Metal & Energy FoF (NEW)** | **5.0L** | Gold miners (Newmont, Barrick, AEM, WPM) + oil E&P (XOM, CVX, COP) | Buy |
-| **Mahindra Manulife AP REIT FoF (NEW)** | **5.0L** | Singapore/HK REITs — Keppel DC REIT 6.4%, Link REIT 9.9%, CapitaLand Ascendas 9.5% | Buy |
-| **DSP World Mining FoF (NEW)** | **5.0L** | Global mining — BHP, Rio Tinto, Glencore, Freeport (copper), Vale (iron ore), Teck (lithium) | Buy |
+| SGBs (Dec 2031 only) | 30.0L | Gold (illiquid, 2.5% coupon, **12.5% LTCG at maturity** — secondary market purchase, tax-free exemption removed Budget 2026) | Hold to maturity for coupon. Jan 2029 SGB SOLD |
+| **ICICI Strategic Metal & Energy FoF (NEW)** | **10.0L** | Gold miners (Newmont, Barrick, AEM, WPM) + oil E&P (XOM, CVX, COP) | Buy |
+| **DSP World Mining FoF (NEW)** | **10.0L** | Global mining — BHP, Rio Tinto, Glencore, Freeport (copper), Vale (iron ore), Teck (lithium) | Buy |
+| **Mahindra Manulife AP REIT FoF (NEW)** | **8.5L** | Singapore/HK REITs — Keppel DC REIT 6.4%, Link REIT 9.9%, CapitaLand Ascendas 9.5% | Buy |
 | Tata MA commodity slice (21L × 20.8%) | 4.4L | Gold+silver+commodity futures (aluminium, crude) | Internal to Tata MA |
 | Nippon MA commodity slice (7L × 13.5%) | 1.0L | Gold+silver+ETCDs | Internal to Nippon MA |
 
-**Real assets sub-type breakdown:**
+**SOLD:** SGB Jan 2029 (₹7.5L) + GOLDCASE (₹6L) = ₹13.5L pure gold removed, redeployed to mining + REITs.
 
-| Sub-type | ₹ | % of Real Assets |
-|----------|--:|:----------------:|
-| Gold (SGBs + DM Quant + GOLDCASE + fund slices) | 63.8L | 80% |
-| Global mining (copper, iron ore, lithium, coal) | 5.0L | 6% |
-| Gold miners + oil E&P | 5.0L | 6% |
-| Global REITs (Singapore/HK data centers + retail) | 5.0L | 6% |
-| Other commodity futures | 1.4L | 2% |
+**SGB Tax Update (Budget 2026):** Both SGBs purchased on secondary market → tax-free exemption NO LONGER applies. Capital gains taxed at 12.5% LTCG even at maturity. Only benefit of holding SGB Dec 2031 = 2.5% annual coupon + no tracking error vs gold price. Consider selling Dec 2031 SGB too in future if can redeploy to higher-returning real assets.
 
-**What changed from pure gold:** Added mining (copper, lithium, iron ore), oil E&P, and global data center REITs. Gold drops from 85% → 80% of real assets. Diversified across commodity supercycle themes.
+**Mahindra AP REIT FoF:** TER 0.50% (Direct) + ~0.5% underlying = ~1.0% total. AUM only ₹42 Cr. **May be closed to subscription (RBI overseas limit).** Verify availability before buying. Alternative: Kotak International REIT FoF (same space, but 4% CAGR vs Mahindra 34% 1Y).
+
+**DM Quant (₹33L):** NOT counted as real assets — system can go 0-100% gold/equity. When in gold mode (now), effective real assets = ~33%. When equity mode, drops to ~27%.
+
+**Real assets granular decomposition:**
+
+| Category | ₹ | % of Real Assets | % of Portfolio | What's inside |
+|----------|--:|:----------------:|:--------------:|---------------|
+| **Gold (all forms)** | 39.3L | 61.8% | 16.4% | SGB Dec 2031 ₹30L + gold futures (Tata MA) ₹1.6L + gold ETF (Nippon MA) ₹0.7L + gold miners (ICICI+DSP) ₹7L |
+| **Oil & Gas E&P** | 5.0L | 7.9% | 2.1% | Via ICICI M&E FoF — XOM, CVX, COP, OXY |
+| **Copper producers** | 2.5L | 3.9% | 1.0% | Via DSP Mining — BHP, Freeport-McMoRan, Teck |
+| **Iron ore producers** | 2.5L | 3.9% | 1.0% | Via DSP Mining — Vale, Rio Tinto, BHP |
+| **Lithium+coal+diversified** | 3.0L | 4.7% | 1.3% | Via DSP Mining — Teck, South32, other |
+| **Silver** | 1.8L | 2.8% | 0.7% | Silver futures (Tata MA) + silver ETF (Nippon MA) |
+| **Aluminium+crude futures** | 1.3L | 2.0% | 0.5% | Inside Tata MA commodity futures |
+| **REITs (all)** | 8.2L | 12.9% | 3.4% | Data center (Keppel DC) + office (CapitaLand) + retail (Link REIT) + logistics (Mapletree) |
+
+**Gold reduced from 80% → 62% of real assets.** Mining, oil, REITs now 38%.
 
 ### Reserves (₹79.7L — 33.3%)
 

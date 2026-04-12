@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Indian MF/FoF — ALWAYS Check Subscription Status
+
+**MANDATORY before recommending ANY Indian mutual fund or FoF:**
+1. Search "[fund name] subscription suspended closed [year]" on web
+2. Check Groww page for "Not Supported" 
+3. RBI caps overseas MF at USD 7B — most international FoFs are CLOSED
+4. NAV updating ≠ buyable. Always verify.
+5. Check per-PAN limits (e.g. ₹5L/month for some funds)
+
 ## Quick Commands
 
 ```bash
