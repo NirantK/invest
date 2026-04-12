@@ -16,12 +16,14 @@ Based on the Babylonian Talmud's 1/3 rule (Bava Metzia 42a): "A man should alway
 
 ## Trades to Execute
 
-### SELL (₹60.2L freed)
+### SELL (₹73.7L freed)
 
 | Sell | Ticker | ₹ | Reason |
 |------|--------|--:|--------|
 | SILVERCASE (full) | SILVERCASE | 15.5L | Replaced by DSP World Mining (has silver exposure via BHP, South32) + ICICI M&E |
 | Tata Arbitrage (partial) | — | 15.7L | Reserves over target after counting hidden debt in hybrid funds. Keep ₹10.8L |
+| SGB Jan 2029 | — | 7.5L | Reduce pure gold. Closer maturity, ~2% exit cost |
+| GOLDCASE (full) | GOLDCASE | 6.0L | Reduce pure gold. Redeploy to mining+REITs |
 | Muthoot Finance | — | 6.1L | Standalone thesis not working -3.7% |
 | LowVol30 (trim to ₹10L) | — | 6.3L | Free capital for Nippon Small Cap growth |
 | MAHKTECH (HangSeng TECH) | MAHKTECH | 2.5L | Tax-loss harvest -14.8% |
@@ -39,16 +41,16 @@ Based on the Babylonian Talmud's 1/3 rule (Bava Metzia 42a): "A man should alway
 | LTIMindtree | 1.0L | +48.6% |
 | Tata Consumer | 0.6L | +28.5% |
 
-### BUY (₹59.1L deployed)
+### BUY (₹72.6L deployed)
 
 | Buy | ₹ | Bucket | Theme | CAGR/1Y | TER |
 |-----|--:|--------|-------|--------:|----:|
 | Tata Multi-Asset | 21.0L | Hybrid | Gold+silver futures, equity 65%, can hold REITs | 18.8% CAGR | 0.45% |
 | Nippon Small Cap | 13.1L | Growth | Pure size premium, 13yr proven | 24.0% CAGR | — |
+| ICICI Strategic Metal & Energy FoF | 10.0L | Real Assets | 50% gold miners + 50% oil E&P (global, INR denominated) | +89% 1Y | 1.31% |
+| DSP World Mining FoF | 10.0L | Real Assets | Broad global mining — BHP, Rio Tinto, Glencore, Freeport, Vale, Teck (copper, iron ore, lithium, coal) | +110% 1Y | 2.31% |
+| Mahindra Manulife Asia Pacific REIT FoF | 8.5L | Real Assets | Singapore/HK REITs — Keppel DC REIT (data centers), Link REIT, CapitaLand | +34% 1Y | — |
 | Nippon Multi-Asset | 7.0L | Hybrid | 5.3% international (iShares MSCI World), gold+silver+ETCDs | 18.6% CAGR | 0.39% |
-| ICICI Strategic Metal & Energy FoF | 5.0L | Real Assets | 50% gold miners + 50% oil E&P (global, INR denominated) | +89% 1Y | 1.31% |
-| Mahindra Manulife Asia Pacific REIT FoF | 5.0L | Real Assets | Singapore/HK REITs — Keppel DC REIT (data centers), Link REIT, CapitaLand | +34% 1Y | — |
-| DSP World Mining FoF | 5.0L | Real Assets | Broad global mining — BHP, Rio Tinto, Glencore, Freeport, Vale, Teck (copper, iron ore, lithium, coal) | +110% 1Y | 2.31% |
 | Nippon Taiwan Equity Fund | 3.0L | Growth | Semiconductor substrate supply chain — MPI, WinWay, Nan Ya PCB, Chroma ATE | +275% 1Y | 0.98% |
 
 ---
