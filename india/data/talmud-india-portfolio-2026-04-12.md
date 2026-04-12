@@ -1,244 +1,188 @@
-# Talmud India Portfolio — April 12, 2026 (Final)
+# Talmud India Portfolio — April 12, 2026 (Final, Conservative)
 
-Growth-heavy tilt given ₹93L safety nets already cover 3+ years of burns.
+Father's edit applied: bigger safety net, phased execution, fewer moving parts at start.
 
-**Total: ₹256L (incl DM Quant ₹33L which swings between buckets)**
-
-## The Split
-
-| Bucket | ₹ | % | Note |
-|--------|--:|--:|------|
-| Real Assets | ~44.5L | 27-33% | Gold + REITs + commodity producers. Range depends on DM Quant |
-| Reserves | ~47.4L | 27% | Emergency funds + hidden debt in hybrids |
-| Growth | ~104L | 42% | 52% domestic / 48% international |
-| DM Quant | 33.0L | — | Swings real↔growth. Excluded from fixed allocation |
+**Total: ₹256L**
 
 ---
 
-## Trades
+## Phase 1: Day 1 (Core only — ₹72L trades)
 
-### SELL (₹112.2L)
+### SELL Phase 1
 
-| Sell | Ticker | ₹ |
-|------|--------|--:|
-| LowVol30 (trim ₹32.6L → ₹5L) | — | 27.6L |
-| Tata Arb (partial, keep ₹10.8L) | — | 15.7L |
-| SILVERCASE (full) | SILVERCASE | 15.5L |
-| Deploy Zerodha cash | — | 14.0L |
-| V&M Smallcase | — | 10.5L |
-| SGB Jan 2029 | — | 7.5L |
-| FANG+ ETF | — | 6.7L |
-| Muthoot Finance | — | 6.1L |
-| GOLDCASE (full) | GOLDCASE | 6.0L |
-| MAHKTECH | MAHKTECH | 2.5L |
-| Dust | — | 0.06L |
+| Sell | ₹ | Why |
+|------|--:|-----|
+| SILVERCASE (full) | 15.5L | Commodity futures replace this |
+| Muthoot Finance | 6.1L | -3.7%, thesis not working |
+| GOLDCASE (full) | 6.0L | Reduce gold, redeploy |
+| MAHKTECH | 2.5L | Tax-loss harvest -14.8% |
+| V&M Smallcase | 10.5L | 0.44% XIRR |
+| SGB Jan 2029 | 7.5L | Secondary market, no tax benefit |
+| Dust | 0.06L | Dead |
+| Deploy Zerodha cash | 14.0L | Idle |
+| **Phase 1 sells** | **62.2L** | |
 
-### BUY (₹112.2L)
+### BUY Phase 1
 
-| Buy | ₹ | Bucket | Deploy |
-|-----|--:|--------|--------|
-| Tata Multi-Asset | 21.0L | Hybrid (permanent) | Day 1 |
-| Kotak Global EM (parking for Edelweiss EM) | 15.0L | Intl parking | Day 1, STP ₹1L/mo out |
-| Kotak Global Innovation | 13.2L | Growth intl | Day 1 |
-| Nippon Small Cap | 13.1L | Growth domestic | Day 1 |
-| Embassy REIT | 9.1L | Real Assets | Day 1 |
-| ICICI Pru Commodities | 8.0L | Real Assets (commodity producers) | Day 1 |
-| Capitalmind Multi-Asset (parking for Edelweiss Europe) | 8.0L | Intl parking | Day 1, STP ₹1L/mo out |
-| Nippon Multi-Asset | 7.0L | Hybrid (permanent) | Day 1 |
-| Nippon Taiwan Equity | 5.0L | Growth intl | Day 1 (₹5L/mo cap) |
-| Nippon Japan Equity | 5.0L | Growth intl | Day 1 (₹5L/mo cap) |
-| Edelweiss EM | 1.0L | Growth intl | Day 1 + ₹1L/mo STP from Kotak EM |
-| Edelweiss Europe Dynamic | 1.0L | Growth intl | Day 1 + ₹1L/mo STP from CM MA |
+| Buy | ₹ | Deploy |
+|-----|--:|--------|
+| Tata Multi-Asset | 35.0L | Day 1. Bigger = more commodity futures + equity |
+| Nippon Small Cap | 18.0L | Day 1. Core growth |
+| Embassy REIT | 9.1L | Day 1. Real estate |
+| **Phase 1 buys** | **62.1L** | |
+
+**Phase 1 is self-funding.** Sells ≈ buys. No need to touch LowVol30, Tata Arb, or FANG+.
 
 ---
 
-## STP Schedule
+## Phase 2: Month 3-6 (Add commodity + start international)
 
-| From | To | Amount | Duration | End state |
-|------|-----|-------:|:--------:|-----------|
-| Kotak Global EM | Edelweiss EM | ₹1L/mo | 15 months | Kotak EM → ₹0, Edelweiss EM → ₹16L |
-| Capitalmind MA | Edelweiss Europe | ₹1L/mo | 5 months | CM MA → ₹3L, Edelweiss Europe → ₹5L (then evaluate CM MA: keep or empty) |
+### SELL Phase 2
 
----
+| Sell | ₹ | Why |
+|------|--:|-----|
+| FANG+ ETF | 6.7L | Swap to Kotak Innovation (broader) |
+| Tata Arb (partial, ₹26.5L → ₹15L) | 11.5L | Father says keep ₹15L, not ₹10.8L |
+| **Phase 2 sells** | **18.2L** | |
 
-## Final Portfolio (after all STPs complete, ~16 months)
+### BUY Phase 2
 
-### Real Assets (~₹44.5L, 27-33% with DM Quant)
-
-| Holding | ₹ | Type |
-|---------|--:|------|
-| SGB Dec 2031 | 30.0L | Gold (illiquid, 2.5% coupon, 12.5% LTCG — secondary market) |
-| Embassy REIT | 9.1L | Indian office REITs, ~7% distribution |
-| Tata MA commodity slice (21L × 20.8%) | 4.4L | Gold+silver+aluminium+crude futures |
-| Nippon MA commodity slice (7L × 13.5%) | 1.0L | Gold+silver+ETCDs |
-
-**ICICI Pru Commodities (₹8L)** — commodity producer equity: Freeport 4.1% (copper), Southern Copper 2.8%, Cameco 2.1% (uranium), Vedanta 8.9% (zinc), Hindalco 4.7% (aluminium), Jindal Steel 9.5%. Technically growth bucket but commodity-linked.
-
-### Reserves (~₹47.4L, 27%)
-
-| Holding | ₹ | Purpose |
-|---------|--:|---------|
-| HDFC Liquid | 32.0L | Family 1yr burn |
-| Tata Arb (trimmed) | 10.8L | Company emergency (~1mo) |
-| LowVol30 (half of ₹5L) | 2.5L | Burn backup anchor |
-| Tata MA debt (14% of ₹21L) | 2.9L | Hidden inside fund |
-| Nippon MA debt (23.2% of ₹7L) | 1.6L | Hidden inside fund |
-
-### Growth (~₹104L, 42%)
-
-**Domestic (₹58.4L, 52% of growth):**
-
-| Holding | ₹ | Strategy |
-|---------|--:|---------|
-| Tata MA equity (65% of ₹21L) | 13.7L | Fund manager discretion |
-| Nippon Small Cap | 13.1L | 24% CAGR, 13yr, size premium |
-| Tata Midcap Mom50 | 11.8L | Index momentum |
-| DM Quant stocks | 8.7L | Weekly quant rebalance |
-| ICICI Pru Commodities | 8.0L | Metal/copper/uranium producers |
-| Nippon MA equity (63% of ₹7L) | 4.2L | Diversified equity |
-| LowVol30 equity (half of ₹5L) | 2.5L | Factor equity |
-| ABSL ELSS | 2.8L | Locked → Nippon SC when unlocked |
-| LTIMindtree | 1.0L | +48.6% |
-| Tata Consumer | 0.6L | +28.5% |
-
-**International (₹49.2L, 48% of growth):**
-
-| Holding | ₹ | Geography |
-|---------|--:|----------|
-| Edelweiss EM | 16.0L | Korea 17%, Brazil 6%, China 21%, Taiwan 17%, LatAm 5% |
-| Kotak Global Innovation | 13.2L | US tech + healthcare (Alphabet, Nvidia, Eli Lilly) + Japan (Keyence) |
-| Edelweiss Europe Dynamic | 5.0L | Europe defense/infra boom |
-| Nippon Taiwan | 5.0L | Semiconductor substrates (MPI, WinWay, Nan Ya PCB) |
-| Nippon Japan | 5.0L | Japan corporate reform |
-| Nippon MA intl (5.3% of ₹7L) | 0.4L | iShares MSCI World |
-| Capitalmind MA (residual) | ~3L | Commodity futures (evaluate after 5mo) |
-
-**International exposure total: ₹49.2L = 19.2% of portfolio.** All INR denominated, 12.5% LTCG, no LRS.
+| Buy | ₹ | Deploy |
+|-----|--:|--------|
+| ICICI Pru Commodities | 8.0L | Copper, uranium, zinc producers |
+| Kotak Global Innovation | 5.0L | Replaces FANG+ (starter, grow later) |
+| Nippon Taiwan | 5.0L | Semiconductor substrates (₹5L/mo cap) |
+| **Phase 2 buys** | **18.0L** | |
 
 ---
 
-## Growth Grouping by Conviction
+## Phase 3: Month 6-12 (Build international)
 
-### "Set and forget" (never sell)
-| Fund | ₹ |
-|------|--:|
-| Nippon Small Cap | 13.1L |
-| Tata MA equity | 13.7L |
+### SELL Phase 3
+
+| Sell | ₹ | Why |
+|------|--:|-----|
+| LowVol30 (trim ₹32.6L → ₹15L) | 17.6L | Father says keep ₹15L, not ₹5L |
+| **Phase 3 sells** | **17.6L** | |
+
+### BUY Phase 3
+
+| Buy | ₹ | Deploy |
+|-----|--:|--------|
+| Nippon Japan | 5.0L | Japan reform (₹5L/mo cap) |
+| Kotak Global EM (parking) | 7.6L | Parks for Edelweiss EM STP |
+| Capitalmind MA (parking) | 5.0L | Parks for Edelweiss Europe STP |
+| **Phase 3 buys** | **17.6L** | |
+
+---
+
+## Phase 4: Month 12+ (STPs deploy, international builds)
+
+Start STPs:
+- Kotak EM → Edelweiss EM: ₹1L/mo (8 months)
+- Capitalmind MA → Edelweiss Europe: ₹1L/mo (5 months, then evaluate CM MA)
+
+---
+
+## Final Portfolio (after all phases, ~24 months)
+
+### Real Assets (~₹49L, 27-33% with DM Quant)
+
+| Holding | ₹ |
+|---------|--:|
+| SGB Dec 2031 | 30.0L |
+| Embassy REIT | 9.1L |
+| Tata MA commodity slice (35L × 20.8%) | 7.3L |
+| ICICI Pru Commodities | 8.0L (commodity producer equity) |
+
+### Reserves (~₹57L, 30%)
+
+| Holding | ₹ |
+|---------|--:|
+| HDFC Liquid | 32.0L |
+| **Tata Arb** | **15.0L** (father: keep more) |
+| **LowVol30 (half of ₹15L)** | **7.5L** (father: keep more) |
+| Tata MA debt (14% of ₹35L) | 4.9L |
+
+### Growth (~₹88L, 40%)
+
+**Domestic:**
+
+| Holding | ₹ |
+|---------|--:|
+| Tata MA equity (65% of ₹35L) | 22.8L |
+| Nippon Small Cap | 18.0L |
 | Tata Midcap Mom50 | 11.8L |
+| DM Quant stocks | 8.7L |
+| ICICI Pru Commodities | 8.0L |
+| LowVol30 equity (half of ₹15L) | 7.5L |
+| ABSL ELSS | 2.8L |
+| LTIMindtree + Tata Consumer | 1.6L |
 
-### "Systems" (trust the process)
-| Fund | ₹ | Sell when |
-|------|--:|----------|
-| DM Quant stocks | 8.7L | If full Smallcase underperforms 2yr |
-| LowVol30 equity | 2.5L | Only if burn needs change |
+**International:**
 
-### "Global bets" (international thesis)
-| Fund | ₹ | Sell when |
-|------|--:|----------|
-| Edelweiss EM | 16.0L | If JPMorgan underperforms MSCI EM 2yr |
-| Kotak Global Innovation | 13.2L | If Wellington underperforms MSCI World 2yr |
-| Edelweiss Europe | 5.0L | If defense spending cuts |
-| Nippon Taiwan | 5.0L | If AI capex cycle ends |
-| Nippon Japan | 5.0L | If BOJ reverses course |
-
-### "Commodity-linked" (supercycle bet)
-| Fund | ₹ | Sell when |
-|------|--:|----------|
-| ICICI Pru Commodities | 8.0L | If commodity supercycle thesis breaks |
+| Holding | ₹ |
+|---------|--:|
+| Edelweiss EM | 8.0L |
+| Kotak Global Innovation | 5.0L |
+| Nippon Taiwan | 5.0L |
+| Nippon Japan | 5.0L |
+| Edelweiss Europe | 5.0L |
+| Capitalmind MA (residual, evaluate) | ~0-3L |
 
 ---
 
-## Key Swaps Explained
+## What Changed from Aggressive Plan
 
-| Sold | Bought | Why |
-|------|--------|-----|
-| FANG+ ETF ₹6.7L | Kotak Global Innovation ₹13.2L | 6→58 stocks. Adds healthcare+Japan. Broader |
-| MAHKTECH ₹2.5L (-14.8%) | Edelweiss EM (via Kotak EM parking) | Same China thesis + Korea + Brazil. Active manager rotated away from HK crackdown. 13.1% vs 0.1% CAGR |
-| V&M Smallcase ₹10.5L | More international allocation | 0.44% XIRR over 1.5yr. Freed for global diversification |
-| LowVol30 ₹27.6L trim | International + growth | Anchor reduced 32.6→5L. Reserves covered by hybrids |
-
----
-
-## Parking Vehicle Logic
-
-| Vehicle | Why not HDFC Liquid | What it earns while waiting |
-|---------|--------------------|-----------------------------|
-| Kotak Global EM → Edelweiss EM | Liquid earns 5%. Kotak EM earns ~20% CAGR (same EM exposure) | EM beta + Korea + Brazil |
-| Capitalmind MA → Edelweiss Europe | Liquid earns 5%. CM MA has commodity futures (aluminium, crude, gold) | Commodity exposure + tests CM's quant model with real money |
+| | Aggressive | Conservative |
+|--|-----------|-------------|
+| LowVol30 | ₹5L | **₹15L** |
+| Tata Arb | ₹10.8L | **₹15L** |
+| Kotak Innovation | ₹13.2L | **₹5L** (starter) |
+| Kotak EM parking | ₹15L | **₹7.6L** |
+| Execution | Day 1 all ₹112L | **3 phases over 12 months** |
+| International | 48% of growth | **~33% of growth** |
+| Total funds | 11 + 2 STPs immediately | **6 day 1 → 11 over 24mo** |
+| Safety net | ₹47L (27%) | **₹57L (30%)** |
 
 ---
 
-## Closed Funds — DO NOT RECOMMEND
+## Tax Phasing
 
-| Fund | Closed Since |
-|------|-------------|
-| ICICI Strategic Metal & Energy FoF | Mar 2, 2026 |
-| DSP World Mining FoF | Oct 1, 2024 |
-| DSP World Gold Mining FoF | Oct 1, 2024 |
-| HSBC Global Emerging Markets | Dec 4, 2025 |
-| HSBC Brazil | Dec 4, 2025 |
-| HSBC Asia Pacific ex-Japan | Dec 4, 2025 |
-| Mahindra AP REIT FoF | RBI cap |
-| Kotak Intl REIT FoF | RBI cap |
-| Mirae AI & Tech ETF FoF | RBI cap |
-| Mirae EV & Autonomous FoF | RBI cap |
-| PGIM EM | Mar 10, 2026 |
-| ABSL International Equity | Oct 7, 2025 |
-| ABSL Commodity Equities (Global Agri) | MERGED Jul 2023 |
-| DSP World Agriculture | MERGED Oct 2024 |
+| FY | Sells | Taxable gains |
+|----|-------|:-------------:|
+| FY26-27 (now - Mar 2027) | MAHKTECH -14.8% (loss), Muthoot -3.7% (loss), SILVERCASE -4.7% (loss), GOLDCASE +25.4%, V&M +0.67%, SGB Jan 2029 +4.2% | Losses offset gains. Net tax near zero |
+| FY27-28 | FANG+ +34.8%, Tata Arb trim, LowVol30 trim | Spread remaining gains to next FY |
 
-**ALWAYS verify subscription status before recommending any international FoF.**
+**Phase 1 sells are mostly losers → tax-loss harvest.** Phase 2-3 sells (winners) pushed to next FY. Smart.
+
+---
+
+## Quarterly Review (10 minutes)
+
+- [ ] Phase on track? What's next?
+- [ ] STPs running? (only after Phase 4)
+- [ ] Any closed FoFs reopened? (ICICI M&E, DSP Mining, HSBC EM)
+- [ ] Allocation drift >5%?
+- [ ] March: harvest any losses
 
 ---
 
 ## Watch List
 
-| Fund | Trigger to buy |
-|------|---------------|
-| ICICI Strategic Metal & Energy FoF | Buy immediately if reopens (gold miners + oil E&P, 12.5% LTCG) |
-| DSP World Mining FoF | Buy if reopens (copper, iron ore, lithium) |
-| HSBC Global EM | Buy if reopens + swap out Edelweiss EM (better 3-5yr track record) |
-| Capitalmind MA | Evaluate after 5mo — keep permanent allocation if quant model delivers |
-
----
-
-## Execution Priority
-
-1. Sell MAHKTECH (tax-loss harvest)
-2. Sell Muthoot + SILVERCASE + GOLDCASE + V&M Smallcase
-3. Sell SGB Jan 2029 (exchange, ~2% exit cost)
-4. Partial sell Tata Arb (₹26.5L → ₹10.8L)
-5. Partial sell LowVol30 (₹32.6L → ₹5L)
-6. Sell FANG+ ETF
-7. Clean dust
-8. Buy Tata MA ₹21L + Nippon SC ₹13.1L + Embassy REIT ₹9.1L + ICICI Comm ₹8L + Nippon MA ₹7L (immediate, domestic)
-9. Buy Kotak Innovation ₹13.2L + Kotak EM ₹15L + Nippon Taiwan ₹5L + Nippon Japan ₹5L (immediate, intl)
-10. Buy Capitalmind MA ₹8L (immediate, parking)
-11. Buy Edelweiss EM ₹1L + Europe ₹1L (start STP)
-12. Setup STP: Kotak EM → Edelweiss EM ₹1L/mo
-13. Setup STP: Capitalmind MA → Edelweiss Europe ₹1L/mo
-
----
-
-## Annual Review Checklist
-
-- [ ] Check DM Quant — rotated to equities?
-- [ ] Verify STPs running (Kotak EM → Edelweiss EM, CM MA → Europe)
-- [ ] Check closed FoFs — any reopened? (ICICI M&E, DSP Mining, HSBC EM)
-- [ ] Evaluate Capitalmind MA after 5mo — keep or empty?
-- [ ] March: tax-loss harvest losers
-- [ ] SGB Dec 2031: hold to maturity for 2.5% coupon (12.5% LTCG on exit)
-- [ ] ABSL ELSS lock-in expired? → Nippon Small Cap
-- [ ] Nippon Taiwan: substrate thesis intact?
-- [ ] Kotak Innovation: Wellington performing?
-- [ ] Embassy REIT: occupancy, yield
-- [ ] Recount 52/48 domestic/intl split in growth
+| Fund | Action if opens |
+|------|----------------|
+| ICICI Strategic Metal & Energy FoF | Buy ₹5-10L (gold miners + oil E&P) |
+| DSP World Mining FoF | Buy ₹5-10L (copper, iron ore, lithium) |
+| HSBC Global EM | Evaluate vs Edelweiss EM |
+| Capitalmind MA | Evaluate after 1yr — permanent ₹5L or exit? |
 
 ---
 
 ## Research Files
 
-- `india/data/fund-holdings-research-2026-04-12.md` — Full holdings for all funds
-- `india/data/holdings_2026_04_12.md` — MProfit portfolio snapshot
-- `india/scripts/comprehensive_mf_analysis.py` — MF rolling returns
-- `india/scripts/fund_rotation_backtest.py` — 12yr backtest (B&H wins)
+- `india/data/fund-holdings-research-2026-04-12.md`
+- `india/data/holdings_2026_04_12.md`
+- `india/data/quarterly-review-checklist.md`
+- `india/scripts/comprehensive_mf_analysis.py`
+- `india/scripts/fund_rotation_backtest.py`
