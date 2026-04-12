@@ -21,6 +21,7 @@ dependencies = [
     "pyarrow>=23.0.1",
     "tenacity>=9.1.4",
     "numba>=0.61.0",
+    "fastexcel>=0.19.0",
 ]
 
 [build-system]
