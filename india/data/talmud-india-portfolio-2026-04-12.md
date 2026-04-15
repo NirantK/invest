@@ -14,14 +14,14 @@
 | LowVol30 | 32.6L | Equity factor (50% reserve / 50% growth accounting) | **Untouched** |
 | HDFC Liquid | 32.0L | Family 1yr burn | Untouched |
 | SGB Dec 2031 | 30.0L | Gold (illiquid, 12.5% LTCG — secondary market) | Hold to maturity |
-| Tata Arb | 16.5L | Company emergency (~1.5mo) | After EM STP completes |
+| Tata Arb | 12.0L | Company emergency | After Mom50 STP completes (~14.5mo) |
 | Tata Midcap Mom50 | 11.8L | Midcap momentum index | Unchanged |
 | V&M Smallcase | 10.5L | Value + momentum stocks | Unchanged |
 | **PPFAS Flexi Cap** | **10.0L** | Core growth. 20.3% 3Y rolling median | **DONE** |
 | **ICICI Pru Commodities** | **10.0L** | Copper/uranium/zinc producers. 25.6% 3Y median | Building (2L done) |
 | **Nippon Taiwan Equity** | **10.0L** | Semiconductor substrates. 31.6% 3Y median | Building (from cash) |
 | **Nippon Small Cap** | **10.0L** | Size premium. 26.8% 3Y median | Building (HDFC MA STP) |
-| **Edelweiss EM** | **10.0L** | Korea+Brazil+LatAm. EM regime shift bet | Building (Tata Arb STP) |
+| ~~Edelweiss EM~~ | ~~killed~~ | ₹5K/mo cap = 14yr to reach ₹10L. Useless | — |
 | Embassy REIT | 9.1L | Indian office real estate | **DONE** |
 | SGB Jan 2029 | 7.5L | Gold (kept, cancelled sell) | Hold |
 | GOLDCASE | 6.0L | Gold (liquid, kept) | Hold |
@@ -58,8 +58,8 @@
 
 | # | From | To | Amount | Duration | End state |
 |---|------|-----|-------:|:--------:|-----------|
-| 1 | **Tata Arb → Edelweiss EM** | | ₹1L/mo | 10 months | Arb ₹26.5L → ₹16.5L, EM reaches ₹10L |
-| 2 | **HDFC MA → Nippon Small Cap** | | ₹2L/mo | 5 months | HDFC MA empties to ₹0, NSC reaches ₹10L |
+| 1 | **Tata Arb → Tata Midcap Mom50** | | ₹1L/mo | ~14.5 months | Arb ₹26.5L → ₹12L, Mom50 grows. **DONE — scheduled** |
+| 2 | **HDFC MA → Nippon Small Cap** | | ₹2L/mo | 5 months | HDFC MA empties to ₹0, NSC reaches ₹10L. Setup Monday Apr 20 |
 
 **That's it. 2 STPs. Set and forget.**
 
