@@ -147,10 +147,17 @@ TICKERS = [
     "DBA",     # Invesco DB Agriculture Fund - broad agri commodity basket
     "CF",      # CF Industries - nitrogen/ammonia producer
     "IPI",     # Intrepid Potash - pure-play US potash
-    # === Rick Rule picks (Apr 2026 BNN Bloomberg + Triangle Investor Dec 2025) ===
+    # === Rick Rule picks (2026 BNN Bloomberg Top Picks) ===
     "CCJ",     # Cameco - Rule's top uranium conviction, "surest money in uranium"
-    "GMIN.TO",    # G Mining Ventures - Rule top pick Apr 10 2026 BNN Bloomberg
+    "GMIN.TO", # G Mining Ventures - Rule top pick Apr 10 2026 BNN Bloomberg
     "IPCO.TO", # International Petroleum - Rule top pick Apr 10 2026 BNN Bloomberg
+    "DC-A.TO", # Dundee Corp - Rule top pick Apr 10 2026, resource holding company
+    "BTG",     # B2Gold - Rule top pick Jan 5 2026, gold producer
+    "ARG.TO",  # Amerigo Resources - Rule top pick Jan 5 2026, copper from tailings Chile
+    "SLB",     # SLB - Rule top pick Jan 5 2026, oilfield services
+    # === Rick Rule thesis ETFs ===
+    "SETM",    # Sprott Critical Materials ETF - copper+uranium+lithium+nickel, +178% 1Y
+    "GBUG",    # Sprott Active Gold & Silver Miners - John Hathaway manages, +113% 1Y
     # === Costa disclosed positions / named picks ===
     "ORLA",    # Orla Mining - Costa disclosed personal long position
     "AUGO",    # Aura Minerals - Costa named top mining stock pick
@@ -177,11 +184,11 @@ MAX_POSITIONS = 25
 # Category groupings (for reporting only)
 GOLD_STREAMERS = ["WPM", "FNV", "RGLD"]           # Royalty/streaming (no op risk)
 SILVER_MINERS  = ["PAAS", "HL"]                   # Primary silver miners
-GOLD_MINERS    = ["AEM", "GMIN"]                   # Individual gold producers
+GOLD_MINERS    = ["AEM", "GMIN.TO", "BTG"]          # Individual gold producers
 GOLD_ETFs      = ["GOAU", "SGDM", "SGDJ", "GBUG", "GDXJ"] # Gold/silver miner ETF wrappers
 SILVER_ETFs    = ["SILJ"]                          # Silver miner ETFs
 PRECIOUS_METALS = GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + GOLD_ETFs + SILVER_ETFs
-INDUSTRIAL_METALS = ["COPX", "COPP"]
+INDUSTRIAL_METALS = ["COPX", "COPP", "ARG.TO", "SETM"]  # ARG = Amerigo Resources (copper from tailings)
 URANIUM = ["URA", "URNM", "URNJ", "CCJ"]
 PLATINUM = ["PPLT"]
 ENERGY = [
@@ -204,6 +211,7 @@ ENERGY = [
     "DVN",
     "OXY",
     "IPCO.TO", # International Petroleum - Rick Rule top pick Apr 2026
+    "SLB",     # SLB - Rule top pick Jan 2026, oilfield services
     "XOP",     # SPDR S&P Oil & Gas E&P
 ]
 FACTOR_US = ["QVAL", "QMOM", "AVUV", "DFSV"]
