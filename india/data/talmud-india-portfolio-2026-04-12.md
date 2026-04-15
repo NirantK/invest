@@ -15,7 +15,7 @@
 | HDFC Liquid | 32.0L | Family 1yr burn | Untouched |
 | SGB Dec 2031 | 30.0L | Gold (illiquid, 12.5% LTCG — secondary market) | Hold to maturity |
 | Tata Arb | 12.0L | Company emergency | After Mom50 STP completes (~14.5mo) |
-| Tata Midcap Mom50 | 11.8L | Midcap momentum index | Unchanged |
+| Tata Midcap Mom50 | 26.3L | Midcap momentum index | 11.8L existing + 14.5L from Arb STP |
 | V&M Smallcase | 10.5L | Value + momentum stocks | Unchanged |
 | **PPFAS Flexi Cap** | **10.0L** | Core growth. 20.3% 3Y rolling median | **DONE** |
 | **ICICI Pru Commodities** | **10.0L** | Copper/uranium/zinc producers. 25.6% 3Y median | Building (2L done) |
