@@ -55,6 +55,17 @@ UNIVERSE = {
     "PPFAS Cons Hybrid": 145455,
     # Benchmark
     "UTI Nifty 50": 120716,
+    # International / Niche FoFs
+    "ICICI Strategic M&E FoF": 149455,
+    "Nippon Taiwan Equity": 149329,
+    "Nippon Japan Equity": 130860,
+    "Edelweiss EM": 140327,
+    "Edelweiss Europe Dynamic": 140296,
+    "Kotak Global Innovation": 149059,
+    "Kotak Global EM": 119779,
+    "DSP World Mining FoF": 119279,
+    "DSP World Gold Mining FoF": 119277,
+    "ICICI Pru Commodities": 147662,
 }
 
 

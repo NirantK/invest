@@ -1,64 +1,98 @@
-# Talmud India Portfolio — April 13, 2026 (Final)
+# Talmud India Portfolio — April 15, 2026
 
 **Fund Manager: Nova (AI) | Executor: Nirant (OTPs + clicks)**
 
-Growth-heavy tilt. Safety nets cover 3+ years of burns. Maximize rolling median returns.
+Data-driven. All allocation decisions based on 3Y rolling MEDIAN returns from mfapi.in (39 funds analyzed, `india/scripts/mf_compare.py`).
 
 **Total: ~₹256L**
 
 ---
 
-## Phase 1: Executing Now
+## The Data (3Y Rolling Median, sorted)
 
-### SELLS (₹62.2L + ₹14L cash)
+| Fund | 3Y MED | 3Y Min | Max DD | DD Mo | Open? | Action |
+|------|-------:|-------:|-------:|:-----:|:-----:|--------|
+| Nippon Taiwan | 31.6% | -7.6% | -44.8% | 25 | YES | **BUY Phase 2** |
+| Nippon Small Cap | 26.8% | -7.1% | -48.6% | 35 | YES | **BUY via STP** |
+| ICICI Pru Commodities | 25.6% | +13.5% | -41.2% | 9 | YES | **BUYING (₹1L done)** |
+| ICICI Strategic M&E FoF | 23.7% | +11.2% | -24.3% | 11 | CLOSED | Watch list |
+| **PPFAS Flexi Cap** | **20.3%** | +0.9% | -31.2% | 13 | YES | **BUYING ₹40L** |
+| Nippon Multi-Asset | 18.9% | +14.5% | -10.8% | 4 | YES | Phase 3 candidate |
+| Kotak Global Innovation | 16.8% | +0.1% | -40.0% | 32 | YES | Phase 2 (starter) |
+| UTI Nifty 50 (benchmark) | 13.4% | -4.2% | -38.4% | 18 | — | — |
+| ~~Edelweiss Europe~~ | 10.7% | -7.7% | -35.7% | 15 | YES | **KILLED — below Nifty** |
+| ~~Nippon Japan~~ | 8.2% | +0.5% | -29.9% | 29 | YES | **KILLED — below Nifty** |
+| ~~Edelweiss EM~~ | 6.1% | -8.4% | -38.8% | 55 | YES | **KILLED — below Nifty** |
+| ~~Kotak Global EM~~ | 6.6% | -5.4% | -32.0% | 52 | YES | **KILLED — below Nifty** |
+
+**Rule: Don't buy anything with 3Y rolling median below Nifty 50 (13.4%).** Four international funds killed.
+
+---
+
+## Phase 1: NOW (Executing)
+
+### SELLS
 
 | Sell | ₹ | Status |
 |------|--:|--------|
-| SILVERCASE (full) | 15.5L | Queued Mon market open |
-| V&M Smallcase | 10.5L | Queued Mon market open |
-| SGB Jan 2029 | 7.5L | Queued Mon market open |
-| Muthoot Finance | 6.1L | Queued Mon market open |
-| GOLDCASE (full) | 6.0L | Queued Mon market open |
-| MAHKTECH | 2.5L | Queued Mon market open |
-| Dust | 0.06L | Queued Mon market open |
+| SILVERCASE | 15.5L | Queued Mon |
+| V&M Smallcase | 10.5L | Queued Mon |
+| SGB Jan 2029 | 7.5L | Queued Mon |
+| Muthoot | 6.1L | Queued Mon |
+| GOLDCASE | 6.0L | Queued Mon |
+| MAHKTECH | 2.5L | Queued Mon |
+| Dust | 0.06L | Queued Mon |
 | Zerodha cash | 14.0L | Available |
 
-### BUYS (as proceeds settle)
+### BUYS
 
 | Buy | ₹ | Status |
 |-----|--:|--------|
-| **PPFAS Flexi Cap** | **40.0L** | **BUY as proceeds come in** |
+| **PPFAS Flexi Cap** | **40.0L** | **BUY as proceeds settle** |
 | Embassy REIT | 9.1L | **DONE** |
-| HDFC Multi-Asset (parking) | 10.0L | **DONE** — STP to Nippon SC when units allot |
+| HDFC MA (parking → Nippon SC STP) | 10.0L | **DONE**, units pending |
+| ICICI Pru Commodities | 1.0L | **DONE** (Phase 2 start, ahead of schedule) |
 
-### PENDING STP (setup when HDFC MA units allot)
+### PENDING STP
 
-| From | To | Amount | Duration |
-|------|-----|-------:|:--------:|
-| HDFC Multi-Asset | Nippon India Small Cap | ₹2L/mo | 5 months → HDFC MA empties to ₹0 |
-
----
-
-## Why PPFAS Flexi Cap (₹40L)
-
-| Metric | PPFAS | Next best (Nippon MA) |
-|--------|:-----:|:--------------------:|
-| **3Y rolling median** | **18.4%** | 16.4% |
-| 3Y rolling min | +0.07% (never negative) | +14.5% |
-| 10Y rolling avg | 20.5% | — (too new) |
-| Sortino | 2.66 | 2.56 |
-| Beta | 0.55 (half market vol) | — |
-| Max DD | -23.1% | -10.8% |
-| Track record | **13yr** | 5.6yr |
-| TER | 0.62% | 0.39% |
-| International | ~12% (Meta, Alphabet, Microsoft, Amazon) | 5.3% (MSCI World) |
-| Cash/debt | ~21% (deploys opportunistically) | ~23% |
-
-PPFAS has deeper DD (-23% vs -11%) but higher returns AND never negative over any 3Y period. The 21% cash is a feature — Rajeev Thakkar deploys during crashes (COVID DD was -23% vs Nifty -38%).
+| From | To | Amount | When |
+|------|-----|-------:|------|
+| HDFC Multi-Asset | Nippon Small Cap | ₹2L/mo × 5mo | When HDFC MA units allot |
 
 ---
 
-## Full Portfolio After Phase 1 Completes
+## Phase 2: Month 3-6 (July-Sep 2026)
+
+| Action | ₹ | Why |
+|--------|--:|-----|
+| Sell FANG+ ETF | 6.7L | Swap to broader global |
+| Trim Tata Arb (₹15L → ₹10.8L) | 4.2L | Reduce reserves |
+| **Buy ICICI Pru Commodities (add)** | **6.0L** | Total ₹7L + ₹1L done = ₹8L. 3Y MED 25.6% — 3rd best of all funds |
+| **Buy Nippon Taiwan** | **5.0L** | 3Y MED 31.6% — #1 of all funds. ₹5L/mo cap |
+| **Total Phase 2 buys** | **11.0L** | |
+
+---
+
+## Phase 3: Month 6-12 (Oct 2026 - Mar 2027)
+
+| Action | ₹ | Why |
+|--------|--:|-----|
+| Trim LowVol30 (₹15L → ₹5L) | 10.0L | Free capital |
+| **Buy Nippon Multi-Asset** | **5.0L** | 3Y MED 18.9%, -10.8% DD, 5.3% intl. Best risk-adjusted MA |
+| **Buy Kotak Global Innovation** | **5.0L** | 3Y MED 16.8%, US+Japan tech. Starter |
+| **Total Phase 3 buys** | **10.0L** | |
+
+---
+
+## Phase 4: CANCELLED
+
+~~Edelweiss EM, Europe, Greater China~~ — all killed. 3Y rolling median below Nifty 50 benchmark. Not worth the ₹1L/mo cap hassle for sub-benchmark returns.
+
+Capitalmind MA — evaluate after 1yr track record (Apr 2027).
+
+---
+
+## Full Portfolio After All Phases (~24 months)
 
 ### Real Assets (~₹39L, 27-33% with DM Quant)
 
@@ -67,111 +101,105 @@ PPFAS has deeper DD (-23% vs -11%) but higher returns AND never negative over an
 | SGB Dec 2031 | 30.0L |
 | Embassy REIT | 9.1L |
 
-### Reserves (~₹57L, 30%)
+### Reserves (~₹52L, 28%)
 
-| Holding | ₹ | Purpose |
-|---------|--:|---------|
-| HDFC Liquid | 32.0L | Family 1yr burn |
-| Tata Arb | 15.0L | Company emergency (Phase 2 trim candidate) |
-| LowVol30 | 15.0L | Burn backup (Phase 3 trim candidate) |
+| Holding | ₹ |
+|---------|--:|
+| HDFC Liquid | 32.0L |
+| Tata Arb | 10.8L |
+| LowVol30 (half of ₹5L) | 2.5L |
+| Hidden debt in PPFAS (~21% of ₹40L) | 8.4L |
 
-### Growth (~₹95L, 42%)
+### Growth (~₹103L, 42%)
 
-**Domestic:**
+**By 3Y rolling median rank:**
 
-| Holding | ₹ | Strategy |
-|---------|--:|---------|
-| **PPFAS Flexi Cap (NEW)** | **40.0L** | Quality + 12% intl. 18.4% rolling median. Core |
-| Tata Midcap Mom50 | 11.8L | Index momentum |
-| DM Quant stocks | 8.7L | Weekly quant rebalance |
-| Nippon Small Cap (via STP) | building | ₹2L/mo from HDFC MA. Avoids lump sum DD |
-| LowVol30 equity half | 7.5L | Factor equity |
-| ABSL ELSS | 2.8L | Locked |
-| LTIMindtree | 1.0L | +48.6% |
-| Tata Consumer | 0.6L | +28.5% |
+| Fund | ₹ | 3Y MED | Role |
+|------|--:|-------:|------|
+| **Nippon Taiwan** | **5.0L** | **31.6%** | #1 — semiconductor substrates |
+| **Nippon Small Cap** (via STP) | **10.0L** | **26.8%** | #2 — size premium |
+| **ICICI Pru Commodities** | **8.0L** | **25.6%** | #3 — copper, uranium, zinc producers |
+| **PPFAS Flexi Cap** | **40.0L** | **20.3%** | #5 — core, quality + 12% intl |
+| **Nippon Multi-Asset** (equity portion) | **3.2L** | **18.9%** | Best risk-adjusted MA |
+| Tata Midcap Mom50 | 11.8L | 22.0% | Index momentum (keep) |
+| DM Quant stocks | 8.7L | — | System (keep) |
+| Kotak Global Innovation | 5.0L | 16.8% | US+Japan tech |
+| LowVol30 equity (half of ₹5L) | 2.5L | 16.7% | Anchor |
+| ABSL ELSS | 2.8L | — | Locked → Nippon SC |
+| LTIMindtree + Tata Consumer | 1.6L | — | Individual winners |
 
-**DM Quant (₹33L):** Swings real↔growth. Currently gold+liquid (risk-off).
-
-### Systems
-
-| System | ₹ | Status |
-|--------|--:|--------|
-| DM Quant Smallcase | ~33L | Weekly rebalance, risk-off |
-| Tata Midcap Mom50 | 11.8L | Midcap momentum index |
-| LowVol30 | 15.0L | Anchor |
+**DM Quant (₹33L):** Swings real↔growth. System-managed.
 
 ---
 
-## Phase 2: Month 3-6 (July-Sep 2026)
+## International Exposure (after all phases)
 
-| Action | ₹ | Detail |
-|--------|--:|--------|
-| Sell FANG+ ETF | 6.7L | Swap to Kotak Global Innovation (broader) |
-| Trim Tata Arb (₹15L → ₹10.8L) | 4.2L | Reduce reserves |
-| Buy ICICI Pru Commodities | 8.0L | Copper, uranium, zinc producers |
-| Buy Kotak Global Innovation | 2.9L | US tech + healthcare + Japan (starter) |
+| Fund | ₹ | Geography |
+|------|--:|----------|
+| PPFAS intl portion (12% of ₹40L) | 4.8L | US (Meta, Alphabet, Microsoft, Amazon) |
+| Kotak Global Innovation | 5.0L | US + Japan (Wellington fund) |
+| Nippon Taiwan | 5.0L | Taiwan semiconductor supply chain |
+| Nippon MA intl (5.3% of ₹5L) | 0.3L | MSCI World |
+| **Total** | **15.1L = 8%** | |
 
-## Phase 3: Month 6-12 (Oct 2026 - Mar 2027)
-
-| Action | ₹ | Detail |
-|--------|--:|--------|
-| Trim LowVol30 (₹15L → ₹5L) | 10.0L | Free capital for international |
-| Buy Nippon Taiwan | 5.0L | Semiconductor substrates (₹5L/mo cap) |
-| Buy Nippon Japan | 5.0L | Japan reform (₹5L/mo cap) |
-
-## Phase 4: Month 12+ (2027)
-
-| Action | Detail |
-|--------|--------|
-| Start Edelweiss EM STP | ₹1L/mo from parking vehicle |
-| Start Edelweiss Europe STP | ₹1L/mo from parking vehicle |
-| Evaluate Capitalmind MA | Keep or skip based on track record |
+Reduced from 19% (old plan) to 8%. But every fund above Nifty benchmark. Quality over quantity.
 
 ---
 
-## Execution Tracker (Fund Manager Log)
+## Killed Funds (with data justification)
 
-| Date | Action | ₹ | Status |
-|------|--------|--:|--------|
-| Apr 13, 2026 | Sells queued (SILVERCASE, V&M, SGB, Muthoot, GOLDCASE, MAHKTECH, dust) | 62.2L | EXECUTING |
-| Apr 13, 2026 | Buy Embassy REIT | 9.1L | **DONE** |
-| Apr 13, 2026 | Buy HDFC Multi-Asset (parking) | 10.0L | **DONE** |
-| Apr 13, 2026 | Buy PPFAS Flexi Cap | 40.0L | **BUY AS PROCEEDS SETTLE** |
-| TBD | Setup STP: HDFC MA → Nippon SC ₹2L/mo | 10.0L | WAITING (units to allot) |
-| Jul 2026 | Phase 2: FANG+ swap + ICICI Comm + Tata Arb trim | 10.9L | SCHEDULED |
-| Oct 2026 | Phase 3: LowVol30 trim + Taiwan + Japan | 10.0L | SCHEDULED |
-| Apr 2027 | Phase 4: EM + Europe STPs | TBD | SCHEDULED |
+| Fund | 3Y MED | vs Nifty 50 (13.4%) | DD Months | Verdict |
+|------|-------:|:-------------------:|:---------:|---------|
+| Edelweiss Europe | 10.7% | **Below** | 15 | KILLED |
+| Nippon Japan | 8.2% | **Below** | 29 | KILLED |
+| DSP World Gold Mining | 7.6% | **Below** + CLOSED | 88 | KILLED |
+| Kotak Global EM | 6.6% | **Below** | 52 | KILLED |
+| Edelweiss EM | 6.1% | **Below** | 55 | KILLED |
+| DSP World Mining | 12.1% | **Below** + CLOSED | 90 | KILLED |
 
 ---
 
 ## Watch List
 
-| Fund | Trigger |
-|------|---------|
-| ICICI Strategic Metal & Energy FoF | Buy ₹5-10L immediately if reopens |
-| DSP World Mining FoF | Buy ₹5-10L if reopens |
-| HSBC Global EM | Evaluate vs Edelweiss EM if reopens |
-| Capitalmind Multi-Asset | Evaluate after 1yr track record |
+| Fund | 3Y MED | Trigger |
+|------|-------:|--------|
+| ICICI Strategic M&E FoF | 23.7% | Buy ₹5-10L IMMEDIATELY if reopens |
+| Capitalmind Multi-Asset | — | Evaluate Apr 2027 (1yr track record) |
 
 ---
 
-## Key Decisions Made (Audit Trail)
+## Execution Tracker
 
-1. **PPFAS over Tata MA:** 3Y rolling median 18.4% vs 15.3%. Data driven.
-2. **PPFAS over Nippon MA:** 18.4% vs 16.4% rolling median. 13yr vs 5.6yr track record.
-3. **Small cap via STP not lump sum:** Nirant can't hold through -48% DD. STP ₹2L/mo averages in.
-4. **HDFC MA as parking:** Already bought ₹10L. Empties via STP into Nippon SC.
-5. **Phased execution:** Father's advice. Core first, satellites later. Tax-loss harvest Phase 1 (losers offset GOLDCASE gain).
-6. **Costa thesis = US only:** India is net importer of oil+gas. Price controls kill producer margins. Don't replicate in India.
-7. **RBI overseas cap:** Most international FoFs closed. Always verify before recommending.
+| Date | Action | ₹ | Status |
+|------|--------|--:|--------|
+| Apr 13 | Sells queued | 62.2L | EXECUTING |
+| Apr 13 | Embassy REIT | 9.1L | **DONE** |
+| Apr 13 | HDFC MA (parking) | 10.0L | **DONE** — units pending |
+| Apr 15 | ICICI Pru Commodities | 1.0L | **DONE** |
+| Apr 13+ | PPFAS Flexi Cap | 40.0L | **BUY AS PROCEEDS SETTLE** |
+| TBD | STP: HDFC MA → Nippon SC ₹2L/mo | 10.0L | WAITING (units) |
+| Jul 26 | Phase 2: FANG+ swap + ICICI Comm + Taiwan | 11.0L | SCHEDULED |
+| Oct 26 | Phase 3: LowVol30 trim + Nippon MA + Kotak Innov | 10.0L | SCHEDULED |
+
+---
+
+## Key Decisions (Audit Trail)
+
+1. **PPFAS ₹40L over any MA fund:** 20.3% rolling median > Nippon MA 18.9% > Tata MA 17.9%
+2. **ICICI Commodities ₹8L:** 25.6% rolling median, #3 overall. Worst 3Y still +13.5%. Copper+uranium+zinc.
+3. **Nippon Taiwan ₹5L:** 31.6% rolling median, #1 overall. Semiconductor substrates.
+4. **Killed 6 international funds:** All below Nifty 50 benchmark on 3Y rolling median. Data > thesis.
+5. **Small cap via STP:** Nirant can't hold -48% DD. ₹2L/mo from HDFC MA averages in.
+6. **HDFC MA as parking only:** 13.2% rolling median — worst MA fund. Empties to zero.
 
 ---
 
 ## Quarterly Review (10 minutes)
 
-- [ ] PPFAS: check NAV, any fund manager changes?
+- [ ] PPFAS buy complete?
 - [ ] HDFC MA → Nippon SC STP running?
-- [ ] DM Quant: rotated to equities yet?
-- [ ] Phase on track? What's next?
-- [ ] Any closed FoFs reopened?
-- [ ] March: tax-loss harvest losers
+- [ ] Phase on track?
+- [ ] ICICI Strategic M&E FoF reopened?
+- [ ] DM Quant: rotated to equities?
+- [ ] March: tax-loss harvest
+- [ ] Run `uv run python india/scripts/mf_compare.py` — check if rankings shifted
