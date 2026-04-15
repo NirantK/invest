@@ -8,6 +8,12 @@ Data-driven. All allocation decisions based on 3Y rolling MEDIAN returns from mf
 
 ---
 
+## Accounting Note: LowVol30
+
+LowVol30 (ICICI Alpha Low-Volatility 30 FOF, ₹32.6L) is an equity fund tracking Nifty Alpha Low-Vol 30 Index (19% CAGR backtested over 20yr, 4.6% alpha over Nifty 50). BUT it serves as burn backup / anchor in this portfolio. Counted as **50% reserves + 50% growth** for Talmud split. FOF drag over index fund = only 0.11%/yr (₹1L over 10yr on ₹32.6L — negligible). Keep it.
+
+---
+
 ## The Data (3Y Rolling Median, sorted)
 
 | Fund | 3Y MED | 3Y Min | Max DD | DD Mo | Open? | Action |
