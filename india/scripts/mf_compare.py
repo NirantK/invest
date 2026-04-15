@@ -53,6 +53,11 @@ UNIVERSE = {
     # Hybrid
     "ICICI Pru BAF": 120377,
     "PPFAS Cons Hybrid": 145455,
+    # Commodity / Resources
+    "SBI COMMA": 119705,
+    "HDFC Value": 118935,
+    "DSP Natural Resources": 119028,
+    "Tata Resources & Energy": 120697,
     # Benchmark
     "UTI Nifty 50": 120716,
     # International / Niche FoFs
