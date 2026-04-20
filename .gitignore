@@ -164,3 +164,9 @@ cython_debug/
 data/us/price_cache/
 data/india/mf_nav_cache/
 
+us/data/sweep_results_us.pkl
+*.pkl
+*.pkl
+us/data/price_cache/
+us/data/sweep_results*
+us/data/mf_nav_cache/

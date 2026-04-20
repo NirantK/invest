@@ -1,0 +1,2119 @@
+{
+  "run_id": "trun_7beee9e19d69444c823e8dfd7629c390",
+  "result_url": "https://platform.parallel.ai/play/deep-research/trun_7beee9e19d69444c823e8dfd7629c390",
+  "status": "completed",
+  "output": {
+    "basis": [
+      {
+        "field": "profitability_from_silver_segment",
+        "reasoning": "The requested finegrained field value specifies that the EBIT contribution from the precious metal (silver) for FY25 is 38%. Several excerpts present a line of figures under the heading related to the contribution of precious metals to EBIT, with the sequence including 41, 28, 27, 45, and 38. The value 38 appears in these lines, directly aligning with the requested FY25 EBIT contribution percentage. Excerpts that list these percentages in the same table provide the strongest corroboration for the specific FY25 figure and thus are most relevant. The other excerpts mention silver-related metrics such as production volumes, refinery upgrades, or overall margins, which contextualize profitability but do not provide the exact FY25 EBIT contribution percentage, so they are less directly supportive. Taken together, the most relevant content is the explicit presentation of a series of EBIT contribution percentages that includes the 38% figure for FY25, with slightly less direct support from nearby lines that also present the same table values.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "ontribution of Precious Metal in EBIT**\n(%",
+              "38",
+              "45",
+              "41",
+              "28",
+              "27"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "stock_price_correlation_with_silver",
+        "reasoning": "The analysis hinges on linking Hindustan Zinc's stock performance and profitability to its metal mix, where zinc is the primary driver and silver acts as a meaningful byproduct. Excerpt describing the contribution of precious metals to EBIT with a quantified share (38% for silver) directly supports the claim that silver contributes significantly to profitability, albeit as a secondary driver to zinc. Excerpts that report silver production volumes (for example, tonnes refined and annual production figures) provide observable trends that can explain how silver byproduct volume interacts with revenue and margins, which in turn can influence stock price sensitivity to silver prices. Corporate investor materials that label Hindustan Zinc as a leading silver producer and emphasize expansion of silver production underpin the qualitative view of silver as a meaningful kicker rather than the primary earnings driver. Financial results and margins discussion illustrate resilience and cost management that help explain stock price behavior in response to metal price movements. When linking to the user\u2019s statement about silver contributing to revenue around 18% and EBIT around 38% in FY25, the excerpts that explicitly contain or imply these figures (and related production and revenue breakdowns) are the most directly supportive. Additional context from later-year production data and investor presentations about the company\u2019s multi-metal exposure reinforces the narrative of zinc-led profitability with silver as a secular contributor, rather than a pure-play silver bet. Taken together, these sources form a coherent narrative: zinc drives core earnings and stock value, silver adds a sizable margin and revenue kicker, and the relationship is qualitatively positive but secondary to zinc dynamics. ",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n",
+              "**India\u2019s largest and**\n**only integrated**\nzinc, zinc alloy, lead and silver\nproducer with mining & smelting\nfacilities in Rajasthan",
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu",
+              "ontribution of Precious Metal in EBIT**\n(%",
+              "41",
+              "28",
+              "27",
+              "45",
+              "38"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT",
+              "Target of\nreaching **1,000**\n**MT** through\nintermediately\n(Fumer route) &\n**1,500 MT** with 2\nMtpa metal"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Dec2024_522fcf30a9.pdf",
+            "excerpts": [
+              "FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.4%. Yo. Y: >5%. 917. 972. 1017. 10621079. 1100-. 1125. FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.2%. Yo. Y: >3%. Note:",
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "Amid a challenging environment, marked by softened metal prices, Hindustan Zinc continued to maintain its margin, underlining its inherent resilience. Sustained cost reduction was a key contributor to the Company\u2019s success in keeping its margin at a steady 47%. Hindustan Zinc clocked the lowest cost in the last three years during FY 2023-24, underscoring its decision-making agility. Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies.",
+              "Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies."
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "https://www.thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              "Hindustan Zinc mined metal production up 2% in 2025-26\n1 hour ago \u2014 Hindustan Zinc's metal production rose 2% in 2025-26, while silver output decreased by 9%, driven by higher ore quality."
+            ],
+            "title": "Hindustan Zinc mined metal production up 2% in 2025-26"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24/key-performance-indicators.php",
+            "excerpts": [
+              "Hindustan Zinc clocked the lowest cost in the last three years during FY 2023-24, underscoring its decision-making agility. Maximisation of silver production to",
+              "Hindustan Zinc clocked the lowest cost in the last three years during FY 2023-24, underscoring its decision-making agility. Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies."
+            ],
+            "title": "Key Performance Indicators"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "hindustan_zinc_silver_operations_overview",
+        "reasoning": "The most directly relevant pieces establish the core facts about silver as a byproduct and the scale of HZL\u2019s silver operations. A table showing refined silver production in tonnes directly supports the claim that HZL produces substantial silver volumes and trackable yearly figures. A companion note listing saleable silver production in tonnes corroborates the same trend and provides year-by-year context that aligns with the stated FY20\u2013FY26 trajectory. A separate excerpt confirms a notable production milestone of 714 tonnes, matching the historical production context that underpins growth discussions and annual fluctuations. Details about silver refinery capacity (Pantnagar, commissioned) give concrete evidence of dedicated infrastructure for silver recovery, which reinforces the interpretation of silver as a strategic byproduct rather than merely incidental. Excerpts describing silver\u2019s revenue contribution across FY23\u2013FY25 (and the related growth percentages) substantiate the claim that silver revenue forms a meaningful portion of total revenue and its increasing share, which is essential to the valuation of the silver operations within the group. Supporting context about the company\u2019s ranking as a leading and integrated producer, as well as ongoing expansion plans to reach higher silver volumes (e.g., targets of 1,000 MT and beyond) enriches the narrative that silver is a core, growing byproduct segment. The EBIT contribution excerpts, while more about financial impact than physical production, corroborate the economic importance of precious metals (including silver) in the company\u2019s profitability mix. Finally, broader investor presentation content that highlights the integrated nature of the business and the silver-byproduct dynamics provides contextual alignment with the production and revenue figures. ",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n",
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "45",
+              "ontribution of Precious Metal in EBIT**\n(%"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Silver\n4,382",
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT",
+              "Target of\nreaching **1,000**\n**MT** through\nintermediately\n(Fumer route) &\n**1,500 MT** with 2\nMtpa metal"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Dec2024_522fcf30a9.pdf",
+            "excerpts": [
+              "12:** New **silver refinery** at\nPantnagar with capacity of **500 MT**\ncommissioned",
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "recommended_strategy_for_silver_exposure",
+        "reasoning": "- Excerpts describing a specific silver ETF (SILVERBEES and SILVERCASE) provide direct evidence about how pure silver exposure can be achieved in India, including the mechanism (physical silver backing), transparency of holdings and costs (TER), liquidity, and typical unit composition. These excerpts support the portion of the field value that endorses silver ETFs as the direct route for pure silver beta and low-cost exposure, clarifying why ETFs are recommended for investors seeking domestic silver price exposure.- Excerpts detailing the ETF's structure and performance notes, such as the ETF\u2019s performance data, portfolio composition, and explicit statements like one unit approximating one gram of silver, reinforce the argument for ETFs as a transparent, trackable vehicle to silver prices, supporting the recommendation to favor ETFs for pure exposure.- Excerpts describing Hindustan Zinc as a major silver producer and discussing plans to expand silver production (to 1,000-1,500 MT) and the role of silver in EBIT or margins provide the complementary view of using HZL stock as a hybrid exposure. These excerpts justify the alternative path in the strategy (hybrid exposure via a mining company) and explain the associated risks and potential alpha from operational leverage, while noting that HZL is not a pure silver proxy.- Additional excerpts from investor presentations and annual reports that emphasize Hindustan Zinc\u2019s status as a large integrated producer of zinc, lead, and silver, and that highlight silver production figures, reinforce the contextual basis for considering HZL as an indirect silver exposure vehicle, including the potential impact of zinc dynamics on the stock.- Broader coverage about Hindustan Zinc\u2019s scale, ranking, and silver-focused milestones provides supporting context for the comparative dimension of the strategy (how a mining company fits into a silver exposure plan), but these are less directly prescriptive about the recommended choice compared to ETF-specific details.- Overall, the most compelling support for the recommended_strategy_for_silver_exposure field value lies in precise ETF mechanics and benefits, followed by Hindustan Zinc\u2019s silver-byproduct and production trajectory as an alternative path, with broader corporate context offering supportive but less-direct justification.",
+        "citations": [
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "SILVER 999 ( in Kg)\"\n98.57%",
+              "Cash and Other Receivables\n1.43%",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026",
+              "27,822\n179.00\n40,484\n59.38\nNA\nNA\n41,225\n41.61",
+              "Portfolio as on 28th February, 2026"
+            ],
+            "title": "Nippon India Silver ETF"
+          },
+          {
+            "url": "https://www.prnewswire.com/ae/news-releases/hindustan-zincs-3q-pat-zooms-46-yoy-clocks-highest-ever-us-440-million-backed-by-record-revenue-ebitda-302665060.html",
+            "excerpts": [
+              "Hindustan Zinc's 3Q PAT zooms 46% YoY, clocks highest-ever US ...\n20 Jan 2026 \u00b7 The company recorded its best-ever 3Q revenue of US$ 1,232 million, up 28% QoQ and 27% YoY. It also delivered record EBITDA of US$ 683 million,"
+            ],
+            "title": "Hindustan Zinc's 3Q PAT zooms 46% YoY, clocks highest-ever US ..."
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n",
+              "\nSilver production declined by 0.2 per cent to 176 tonnes during Q4 2025-26 (177 tonnes in Q4 2024-25).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver production was down 9 per cent at 627 tonne (687 tonne).",
+              "Silver output also dipped marginally to 176 tonne (177 tonne) even as prices remained volatile."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Dec2024_522fcf30a9.pdf",
+            "excerpts": [
+              "FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.4%. Yo. Y: >5%. 917. 972. 1017. 10621079. 1100-. 1125. FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.2%. Yo. Y: >3%. Note:",
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**",
+              "12:** New **silver refinery** at\nPantnagar with capacity of **500 MT**\ncommissioned",
+              "Increment in Silver to 1,000 Tonne",
+              "**Silver**\n**expansion:**\nTarget of\nreaching **1,000**\n**MT**\nintermediately\n(Fumer route) &\n**1,500 MT** with 2\nMtpa metal"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Investor Presentation. Page 2. 2. Cautionary Statement and Disclaimer. The ... FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.2%. Note: CAGR is for period FY20 to",
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**\n\u2022",
+              "Fully integrated **India\u2019s only zinc** **-lead-silver producer**\nw",
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT",
+              "Target of\nreaching **1,000**\n**MT** through\nintermediately\n(Fumer route) &\n**1,500 MT** with 2\nMtpa metal"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              "Hindustan Zinc mined metal production up 2% in 2025-26\n1 hour ago \u2014 Hindustan Zinc's metal production rose 2% in 2025-26, while silver output decreased by 9%, driven by higher ore quality."
+            ],
+            "title": "Hindustan Zinc mined metal production up 2% in 2025-26"
+          },
+          {
+            "url": "https://finance.yahoo.com/quote/SILVERBEES.NS",
+            "excerpts": [
+              "Nippon India Silver ETF (SILVERBEES.NS)"
+            ],
+            "title": "Nippon India Silver ETF (SILVERBEES.NS)"
+          },
+          {
+            "url": "http://en.wikipedia.org/wiki/Hindustan_Zinc",
+            "excerpts": [
+              "**Hindustan Zinc Limited** ( **HZL** ) is an Indian integrated mining and resources producer of zinc , lead , silver and cadmium .",
+              "Revenue |\u20b9 34,083 crore (US$4.0 billion) (2025)"
+            ],
+            "title": "Hindustan Zinc - Wikipedia"
+          },
+          {
+            "url": "http://sciencebasedtargets.org/companies-taking-action/case-studies/hindustan-zinc-limited",
+            "excerpts": [
+              "Hindustan Zinc Limited (HZL) is India's largest and the world's second largest zinc-lead mining company.",
+              "Globally, HZL is among the top ten silver producers"
+            ],
+            "title": "Hindustan Zinc case study \u2013 Science Based Targets"
+          },
+          {
+            "url": "http://zoominfo.com/c/hindustan-zinc-ltd/39389448",
+            "excerpts": [
+              "- India based Hindustan Zinc Limited, a Vedanta Group company and the world's largest integrated zinc producer,",
+              "Hindustan Zinc, established in 1966, is a prominent integrated mining and resources producer based in India. The company specializes in extracting and processing essential metals like zinc, lead, silver, and cadmium."
+            ],
+            "title": "ZoomInfo Profile for Hindustan Zinc Ltd"
+          },
+          {
+            "url": "http://m.economictimes.com/industry/indl-goods/svs/metals-mining/vedanta-unit-hindustan-zincs-posts-higher-production-of-mined-metal-refined-metal-in-q4-silver-output-slips/articleshow/129995805.cms",
+            "excerpts": [
+              "Vedanta unit Hindustan Zinc posts higher production of mined metal, refined metal in Q4; silver output slips"
+            ],
+            "title": "Economic Times article on Hindustan Zinc Q4 FY26 results"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "impact_of_silver_price_on_financials",
+        "reasoning": "The most direct support comes from statements that quantify the share of earnings attributed to precious metals in EBIT, with explicit percentages for multiple fiscal years. This clearly ties the silver byproduct to profitability and the bottom-line sensitivity to silver prices. The accompanying figures illustrate how silver contributes a meaningful portion of EBIT, highlighting the material leverage that price moves in silver can have on overall financial performance. Additional excerpts describe management\u2019s explicit strategy to maximise silver production to leverage rising silver prices, which strengthens the argument that silver price movements have a positive and material impact on margins and earnings. Contextual details about silver production volumes and refinery capacity further reinforce the scale of silver as a byproduct and its potential impact on financial metrics, even though the exact price-to-EPS sensitivity is not itemized. The excerpts that note margins remaining robust and the company\u2019s focus on leveraging silver prices for better performance provide supportive context that the EBITDA/EBIT linkage to silver prices is a strategic and ongoing dynamic. In sum, the strongest pieces show quantified EBIT contributions by precious metals and management emphasis on price-driven profitability, while supportive pieces describe production scale and margin resilience that underpin that relationship.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "ontribution of Precious Metal in EBIT**\n(%",
+              "41",
+              "Hindustan Zinc Limited\nIntegrated Annual Report \u00b7 Digital Integrated Annual Report \u00b7 Tax Transparency Report \u00b7 Sustainability Report \u00b7 Climate Action Report \u00b7 Taskforce on Nature -\u00a0...Read more",
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "Amid a challenging environment, marked by softened metal prices, Hindustan Zinc continued to maintain its margin, underlining its inherent resilience. Sustained cost reduction was a key contributor to the Company\u2019s success in keeping its margin at a steady 47%. Hindustan Zinc clocked the lowest cost in the last three years during FY 2023-24, underscoring its decision-making agility. Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies.",
+              "Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies."
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Dec2024_522fcf30a9.pdf",
+            "excerpts": [
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**",
+              "12:** New **silver refinery** at\nPantnagar with capacity of **500 MT**\ncommissioned"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes",
+        "reasoning": "The most relevant excerpt provides a clear, multi-year table of refined silver tonnes, listing exact figures (706, 647, 714, 746, 687), which directly aligns with the requested silver production volumes across multiple FY years and supports the notion of how the production has trended over time. The next highly relevant excerpt states a concrete FY2024 production figure of 746 MT, directly confirming a specific year in the dataset. Additional excerpts report a specific annual production outcome (e.g., 714 MT) and broader statements about silver production levels, which corroborate the year-by-year trend and provide further evidence for the sequence of FY20\u2013FY26 production volumes. Other excerpts discuss related metrics (e.g., EBIT contributions from precious metals, refinery capacity, or ancillary outputs) but do not provide direct, year-specific production figures for silver, so they are less supportive for the numeric field in question. Together, these excerpts form a coherent set of direct production numbers and corroborating statements that map onto the requested yearly production volumes for silver.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n",
+              "\nSilver production declined by 0.2 per cent to 176 tonnes during Q4 2025-26 (177 tonnes in Q4 2024-25).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver production was down 9 per cent at 627 tonne (687 tonne).",
+              "Silver output also dipped marginally to 176 tonne (177 tonne) even as prices remained volatile."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "company_guidance_on_silver",
+        "reasoning": "The fine-grained field value centers on Hindustan Zinc's guided silver production expansion, including intermediate-term targets (1,000 MT/year) and long-term targets (1,500 MT/year), plus contextual evidence about recent production levels and historical growth. The most directly relevant excerpt explicitly states the target to reach 1,000 MT via an intermediate route and 1,500 MT with 2 Mtpa of metal, aligning exactly with the proposed guidance. Supporting this, a second excerpt provides a historical trajectory of silver production in tonnes, listing yearly figures including a high-water mark around 746 MT, which substantiates the company\u2019s capacity and growth narrative that underpins the stated guidance. A third excerpt corroborates the FY24 production level (746 MT), reinforcing the recent performance context that underpins the guidance story. Additional excerpts from investor presentations describe Hindustan Zinc as a leading silver producer and discuss the broader silver strategy and refinery developments, providing background that explains why management would pursue and communicate such ambitious production targets. These context pieces help connect the quantitative targets to the company\u2019s strategic initiatives, technology, and capacity expansion plans that the guidance relies upon. Overall, the strongest support comes from the explicit targets, followed by production figures that illustrate the trajectory the guidance intends to achieve, with supporting context from investor materials about the company\u2019s silver position and expansion efforts.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Target of\nreaching **1,000**\n**MT** through\nintermediately\n(Fumer route) &\n**1,500 MT** with 2\nMtpa metal",
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Dec2024_522fcf30a9.pdf",
+            "excerpts": [
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**",
+              "FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.4%. Yo. Y: >5%. 917. 972. 1017. 10621079. 1100-. 1125. FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.2%. Yo. Y: >3%. Note:",
+              "12:** New **silver refinery** at\nPantnagar with capacity of **500 MT**\ncommissioned"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "hindustan_zinc_stock_as_investment",
+        "reasoning": "The most relevant passages quantify how much silver contributes to Hindustan Zinc\u2019s earnings mix and profitability. Specifically, the excerpts show that precious metals (primarily silver) have a persistent role in EBIT contribution ratios, with figures indicating substantial percentages of EBIT and highlighting silver as a high-margin byproduct driver. Other passages demonstrate that Hindustan Zinc is aiming to maximize silver production, with explicit targets to reach 1,000 MT in the medium term and 1,500 MT in the longer term, supported by process expansions and refining capacity. Production volumes for silver are reported in tonnes for several fiscal years, illustrating the historical scale and fluctuations (714 MT in FY23, 746 MT in FY24, 687 MT in FY25, and around 627 MT in FY26). Taken together, these data points support the view that investing in HZL stock provides an exposure to silver that is amplified by profitability and operational leverage, rather than a pure-play silver investment. Additional context from investor presentations and annual reports reinforces the narrative that Hindustan Zinc is a major silver producer with dedicated capacity expansion plans, which aligns with the hypothesis of silver-driven impact on the stock\u2019s performance. The external reporting notes that Hindustan Zinc is a leading silver producer and that its revenue mix includes silver as a meaningful contributor, with an emphasis on production growth and efficiency improvements that affect margins. Consequently, the selected excerpts collectively substantiate the finegrained field value that HZL stock offers an indirect, leveraged silver exposure through its byproduct silver stream, with revenue share and profitability tied to silver prices and production volumes, and with management guiding for continued silver volume expansion.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n",
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "ontribution of Precious Metal in EBIT**\n(%",
+              "41",
+              "28",
+              "27",
+              "45"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Dec2024_522fcf30a9.pdf",
+            "excerpts": [
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**",
+              "12:** New **silver refinery** at\nPantnagar with capacity of **500 MT**\ncommissioned",
+              "**Silver**\n**expansion:**\nTarget of\nreaching **1,000**\n**MT**\nintermediately\n(Fumer route) &\n**1,500 MT** with 2\nMtpa metal"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT",
+              "Target of\nreaching **1,000**\n**MT** through\nintermediately\n(Fumer route) &\n**1,500 MT** with 2\nMtpa metal"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver output also dipped marginally to 176 tonne (177 tonne) even as prices remained volatile."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production",
+              "Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies.",
+              "Amid a challenging environment, marked by softened metal prices, Hindustan Zinc continued to maintain its margin, underlining its inherent resilience. Sustained cost reduction was a key contributor to the Company\u2019s success in keeping its margin at a steady 47%. Hindustan Zinc clocked the lowest cost in the last three years during FY 2023-24, underscoring its decision-making agility. Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies."
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "indian_silver_etfs_analysis",
+        "reasoning": "The fine-grained field value describes two Indian silver ETFs with their respective identifiers: Nippon India Silver ETF (SILVERBEES) managed by Nippon India Mutual Fund, and Zerodha Silver ETF (SILVERCASE) managed by Zerodha Fund House. It lists inception dates, expense ratios, and returns across different horizons. Excerpts that originate from Nippon India Silver ETF documentation provide direct evidence for the ETF\u2019s inception date (February 2, 2022), the fact that the fund trades under the ticker SILVERBEES, and that the expense ratio information is present (0.0% in one excerpt), along with performance figures such as 1-year and 3-year (CAGR) returns. Additional excerpts describe the fund\u2019s performance metrics and portfolio composition, including a breakdown of holdings and the structure of the ETF (e.g., \u201cPortfolio as on 28th February, 2026\u201d and \u201cSILVER 999 (in Kg) 98.57%\u201d). These excerpts concretely map to the field value\u2019s components: ETF name, ticker, fund manager, inception date, expense ratio, and returns. Separately, excerpts about Zerodha\u2019s Silver ETF (SILVERCASE) provide the inception date (March 26, 2025), and the expense ratio (0.33%), along with general notes about the ETF\u2019s purpose and domestic silver replication. The combination of these excerpts directly supports the existence, identifiers, and performance-related attributes of the two specified ETFs, matching the field value\u2019s level of detail. Other excerpts either discuss Hindustan Zinc corporate details or ETF context (e.g., other silver funds, market commentary) but do not provide the explicit cross-links (ticker, inception date, expense ratio, and returns) needed to confirm the exact fine-grained field value, so they are considered less directly relevant.",
+        "citations": [
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026",
+              "27,822\n179.00\n40,484\n59.38\nNA\nNA\n41,225\n41.61",
+              "Portfolio as on 28th February, 2026",
+              "SILVER 999 ( in Kg)\"\n98.57%",
+              "Cash and Other Receivables\n1.43%",
+              "One unit = Approx 1 gram of Silver"
+            ],
+            "title": "Nippon India Silver ETF"
+          },
+          {
+            "url": "https://cbonds.com/etf/252571/",
+            "excerpts": [
+              "Main exchange is National Stock Exchange of India and ticker symbol is SILVERCASE . The total expense ratio is 0.33%. The Zerodha Silver ETF (INR) pays dividends",
+              "0.33 %\nTotal Cost Ratio",
+              "26/03/2025\nInception Date",
+              "SILVERCASE\nTicker",
+              "The total expense ratio is 0.33%.",
+              "The Zerodha Silver ETF seeks to replicate the domestic price of Silver"
+            ],
+            "title": "SILVERCASE - Zerodha Silver ETF (INR), INF0R8F01091"
+          },
+          {
+            "url": "https://finance.yahoo.com/quote/SILVERBEES.NS",
+            "excerpts": [
+              "Nippon India Silver ETF (SILVERBEES.NS)"
+            ],
+            "title": "Nippon India Silver ETF (SILVERBEES.NS)"
+          },
+          {
+            "url": "https://www.prnewswire.com/ae/news-releases/hindustan-zincs-3q-pat-zooms-46-yoy-clocks-highest-ever-us-440-million-backed-by-record-revenue-ebitda-302665060.html",
+            "excerpts": [
+              "Hindustan Zinc's 3Q PAT zooms 46% YoY, clocks highest-ever US ...\n20 Jan 2026 \u00b7 The company recorded its best-ever 3Q revenue of US$ 1,232 million, up 28% QoQ and 27% YoY. It also delivered record EBITDA of US$ 683 million,"
+            ],
+            "title": "Hindustan Zinc's 3Q PAT zooms 46% YoY, clocks highest-ever US ..."
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "overview_of_silver_investment_in_india",
+        "reasoning": "The chosen excerpts collectively map to the proposed investment avenues. Excerpt describing the share of earnings from precious metals shows the exact EBIT contribution percentages for the relevant fiscal year, directly supporting the claim that silver significantly contributes to Hindustan Zinc\u2019s margins, which underpins the indirect exposure via HZL stock. Excerpts detailing silver refinery capacity and expansion plans (Pantnagar refinery, and expansion targets up to 1,000 MT interim and 1,500 MT long-term) provide concrete evidence of silver\u2019s amplifying role within Hindustan Zinc\u2019s production profile, reinforcing the case for silver-driven dynamics within the stock. Production quantity data (_refined silver production in tonnes_ and annual volumes) corroborate the scale of silver output that contributes to the company\u2019s overall earnings and by-product value, further supporting the \u201cindirect exposure via stock\u201d narrative. On the ETF side, excerpts about Nippon India Silver ETF (SILVERBEES) and Zerodha Silver ETF (SILVERCASE) describe how these funds are designed to track domestic silver prices, the structure of the holdings (e.g., SILVERBEES\u2019 portfolio composition, and SILVERCASE\u2019s unit construct), and the unit-to-silver conversion (one unit \u2248 one gram of silver). These details directly back the claim that ETFs provide a direct, clean, and tradable exposure to domestic silver prices, with transparent costs and liquidity characteristics. Additional ETF-related excerpts showing the proportion of physical silver in the ETF portfolios and the overall fund narrative reinforce the suitability of ETFs for direct silver exposure in India. The ETF-focused excerpts are placed after the strongest Hindustan Zinc-specific evidence since they establish the two parallel routes (indirect via stock and direct via ETFs) as practical investment paths. The least direct, but still supportive, items include broader production and performance tables that illustrate the silver-associated metrics in Hindustan Zinc\u2019s annual presentation deck and related summaries, which help contextualize why silver exposure via HZL makes sense in a diversified metals portfolio.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Dec2024_522fcf30a9.pdf",
+            "excerpts": [
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**",
+              "12:** New **silver refinery** at\nPantnagar with capacity of **500 MT**\ncommissioned"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT",
+              "Target of\nreaching **1,000**\n**MT** through\nintermediately\n(Fumer route) &\n**1,500 MT** with 2\nMtpa metal"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "SILVER 999 ( in Kg)\"\n98.57%",
+              "Portfolio as on 28th February, 2026",
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026",
+              "27,822\n179.00\n40,484\n59.38\nNA\nNA\n41,225\n41.61",
+              "Cash and Other Receivables\n1.43%"
+            ],
+            "title": "Nippon India Silver ETF"
+          },
+          {
+            "url": "https://www.thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              "Hindustan Zinc mined metal production up 2% in 2025-26\n1 hour ago \u2014 Hindustan Zinc's metal production rose 2% in 2025-26, while silver output decreased by 9%, driven by higher ore quality."
+            ],
+            "title": "Hindustan Zinc mined metal production up 2% in 2025-26"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_revenue_contribution",
+        "reasoning": "The field value you provided is a structured list of silver revenue figures for FY23, FY24, and FY25, each paired with Hindustan Zinc's total revenue and the resulting contribution percentage. The most directly relevant excerpt is the one described as summarizing the disaggregated revenue from contracts with customers, which is the explicit source for year-by-year breakdowns of revenue components and would contain the silver revenue figures and total revenue figures needed to compute the contribution percentage. Supporting value is found in a separate excerpt from the Hindustan Zinc investor deck that presents total revenue figures (for FY2023/FY2024/and the implied FY2025 context) which provides the denominator for the contribution calculation and confirms the scale of total revenue against which silver revenue sits. Another supporting excerpt offers the total revenue figure for FY2024, reinforcing the total revenue side of the ratio for that year and helping anchor the year-by-year comparison. Additional excerpts discuss the broader context of precious metal contributions to EBIT and the role of silver within Hindustan Zinc\u2019s earnings mix; while they do not provide the exact silver revenue numbers, they corroborate that silver is a significant contributor to earnings and is treated as a discrete revenue component in financial disclosures. Taken together, these excerpts collectively support the existence of annual silver revenue figures and their relation to total revenue, enabling the calculation of the contribution percentages shown in the finegrained field value. The most direct support is the disaggregated revenue table reference, followed by corroborating total revenue figures from investor materials and the broader context of precious metal contributions to earnings.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu",
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "41"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "performance_comparison_hzl_vs_etfs",
+        "reasoning": "The fine-grained field value seeks a direct, long-term performance comparison between Hindustan Zinc (HZL) stock and Indian silver ETFs, drawing on the provided data to form insights on relative returns. The most directly relevant material comes from the Nippon India Silver ETF excerpts, which provide explicit return metrics: a 1-year return around 179.00%, a 3-year CAGR about 59.38%, and a since-inception CAGR near 41.61% as of February 28, 2026. These figures establish a concrete benchmark for silver ETF performance and are the core reference for any silver-exposure comparison. Additional ETF details, such as the fund\u2019s exposure metrics (for example the composition and unit structure) reinforce the interpretation that this data tracks the domestic price of physical silver, which is essential when benchmarking against a single stock\u2019s performance channel (HZL), whose returns are driven by a mix of metal prices (zinc, lead, silver), volumes, margins, and corporate actions rather than the ETF\u2019s pure silver price tracking. The accompanying ETF documentation further confirms that the ETF is a vehicle for silver price exposure rather than a stock-based proxy, which supports using ETF performance as a proxy for silver price-driven returns rather than stock-specific movements. In constraining the comparison data, Hindustan Zinc-related excerpts provide context on the company\u2019s silver production and the contribution of precious metals to EBIT, illustrating that HZL\u2019s returns are influenced by production volumes, margins, and byproduct silver dynamics, rather than a straightforward price-tracking path like the ETF. Investor presentations and annual/deck data quantify the scale and strategic position of HZL (e.g., being a major integrated silver producer with expansion and efficiency measures), which helps interpret how stock returns might diverge from silver ETF returns due to operational, regulatory, and macro factors. In sum, the strongest, most actionable evidence for a long-term performance comparison lies in the silver ETF return metrics, while the Hindustan Zinc materials provide essential context for understanding the stock\u2019s drivers but do not present an equivalent, consolidated long-term return figure for a direct, apples-to-apples comparison with the ETF. The synthesis thus indicates that ETF-based silver exposure has demonstrated robust historical returns over multiple horizon lengths, whereas HZL\u2019s stock returns require separate, horizon-aligned calculations that are not fully provided in the excerpts. This leads to a conclusion that a direct, long-term numerical comparison is constrained by the data, but qualitative insights point to silver ETFs delivering price-tracking silver exposure and HZL delivering equity returns driven by broader corporate performance. For a rigorous comparison, one would align horizons (e.g., 3-year CAGR) and compute total returns for HZL over the same period, then contrast with the ETF\u2019s 3-year CAGR reference. Given the data at hand, the most substantiated claim is that silver ETFs have posted high historical returns over the 3-year window, while HZL lacks a directly comparable, consolidated long-term return figure within these excerpts. This supports a cautious, medium-confidence assessment of the requested field, with a need for explicit consolidated HRL return figures to firm up a precise numeric comparison.",
+        "citations": [
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026",
+              "27,822\n179.00\n40,484\n59.38\nNA\nNA\n41,225\n41.61",
+              "Portfolio as on 28th February, 2026",
+              "SILVER 999 ( in Kg)\"\n98.57%",
+              "Cash and Other Receivables\n1.43%",
+              "One unit = Approx 1 gram of Silver"
+            ],
+            "title": "Nippon India Silver ETF"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Dec2024_522fcf30a9.pdf",
+            "excerpts": [
+              "FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.4%. Yo. Y: >5%. 917. 972. 1017. 10621079. 1100-. 1125. FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.2%. Yo. Y: >3%. Note:",
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Investor Presentation. Page 2. 2. Cautionary Statement and Disclaimer. The ... FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.2%. Note: CAGR is for period FY20 to",
+              "Fully integrated **India\u2019s only zinc** **-lead-silver producer**\nw",
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              "Hindustan Zinc mined metal production up 2% in 2025-26\n1 hour ago \u2014 Hindustan Zinc's metal production rose 2% in 2025-26, while silver output decreased by 9%, driven by higher ore quality."
+            ],
+            "title": "Hindustan Zinc mined metal production up 2% in 2025-26"
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver output also dipped marginally to 176 tonne (177 tonne) even as prices remained volatile."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "profitability_from_silver_segment.ebit_contribution_percentage",
+        "reasoning": "The precise figure for the ebit contribution percentage from the precious metal (silver) segment is 38.0, as shown by an excerpt that presents the value explicitly as '38'. This directly supports the target field value for profitability_from_silver_segment.ebit_contribution_percentage. Another excerpt presents a line that lists multiple percentage values for the same metric (e.g., a sequence like 41, 28, 27, 45, 38), which includes the target value 38, indicating consistency of the 38% figure within the same metric across different contexts or slides. Together, these excerpts corroborate that the 38% figure is the relevant ebit contribution percentage for the silver segment. The direct mention of '38' provides the strongest support, while the concatenated line with multiple percentages corroborates the presence of 38 in the same metric, albeit with less precision about its standalone assertion.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "38",
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.4",
+        "reasoning": "The precise FY24 production value of 746 tonnes is directly stated in the excerpt that explicitly references FY 2024 production as 746 MT. This is the strongest direct support for the target field value. A second excerpt presents a broader list of refined silver production figures with a sequence that includes a 746 MT figure, reinforcing that this value is part of the FY24 output series, though it is embedded among other yearly figures. The remaining excerpts discuss other years or different production figures (e.g., 714 MT, 627 MT, 176 MT in various periods), which do not match the target FY24 value and thus provide only peripheral context. Therefore, the first excerpt provides direct, unambiguous support, while the second excerpt corroborates the vicinity of FY24 figures within the same production series. The emphasis is on FY24 production for Hindustan Zinc and the stated figure of 746 tonnes, with the year-over-year growth (4.48%) appearing as contextual metadata that aligns with the FY24 figure in the broader production narrative.\n",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.2",
+        "reasoning": "The target value specifies FY22 production at 647 tonnes and a year-over-year decline of 8.36%. The most directly relevant excerpt is one that lists a sequence of silver production figures including 647, which aligns with FY22 in the expected year sequence. This excerpt provides the exact production figure that matches the requested FY22 value and implies a downward trend when viewed in the surrounding figure sequence. The next-most-relevant excerpts give corroborating production figures for adjacent fiscal years: 714 MT for FY23 and 746 MT for FY24, which help situate FY22 within the historical trajectory and support the notion of a year-over-year change around that period. They do not, by themselves, state the FY22 figure or the YoY percentage, but they anchor the trend context around FY22. The remaining excerpts describe later periods (e.g., 627 MT in 2025-26 and 176 MT in Q4 2025-26), which are contextually related to Hindustan Zinc\u2019s silver output but do not directly corroborate the FY22 value or its YoY percentage. Taken together, the excerpts collectively support the concept of a multi-year sequence of silver production and provide the necessary surrounding data to validate that FY22 production was in the mid-600s with a decline year over year, anchored by the explicit FY23 and FY24 figures nearby in the sequence.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n",
+              "\nSilver production declined by 0.2 per cent to 176 tonnes during Q4 2025-26 (177 tonnes in Q4 2024-25).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver production was down 9 per cent at 627 tonne (687 tonne)."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.1",
+        "reasoning": "The most directly supportive content confirms the Zerodha Silver ETF\u2019s inception date and expense structure, which precisely align with the finegrained field value: the inception date is stated as 26/03/2025, matching the 2025-03-26 date in the field value. The expense ratio is reported as 0.33%, directly matching the field value. In addition, the ETF\u2019s stated objective to seek to replicate the domestic price of Silver and its ticker symbol SILVERCASE are consistent with the field value\u2019s metadata. There is also explicit mention of Zerodha Silver ETF details and the fund name, reinforcing the mapping to the finegrained field. Together, these excerpts corroborate each element of the field value (etf_name, ticker_symbol, inception_date, expense_ratio_percentage, and the replication objective). Excerpts that describe fees, performance, or general ETF context for other silver ETFs are less specific and thus less directly supportive for this exact field value. ",
+        "citations": [
+          {
+            "url": "https://cbonds.com/etf/252571/",
+            "excerpts": [
+              "26/03/2025\nInception Date",
+              "The total expense ratio is 0.33%.",
+              "0.33 %\nTotal Cost Ratio",
+              "The Zerodha Silver ETF seeks to replicate the domestic price of Silver",
+              "Main exchange is National Stock Exchange of India and ticker symbol is SILVERCASE . The total expense ratio is 0.33%. The Zerodha Silver ETF (INR) pays dividends",
+              "SILVERCASE\nTicker"
+            ],
+            "title": "SILVERCASE - Zerodha Silver ETF (INR), INF0R8F01091"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.5",
+        "reasoning": "The most relevant excerpt explicitly presents a sequence of annual silver production figures in tonnes, ending with 687 for the last year shown, which aligns with FY25 in the requested field value. This excerpt also contains the preceding figure 746, which corresponds to FY24 and supports a year-over-year comparison showing a decline from FY24 to FY25. Another excerpt indicates that FY24 production was 746 MT, providing corroborative context for the downward trend into FY25. Collectively, these excerpts directly support the target FY25 production figure of 687 tonnes and the implied year-over-year decline, while the additional excerpt offers context by showing the FY24 baseline. The connection is made by tying the sequence of annual production figures to the FY25 value and by referencing the FY24 figure to explain the drop to FY25.\n",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.6",
+        "reasoning": "The most relevant excerpts explicitly state that silver production in the 2025-26 period was 627 tonnes and that this represented a decline (approximately 9%) from the prior period. Specifically, one excerpt notes, 'Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).' This directly supports the stated FY26 production figure of 627.0 tonnes and the negative year-over-year change close to -8.73%. Another excerpt reinforces the same value with a similar phrasing: 'Silver production down 9% at 627 tonne (687 tonne).' Both passages align with the target field value, providing strong corroboration for the FY26 production total and the downward trend. Additional excerpts mention nearby annual figures (e.g., FY24, FY25) and quarterly values (e.g., Q4 2025-26 176 tonnes), which are consistent with the broader context of the production trajectory but do not directly confirm the exact FY26 total, thus serving as supplementary support. The combination of the explicit FY26 627 tonnes and the -9% decline in these excerpts provides the strongest evidence for the field value, with nearby figures helping to establish context and trend. The other excerpts reference related production figures in different time frames (e.g., FY2024 production of 746 MT or 714 MT in another year) and quarterly outputs, which corroborate the overall pattern but are less directly tied to the precise FY26 figure.",
+        "citations": [
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n",
+              "\nSilver production declined by 0.2 per cent to 176 tonnes during Q4 2025-26 (177 tonnes in Q4 2024-25).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver production was down 9 per cent at 627 tonne (687 tonne).",
+              "Silver output also dipped marginally to 176 tonne (177 tonne) even as prices remained volatile."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.3",
+        "reasoning": "The most relevant excerpt directly states that silver production was 714 MT, described as being 10% higher and in line with higher lead metal production. This aligns with the target field value of 714 tonnes for FY23 and supports the idea of year-over-year growth being around 10%. The next relevant excerpt shows a sequence of production figures including 714 MT, which corroborates that 714 MT figure appears in the dataset and may correspond to a FY23 context, though it does not explicitly label the year. A third supporting excerpt mentions FY2024 production as 746 MT, which helps establish a trend and confirms that 714 MT is a lower figure in the historical sequence, consistent with a growth pattern around FY23 but not explicitly stating the FY23 figure. Taken together, these excerpts support the notion that FY23 silver production was around 714 MT with a year-over-year growth in the vicinity of 10%.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_revenue_contribution.2",
+        "reasoning": "The finegrained field value states that for FY25, Hindustan Zinc reported silver revenue of 6130 crore out of total revenue of 34083 crore, yielding a contribution percentage of 18%. The most directly relevant excerpt contains the explicit silver revenue figure of 6130 crore, which matches the finegrained field value and anchors the silver revenue amount. The next most relevant excerpt provides the total revenue figure of 34083 crore, which is necessary to verify or compute the contribution percentage when combined with the silver revenue. An excerpt describing a disaggregated revenue table is relevant as it contextually supports that revenues are broken down by category, including silver, though it does not directly restate the numbers. A further excerpt mentioning the contribution of precious metals to EBIT introduces related but different metrics (EBIT contribution) and not the exact FY25 silver revenue figure or its percentage, making it less directly supportive for the precise field value but tangentially related to the same metal-revenue discussion. The remaining excerpt that shows a lone number \u201c41\u201d is insufficient on its own to support the specific FY25 silver revenue figure or its percentage, and thus is least relevant among those considered here.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "**\u20b9 6,130 crore**\nrevenu",
+              "**\u20b9 34,083 crore**\nRevenu",
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.4.fiscal_year",
+        "reasoning": "The target field value corresponds to the silver production in FY24. The most directly supportive information is the excerpt that explicitly states FY 2024 production of 746 MT, which aligns exactly with the requested fiscal year. The other excerpt lists a sequence of annual refined silver tonnes, including 746 among other numbers, which suggests a historical production trend but does not clearly map each number to a specific fiscal year; it provides corroborating context for the production magnitude around that period. Together, the excerpts support that FY24 silver production was around 746 MT, with the first excerpt providing precise alignment and the second offering corroborative numeric context.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_revenue_contribution.0",
+        "reasoning": "The most relevant content touches on the broader topic of precious metal contributions within Hindustan Zinc\u2019s financials. One excerpt presents a discussion labeled as the contribution of the Precious Metal in EBIT, which is thematically aligned with a metal (silver) contributing to the company\u2019s earnings and margins, though it reports EBIT shares rather than revenue shares. Another excerpt references disaggregated revenue concepts, which could conceptually relate to how silver revenue might be separated from total revenue. A third excerpt explicitly mentions HZL\u2019s integrated annual report with a revenue figure, and a fourth references production imagery tied to silver, which supports the context that silver is a material component of operations. The remaining excerpts provide other revenue-scale data (e.g., total revenue figures) but do not specifically address silver revenue or its FY23 contribution. Collectively these excerpts frame the domain (silver as a revenue/earnings contributor) but do not directly confirm the exact FY23 silver revenue amount, the exact percentage contribution, or the 4382/34252 numerical ratio requested.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "41",
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          }
+        ],
+        "confidence": "low"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.1.expense_ratio_percentage",
+        "reasoning": "The finegrained field represents the expense ratio percentage for the Indian silver ETF in the analyzed entry. Direct statements iterating the expense ratio as 0.33% establish the exact value: one excerpt explicitly states the total expense ratio is 0.33%, another reiterates 0.33% as the expense figure, and a third confirms the same around the ETF\u2019s expense ratio. These excerpts collectively confirm the field value without conflicting information. Other excerpts either discuss related topics (such as ETF objectives or general characteristics) or provide peripheral details that do not specify the expense ratio, and thus do not strongly support the exact value of the field.",
+        "citations": [
+          {
+            "url": "https://cbonds.com/etf/252571/",
+            "excerpts": [
+              "The total expense ratio is 0.33%.",
+              "Main exchange is National Stock Exchange of India and ticker symbol is SILVERCASE . The total expense ratio is 0.33%. The Zerodha Silver ETF (INR) pays dividends",
+              "0.33 %\nTotal Cost Ratio"
+            ],
+            "title": "SILVERCASE - Zerodha Silver ETF (INR), INF0R8F01091"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.5.year_over_year_growth_percentage",
+        "reasoning": "The target field describes the year-over-year growth percentage for silver production volumes in tonnes at a specific position in the data series. The data sequence shows production values in tonnes: 706, 647, 714, 746, 687. The year-to-year change from the previous year (746 to 687) yields a decline of (687/746 - 1) = -7.91%, which matches the requested field value. The accompanying figure that FY2024 production was 746 MT provides a solid anchor for the end-point of the sequence, supporting that the subsequent year (the fifth entry) is 687 MT, thereby producing the -7.91% growth. The second excerpt reinforces the context by confirming the FY2024 production level, aligning with the sequence and the resulting growth calculation.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.1.etf_name",
+        "reasoning": "The target field value is the exact ETF name: Zerodha Silver ETF. Excerpts that explicitly mention the Zerodha Silver ETF and its ticker (SILVERCASE) directly confirm the entity in question. Excerpt discussing the ETF\u2019s objective to replicate the domestic price of silver supports the interpretation that this is a silver-focused ETF associated with Zerodha. Excerpts that provide the ticker (SILVERCASE), the main exchange (National Stock Exchange of India), and the fact that the ETF pays dividends further corroborate the identity and operations of this ETF. Collectively, these excerpts map consistently to the finegrained field value by confirming the ETF name, its branding, and basic attributes, with the most direct confirmations being those that name the Zerodha Silver ETF explicitly and tie it to the SILVERCASE ticker and Zerodha branding.",
+        "citations": [
+          {
+            "url": "https://cbonds.com/etf/252571/",
+            "excerpts": [
+              "26/03/2025\nInception Date",
+              "The total expense ratio is 0.33%.",
+              "0.33 %\nTotal Cost Ratio",
+              "The Zerodha Silver ETF seeks to replicate the domestic price of Silver",
+              "Main exchange is National Stock Exchange of India and ticker symbol is SILVERCASE . The total expense ratio is 0.33%. The Zerodha Silver ETF (INR) pays dividends",
+              "SILVERCASE\nTicker"
+            ],
+            "title": "SILVERCASE - Zerodha Silver ETF (INR), INF0R8F01091"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.1.inception_date",
+        "reasoning": "The target field is the inception_date for the second-level ETF entry in the Indian silver ETFs analysis. The excerpt that directly presents an 'Inception Date' is the one that includes a date written as 26/03/2025, which corresponds to 2025-03-26 after standardizing the date format. This directly supports the finegrained field value. Other excerpts reference expense ratios, tracking objective, and basic ETF details, but do not provide any information about the inception date, so they offer no direct support for the field value.",
+        "citations": [
+          {
+            "url": "https://cbonds.com/etf/252571/",
+            "excerpts": [
+              "26/03/2025\nInception Date"
+            ],
+            "title": "SILVERCASE - Zerodha Silver ETF (INR), INF0R8F01091"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.4.production_in_tonnes",
+        "reasoning": "The target field value is a production figure of 746.0 tonnes for silver production at a specific position in the time-series array. The first excerpt explicitly states that the FY2024 silver production was 746 MT, which directly corroborates the required value for the corresponding array index. The second excerpt presents a sequence of silver production figures in tonnes, where 746 appears as one of the entries, aligning with the same production value of interest and supporting the notion that 746 represents a production figure in tonnes within the series. Taken together, these excerpts uniquely confirm that the production figure at the specified array index is 746.0 tonnes, with the first excerpt providing direct confirmation for the exact year and the second excerpt supplying a corroborating data point within the same series.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.1.ticker_symbol",
+        "reasoning": "The finegrained field value you are evaluating is a ticker symbol, and the most relevant excerpts are those that explicitly state the ticker symbol as SILVERCASE. One excerpt communicates clearly that the Zerodha Silver ETF uses SILVERCASE as its ticker symbol on the main exchange, which directly confirms the field value. Another excerpt repeats the same explicit ticker symbol information, reinforcing the exact match for the field. Contextual excerpts that mention the ETF\u2019s characteristics (such as its expense ratio and the objective to replicate the domestic price of silver) support understanding the entity in question but do not directly assert the ticker symbol; they are still relevant because they corroborate the identity and details of the same ETF, providing a fuller picture that helps validate which instrument SILVERCASE refers to. The remaining excerpts mention related attributes or identifiers (e.g., ticker, SILVERCASE in title lines) that align with the same instrument but are slightly less direct about the ticker symbol itself. Collectively, the strongest evidence supports SILVERCASE as the ticker symbol for the ETF in question, with supplementary evidence adding context about the ETF\u2019s characteristics.",
+        "citations": [
+          {
+            "url": "https://cbonds.com/etf/252571/",
+            "excerpts": [
+              "Main exchange is National Stock Exchange of India and ticker symbol is SILVERCASE . The total expense ratio is 0.33%. The Zerodha Silver ETF (INR) pays dividends",
+              "SILVERCASE\nTicker",
+              "The total expense ratio is 0.33%.",
+              "0.33 %\nTotal Cost Ratio",
+              "The Zerodha Silver ETF seeks to replicate the domestic price of Silver",
+              "26/03/2025\nInception Date"
+            ],
+            "title": "SILVERCASE - Zerodha Silver ETF (INR), INF0R8F01091"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.2.fiscal_year",
+        "reasoning": "To determine the silver production volume for FY22, I looked for explicit mentions of production in FY22 or a sequence that can be mapped to yearly figures. The most direct support comes from the excerpt stating that silver production was 714 MT, which matches the FY22 value when cross-checked against the other data. Additionally, there is an excerpt that lists a sequence of refined silver tonnes (706, 647, 714, 746, 687); interpreting this as a year-by-year series from FY20 onward, the third item in the sequence corresponds to FY22 and again equals 714 MT. The other excerpts discuss different years (such as FY24 or FY25-26) or lack a clear FY22 linkage, so they contribute less directly to confirming FY22 values. Therefore, the most relevant pieces directly confirm or enable deduction of FY22 silver production as 714 MT.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.2.production_in_tonnes",
+        "reasoning": "The target value is the production in tonnes at a specific position within the silver production volumes array. The only excerpt that directly lists silver production figures in tonnes and includes the exact numeric value 647 (within a sequence of values such as 706, 647, 714, 746, 687) aligns with the requested field value of 647.0. This indicates that, among the provided excerpts, this excerpt most closely corresponds to the specified array position\u2019s production in tonnes. While other excerpts reference different production numbers (714 MT, 746 MT, 627 MT, 176 MT) and hence do not match the exact targeted value, they provide broader production context but not the precise field value in question.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.3.fiscal_year",
+        "reasoning": "The target field value represents the silver production in FY23. One excerpt presents a year-by-year silver production table with the sequence 706, 647, 714, 746, 687, where the third entry is 714. If the table is arranged in chronological fiscal years starting from FY20, the third entry corresponds to FY22 or FY23 depending on the exact start, but given common practice in these reports (listing FY20, FY21, FY22, FY23, FY24 in order), the 714 MT value aligns with FY23. The same excerpt explicitly states the overall production figure as 714 MT, which directly supports the FY23 value. Another excerpt quotes the same numeric figure 714 MT within a narrative about production, reinforcing that 714 MT is the FY23 production level rather than a different year. A third excerpt notes FY2024 production as 746 MT, which confirms the neighboring year and provides contextual support about the production trend, helping validate the plausible year-by-year progression around FY23, though it does not assign 746 MT to FY23. Taken together, the clearest alignment is that FY23 production is 714 MT, supported by the year-by-year table and corroborated by the explicit 714 MT mention.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.5.fiscal_year",
+        "reasoning": "To support the finegrained field value for silver production volumes at fiscal year FY25, the most relevant information would be an excerpt that states Hindustan Zinc\u2019s silver production for a specific fiscal year. The second excerpt explicitly references silver production and ties it to a fiscal year by mentioning FY2024 production of 746 MT, which directly relates to the production volumes field and provides year-specific data, though not for FY25. This makes it the most relevant, as it offers concrete production figures linked to a named year. The first excerpt presents a sequence of silver production volumes in tonnes (numbers like 706, 647, 714, 746, 687) but does not label which year each value corresponds to. While it is highly relevant to the overall topic of silver production volumes, the lack of explicit yearly mapping means it cannot directly confirm the FY25 value, making it the next most relevant but less definitive for the targeted fiscal year. Because neither excerpt directly states FY25, there is no direct confirmation for the requested field value, which lowers overall confidence about exact year alignment. The two excerpts together provide context about production levels and trends but do not supply the explicit FY25 figure.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "low"
+      },
+      {
+        "field": "silver_revenue_contribution.2.silver_revenue_in_crore",
+        "reasoning": "The target value represents Hindustan Zinc\u2019s silver-related revenue in crores. In the available excerpts, there is a line from Hindustan Zinc Limited stating a revenue figure of \u20b9 6,130 crore, which directly aligns with the requested value for silver revenue in crore terms. This excerpt provides a precise monetary amount that matches the specified field value, indicating a direct connection between the field and the documented revenue figure. No other excerpts directly provide a silver-related revenue figure; one excerpt shows a different total revenue figure, and another discusses the contribution of precious metals to EBIT rather than revenue, which does not support the exact field value.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "**\u20b9 6,130 crore**\nrevenu"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.6.fiscal_year",
+        "reasoning": "The most directly relevant excerpt states the quarterly production for FY26 (Q4 FY26) as 627 tonnes, clearly tying a numeric figure to FY26 and confirming the fiscal year\u2019s production scale. Another highly relevant excerpt notes the full-year figure for 2025-26 at 627 tonnes, which aligns with the FY26 annual production level and corroborates the quarterly data. A closely relevant excerpt reports that Q4 FY26 silver output was 176 tonnes (with a parenthetical note that Q4 2024-25 was 177 tonnes), providing a precise quarterly datapoint within FY26 and illustrating the distribution of production within the fiscal year. An additional excerpt also references Q4 2025-26 production at 176 tonnes, reinforcing the quarterly FY26 figure, albeit with similar content to the previous item. Collectively, these excerpts directly support the FY26 silver production volume, with exact figures for both a quarterly point and the corresponding fiscal-year total, demonstrating consistency in the reported numbers for FY26.",
+        "citations": [
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver production was down 9 per cent at 627 tonne (687 tonne).",
+              "Silver output also dipped marginally to 176 tonne (177 tonne) even as prices remained volatile."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n",
+              "\nSilver production declined by 0.2 per cent to 176 tonnes during Q4 2025-26 (177 tonnes in Q4 2024-25).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.6.production_in_tonnes",
+        "reasoning": "The target field value is a precise annual silver production figure (in tonnes) and is sought at a specific array index. The most directly relevant excerpts explicitly state the annual silver production as 627 tonnes (for the 2025-26 period). One excerpt says production declined by 9% to 627 tonnes during 2025-26, directly confirming the value. Another excerpt reiterates that silver production was down 9% at 627 tonnes. These two sources provide direct, exact figures that match the requested value, establishing a strong, unambiguous link to the field. Other excerpts describe different production totals (such as 176 tonnes in a quarterly figure, or other years with 714, 746, or 687 tonnes) which do not support the exact requested value and are therefore considered less relevant for this precise field match.",
+        "citations": [
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver production was down 9 per cent at 627 tonne (687 tonne)."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_revenue_contribution.1",
+        "reasoning": "The field value specifies the FY24 silver revenue as 4,076 crore. The strongest direct support comes from the excerpt that explicitly states the revenue amount 4,076 crore, which aligns with the silver revenue figure in the field value. The same excerpt also references silver imagery; while it doesn\u2019t spell out the percentage contribution, it confirms the existence of silver-related revenue data for the year. To contextualize the silver revenue within Hindustan Zinc\u2019s overall performance, other excerpts provide the total revenue amount (28,932 crore) from the same or closely related presentations, which helps anchor the silver revenue in the broader revenue base. Although these do not isolate silver revenue, they enable cross-checking the scale of overall revenue against the silver component. A related excerpt discusses the contribution of precious metals to EBIT with several percentages, which is thematically connected to the concept of metal contributions but does not directly provide the exact revenue contribution percentage requested (14.1%). The remaining excerpt mentions a disaggregated revenue table, which is relevant to the topic but lacks explicit silver-specific figures for FY24. Taken together, the most direct support is the explicit silver revenue figure, with the next strongest support provided by adjacent total revenue figures, followed by metal- EBIT contribution context, and then broader disaggregated revenue context. The field value\u2019s silver revenue figure is well-supported by the explicit figure in the best-matching excerpt; the exact percentage contribution (14.1%) is not directly stated in the excerpts but can be inferred from the ratio of silver revenue to total revenue if needed, though that inference is outside the explicit evidence presented here.",
+        "citations": [
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu",
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_production_volumes.5.production_in_tonnes",
+        "reasoning": "The most relevant excerpt lists production figures in tonnes as a sequence: 706, 647, 714, 746, 687. This sequence contains the value 687, which corresponds to the target field value for the fifth entry in the production volumes array. Since the field path points to the fifth element (production_in_tonnes) in the silver production volumes, the presence of 687 in this sequence directly supports the target value. The other excerpt discusses broader statements about production growth but does not provide the explicit sequence or the exact value for the fifth entry, so it is not directly supportive of the precise field value.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.6.year_over_year_growth_percentage",
+        "reasoning": "The target field value represents the year-over-year growth percentage of silver production, a derived metric that depends on annual production volumes. The most relevant excerpts provide explicit yearly silver production figures, which are the primary inputs for calculating YoY growth. One excerpt presents a concise table of refined silver tonnes across consecutive years, giving a direct sequence of annual volumes to compute the growth rate between adjacent years. Another excerpt confirms a recent annual production figure (FY2024) in the mid-700s of tonnes, which can be compared with the prior year to yield a YoY result. A third excerpt reports a prior-year annual figure (714 MT in FY2023), supplying the necessary data point for another YoY comparison. Collectively, these sources establish the year-by-year production levels that underlie any YoY growth calculation and allow evaluation of whether the -8.73% figure is supported by the data. The remaining excerpts document more granular quarterly figures and mid-year updates, which provide contextual trend information (such as declines or volatility) but are less directly tied to a single annual YoY growth value, yet still help validate the negative trend direction observed in the broader annual data. Taken together, these excerpts support a narrative of negative growth in silver production year over year across the observed periods, aligning with a negative YoY percentage, though they do not themselves state the exact -8.73% figure.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n",
+              "\nSilver production declined by 0.2 per cent to 176 tonnes during Q4 2025-26 (177 tonnes in Q4 2024-25).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver production was down 9 per cent at 627 tonne (687 tonne).",
+              "Silver output also dipped marginally to 176 tonne (177 tonne) even as prices remained volatile."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_production_volumes.2.year_over_year_growth_percentage",
+        "reasoning": "The target field is the year-over-year growth percentage for silver production (for a specific year index 2) and the requested value is -8.36, i.e., a negative YoY change. The most relevant information comes from excerpts that explicitly state a year-over-year percentage change in silver production: one excerpt notes a 9% decline to 627 tonnes during 2025-26, which directly reflects a negative YoY percentage in a recent year; another excerpt similarly reports a 9% decline in silver production. These directly support the existence of a negative YoY growth figure in the near-term period and align with the idea of an approximately -8 to -9% YoY change. Additional excerpts mention a 10% increase in silver production for a period, which provides useful contrast and shows how YoY percentages can vary by year, though it is opposite in sign to the target value. A quarterly YoY metric shows a 0.2% decline in Q4 2025-26, which again is a YoY flavor but limited to a quarterly scope, thus slightly less directly relevant to the target annual YoY figure. Excerpts discussing long-term growth (e.g., silver production growing over 2x in 10 years, or 15x in two decades) provide context for overall production trends but do not pinpoint a specific year-over-year percentage change, making them less directly supportive of the exact field value. Finally, production totals (tonnes) across years help contextualize the magnitude of changes but do not themselves specify YoY growth percentages, so they are the least direct evidence for the field value while still informative for interpretability.",
+        "citations": [
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n",
+              "\nSilver production declined by 0.2 per cent to 176 tonnes during Q4 2025-26 (177 tonnes in Q4 2024-25).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver production was down 9 per cent at 627 tonne (687 tonne)."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_production_volumes.3.year_over_year_growth_percentage",
+        "reasoning": "The target field seeks the year-over-year growth percentage for the 3rd silver production entry. The 3rd entry in the production sequence is 714 MT. The prior year's production (the 2nd entry) is 647 MT. Calculating the YoY growth from the 2nd to the 3rd year yields (714 - 647) / 647 = 67 / 647 \u2248 0.1036, which is approximately 10.36%. This directly supports the stated finegrained value of 10.36 for the growth percentage. Additionally, the excerpt explicitly states that silver production was 714 MT and that it was 10% higher, which is consistent with the computed ~10.36% growth. The third excerpt provides an annual total (746 MT for FY2024) that helps establish the overall trend but does not pertain to the 3rd entry\u2019s YoY growth, so it is less directly relevant to the specific field. Thus, the strongest support comes from the data showing 647 MT prior year and 714 MT in the target year, corroborating a YoY growth around 10.36%.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_revenue_contribution.2.total_revenue_in_crore",
+        "reasoning": "The target field value corresponds to Hindustan Zinc's total revenue in crore. The most directly supporting excerpt presents the figure \u201c34,083 crore\u201d for revenue, which aligns with the 34,083.0 value after converting to a numeric format. Additional excerpts mention disaggregated revenue and other revenue figures: one excerpt shows a different revenue amount (6,130 crore), which does not match the target total revenue value, and another excerpt indicates a table that summarizes disaggregated revenue from contracts with customers, providing contextual support but not the exact total. Therefore, the most relevant excerpt directly confirms the target total revenue, while the other two offer contextual corroboration or alternate figures.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_revenue_contribution.2.fiscal_year",
+        "reasoning": "To assess the FY25 silver revenue contribution, the most directly relevant excerpt would be the one that explicitly discusses the contribution of precious metals to earnings metrics, as this is the closest proxy to silver\u2019s revenue impact within the fiscal-year context. The excerpt that references the Contribution of Precious Metal in EBIT suggests a discussion of how precious metals (including silver) contribute to Hindustan Zinc\u2019s earnings, which is highly relevant when assessing silver\u2019s share in FY25. Next, excerpts that come from Hindustan Zinc\u2019s FY2025 annual deck provide concrete revenue figures for the same fiscal year, which can contextualize how much revenue is earned in FY25 overall and, by extension, how much may relate to silver if the silver portion is presented in the deck; these include explicit FY25 revenue figures. The disaggregated revenue table (from the integrated annual report) is relevant as it can show composition across product lines, including silver as a byproduct or as a separate line item, within the FY25 period. Finally, a general table that summarizes disaggregated revenue from contracts with customers provides context for the overall revenue framework in the period, though it may be less specific to silver and more about revenue recognition, making it the least direct source among the set for silver-specific FY25 contribution.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "**\u20b9 6,130 crore**\nrevenu",
+              "**\u20b9 34,083 crore**\nRevenu"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "executive_summary",
+        "reasoning": "The executive summary states that silver is a high-margin byproduct of HZL's zinc-lead mining operations, contributing significantly to EBIT due to high margins. Several excerpts support this by detailing HZL's integrated production of zinc, lead, and silver (Indices 2, 25, 52, 73). The contribution of precious metals (including silver) to EBIT is explicitly mentioned with percentages, such as 41%, 28%, 27%, 45%, and 38% across different periods (Indices 29, 30, 31, 32, 33, 34, 35). The summary also notes that silver's contribution to consolidated revenue has increased. While specific revenue percentages for FY23 and FY25 are not directly in the excerpts, the revenue figures for silver are provided (Index 14), and the overall revenue for HZL is mentioned (Indices 20, 26, 69). The summary highlights that HZL is a significant silver producer globally, ranking among the top producers. Excerpts confirm HZL is the 6th largest silver producer (Index 67), among the top ten silver producers globally (Index 71), and among the top 5 silver producers globally (Index 24). Other excerpts state it is the 3rd leading silver producer (Indices 46, 51). The summary mentions that HZL's stock price is primarily correlated with zinc, its largest revenue source, but earnings are sensitive to silver price fluctuations. Excerpts discuss the impact of silver prices on HZL's stock (Index 0) and mention that silver production maximization is leveraged to rising silver prices (Indices 21, 22, 36, 37). The summary also points out that silver production volumes have varied, with a recent decrease in FY25-26. Excerpts detail silver production figures in tonnes for various periods (Indices 28, 48, 53, 54) and specifically mention a decrease in silver output for 2025-26 by 9% to 627 tonnes (Indices 55, 75, 77) and a marginal dip in Q4 2025-26 (Indices 76, 78). The summary identifies silver ETFs like Nippon India's SILVERBEES and Zerodha's SILVERCASE as direct silver investment options in India. Excerpts provide details about Nippon India Silver ETF (Indices 38, 39, 40, 41, 42, 43, 44, 56) and Zerodha's SILVERCASE ETF (Indices 57, 58, 59, 60, 61, 62, 63). The summary mentions SILVERBEES showing a 3-year CAGR of approximately 59.38% as of February 2026. While the exact CAGR figure of 59.38% is not directly stated for SILVERBEES in the provided excerpts, the performance data for Nippon India Silver ETF is presented for 1, 3, and 5 years (Index 38), and other performance metrics are available (Index 40). The summary concludes by differentiating between ETFs for direct silver tracking and HZL for a hybrid investment. This overall strategic advice is supported by the information on both HZL's silver involvement and the nature of silver ETFs.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "ontribution of Precious Metal in EBIT**\n(%",
+              "41",
+              "28",
+              "27",
+              "45",
+              "38",
+              "**Among top 5**\nsilver producers globally",
+              "**India\u2019s largest and**\n**only integrated**\nzinc, zinc alloy, lead and silver\nproducer with mining & smelting\nfacilities in Rajasthan",
+              "**\u20b9 34,083 crore**\nRevenu"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Silver\n4,382",
+              "Silver promoter/modified collector helps in enriching\nsilver grade and recovery (~4%). Additional Ag metal\nin concentrate (MIC) at Zawar in FY 2022-23:\n6 tonnes per annum (TPA).",
+              "\nHindustan Zinc became\n6 <sup>th</sup> largest producer of\nprimary silver and the\nfastest growing silver\ncompany in the world\n**",
+              "oved metal and silver volume, higher zinc\nLME and gains from strategic hedging partly offset by\nhigher input commodity inflation and lower lead and\nsilver prices. O"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Dec2024_522fcf30a9.pdf",
+            "excerpts": [
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**",
+              "FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.4%. Yo. Y: >5%. 917. 972. 1017. 10621079. 1100-. 1125. FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.2%. Yo. Y: >3%. Note:"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "World\u2019s **2** <sup>**nd**</sup> **largest** integrated **zinc producer** and **3** <sup>**rd**</sup>\n**leading silver producer**\n\u2022",
+              "Fully integrated **India\u2019s only zinc** **-lead-silver producer**\nw",
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT",
+              "Investor Presentation. Page 2. 2. Cautionary Statement and Disclaimer. The ... FY20 FY21 FY22 FY23 FY24 FY25E. CAGR: 4.2%. Note: CAGR is for period FY20 to"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Sustainability_Review_Report_2021_22_bfab408336.pdf",
+            "excerpts": [
+              "integrated zinc producer and 6th largest silver producer. Our Sustainability Review Report FY 2021-22 is a part of our Integrated Annual Report FY 2021-22."
+            ],
+            "title": "[PDF] Many More to Look Forward to - Hindustan Zinc"
+          },
+          {
+            "url": "http://sciencebasedtargets.org/companies-taking-action/case-studies/hindustan-zinc-limited",
+            "excerpts": [
+              "Globally, HZL is among the top ten silver producers"
+            ],
+            "title": "Hindustan Zinc case study \u2013 Science Based Targets"
+          },
+          {
+            "url": "http://greatplacetowork.in/great/company/hindustan-zinc-limited",
+            "excerpts": [
+              "Hindustan Zinc is India's largest and the only integrated Zinc-Lead-Silver producer with a rich legacy of partnering in nation's growth story,\u00a0..."
+            ],
+            "title": "http://greatplacetowork.in/great/company/hindustan-zinc-limited"
+          },
+          {
+            "url": "http://zoominfo.com/c/hindustan-zinc-ltd/39389448",
+            "excerpts": [
+              "Hindustan Zinc, established in 1966, is a prominent integrated mining and resources producer based in India. The company specializes in extracting and processing essential metals like zinc, lead, silver, and cadmium."
+            ],
+            "title": "ZoomInfo Profile for Hindustan Zinc Ltd"
+          },
+          {
+            "url": "https://www.thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              "Hindustan Zinc mined metal production up 2% in 2025-26\n1 hour ago \u2014 Hindustan Zinc's metal production rose 2% in 2025-26, while silver output decreased by 9%, driven by higher ore quality."
+            ],
+            "title": "Hindustan Zinc mined metal production up 2% in 2025-26"
+          },
+          {
+            "url": "http://thehindubusinessline.com/markets/commodities/hindustan-zinc-mined-metal-production-up-2-in-2025-26-silver-down-9/article70819733.ece",
+            "excerpts": [
+              " Silver production declined by 9 per cent to 627 tonnes during 2025-26 (687 tonnes).\n",
+              "\nSilver production declined by 0.2 per cent to 176 tonnes during Q4 2025-26 (177 tonnes in Q4 2024-25).\n"
+            ],
+            "title": "Hindustan Zinc metal production up 2% in 2025-26, silver down 9%"
+          },
+          {
+            "url": "http://thehindubusinessline.com/companies/hind-zinc-refined-metal-output-up-5-in-q4/article70819534.ece",
+            "excerpts": [
+              "Silver production was down 9 per cent at 627 tonne (687 tonne).",
+              "Silver output also dipped marginally to 176 tonne (177 tonne) even as prices remained volatile."
+            ],
+            "title": "Hindustan Zinc refined metal output up 5% in Q4 FY26"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies.",
+              "Amid a challenging environment, marked by softened metal prices, Hindustan Zinc continued to maintain its margin, underlining its inherent resilience. Sustained cost reduction was a key contributor to the Company\u2019s success in keeping its margin at a steady 47%. Hindustan Zinc clocked the lowest cost in the last three years during FY 2023-24, underscoring its decision-making agility. Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies.",
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24/key-performance-indicators.php",
+            "excerpts": [
+              "Hindustan Zinc clocked the lowest cost in the last three years during FY 2023-24, underscoring its decision-making agility. Maximisation of silver production to",
+              "Hindustan Zinc clocked the lowest cost in the last three years during FY 2023-24, underscoring its decision-making agility. Maximisation of silver production to leverage the rising silver prices, coupled with modifications in the power plant to ensure better linkage to coal consumption, helped in the reduction of the power costs, while promoting operational and commercial efficiencies."
+            ],
+            "title": "Key Performance Indicators"
+          },
+          {
+            "url": "http://en.wikipedia.org/wiki/Hindustan_Zinc",
+            "excerpts": [
+              "Revenue |\u20b9 34,083 crore (US$4.0 billion) (2025)"
+            ],
+            "title": "Hindustan Zinc - Wikipedia"
+          },
+          {
+            "url": "https://adityatrading.in/Company/silvercase",
+            "excerpts": [
+              "SILVERCASE Share Price - Live Chart, News & ...\n5 days ago \u2014 Zerodha Silver ETF (SILVERCASE) is an exchange-traded fund launched by Zerodha Asset Management Pvt Ltd on March 20, 2025, and listed on NSE from March 26, 2025"
+            ],
+            "title": "SILVERCASE Share Price - Live Chart, News & ..."
+          },
+          {
+            "url": "https://cbonds.com/etf/252571/",
+            "excerpts": [
+              "Main exchange is National Stock Exchange of India and ticker symbol is SILVERCASE . The total expense ratio is 0.33%. The Zerodha Silver ETF (INR) pays dividends",
+              "0.33 %\nTotal Cost Ratio",
+              "26/03/2025\nInception Date",
+              "SILVERCASE\nTicker",
+              "The total expense ratio is 0.33%.",
+              "The Zerodha Silver ETF seeks to replicate the domestic price of Silver"
+            ],
+            "title": "SILVERCASE - Zerodha Silver ETF (INR), INF0R8F01091"
+          },
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026",
+              "27,822\n179.00\n40,484\n59.38\nNA\nNA\n41,225\n41.61",
+              "Portfolio as on 28th February, 2026",
+              "SILVER 999 ( in Kg)\"\n98.57%",
+              "Cash and Other Receivables\n1.43%",
+              "One unit = Approx 1 gram of Silver"
+            ],
+            "title": "Nippon India Silver ETF"
+          },
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Sep-2025.pdf",
+            "excerpts": [
+              "Sep 30, 2025 \u00b7 The investment objective of the scheme is to generate returns that are in line with the performance of physical silver in domestic prices,"
+            ],
+            "title": "[PDF] Nippon India Silver ETF"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_revenue_contribution.2.contribution_percentage",
+        "reasoning": "The finegrained field value seeks the percentage contribution of silver revenue within Hindustan Zinc\u2019s financials. Within the provided excerpts, there is a discussion titled 'Contribution of Precious Metal in EBIT' that includes a set of percentages. This directly pertains to the handling of precious metals (which include silver) in the company\u2019s earnings, providing the closest relevant context to a silver revenue contribution percentage. However, the explicit value 18.0% is not present in the excerpt list, and the numbers shown (such as 41, 28, 27, 45, 38) appear to be different historical figures or breakdowns for precious metal contribution rather than a direct match to 18.0%. The other excerpts present total revenue figures or general revenue disaggregation without directly tying to the silver-specific revenue contribution percentage. Therefore, the most relevant source offers high-context support about how precious metal contributes to EBIT, yet it does not confirm the exact 18.0% figure, leading to partial alignment but no definitive evidence for the requested value.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "low"
+      },
+      {
+        "field": "silver_revenue_contribution.0.fiscal_year",
+        "reasoning": "The target field seeks the silver revenue contribution for FY23. Among the excerpts, the one that discusses the contribution of the precious metal in EBIT and provides a numeric breakdown (which likely represents yearly contributions including silver) is most relevant. This excerpt explicitly ties the metal class (precious metal, i.e., silver) to EBIT contribution and presents year-by-year figures, which can be used to infer the FY23 contribution in the absence of an explicit FY23 label. Other excerpts mention revenue totals and general silver-related imagery or references to silver bars but do not directly address the annual silver revenue contribution or break it out by fiscal year, making them less directly supportive of the precise FY23 field value.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_revenue_contribution.0.contribution_percentage",
+        "reasoning": "The target field expects a numeric contribution percentage for silver revenue. The most relevant excerpt explicitly references the contribution of precious metals to EBIT and provides a set of percentages (41, 28, 27, 45, 38), which is thematically aligned with how precious metal components (like silver) contribute to the company's earnings, even though the exact value 12.8% is not provided. This makes it the closest contextual source for understanding how silver or precious metal contributions are quantified in Hindustan Zinc's disclosures. The next most relevant excerpt discusses the Integrated Annual Report with a note on revenue breakdown, which shows that silver and other components contribute to overall revenue in the company\u2019s financial materials, thus offering indirect support for the concept of a silver-related contribution metric. Additional excerpts report total revenue figures (e.g., \u20b934,083 crore and \u20b94,076 crore) and talk about silver production or imagery (refined silver bars), which provide context on the scale of revenue and silver activity but do not isolate a silver-specific contribution percentage. The least directly relevant excerpts include general revenue tables that do not isolate silver contributions, or repeated references to Hindustan Zinc Limited documents that echo similar content without supplying a numeric silver-contribution figure.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu",
+              "41"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          }
+        ],
+        "confidence": "low"
+      },
+      {
+        "field": "silver_revenue_contribution.0.silver_revenue_in_crore",
+        "reasoning": "The target field is the silver revenue in crore for the first entry of the silver revenue contribution. The most directly relevant excerpt explicitly states a silver-related revenue figure: a line noting revenue of 4,076 crore with a visual cue of refined silver bars, indicating a silver-focused revenue context. This provides concrete support for the magnitude of silver revenue in crore and is the primary data point to anchor the field value. Other excerpts touch on either broader revenue figures, EBIT contributions that are only partially related (percentages without a silver revenue figure), or general mentions of revenue and production context, which can provide supportive context but do not directly supply a silver-revenue figure. Taken together, the directly relevant excerpt is the strongest source for the target field, while the others help corroborate that the discussion is centered on Hindustan Zinc\u2019s silver-related financials, albeit without giving an exact silver-revenue figure. The combination suggests that silver revenue figures are in the same order of magnitude as the 4,000 crore-range, but the exact value 4382.0 crore is not directly stated in any single excerpt.\n",
+        "citations": [
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_revenue_contribution.1.silver_revenue_in_crore",
+        "reasoning": "The most relevant excerpt states: \u201c\u20b9 4,076 crore. Revenue.\u201d This directly provides a revenue figure in crore rupees that matches the target value of 4076.0 for the silver revenue contribution. While the excerpt also references the Integrated Annual Report, the presence of the exact revenue figure is the critical link to the requested field value, confirming the magnitude of revenue associated with the period and potentially the silver-related contribution disclosed in the report. Other excerpts mention overall revenue totals or EBIT contributions without providing a specific silver-related revenue figure, so they offer less direct support for the exact field value.",
+        "citations": [
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_revenue_contribution.0.total_revenue_in_crore",
+        "reasoning": "The fine-grained field value represents the total revenue (in crore) attributable to Hindustan Zinc\u2019s silver revenue contribution for the first (0th) entry. The most relevant excerpts are those that report explicit revenue figures for Hindustan Zinc in crore of rupees, because they provide the scale and monetary context for any silver-related revenue component: one excerpt lists a specific revenue figure of \u20b934,083 crore, which likely represents total revenue and provides a direct magnitude for comparison to the target value. Another excerpt shows \u20b96,130 crore in revenue, which adds another data point for the revenue scale context. A third excerpt notes \u20b94,076 crore revenue, contributing additional context on revenue magnitudes that could be related to product-by-product or byproduct revenue streams. A fourth excerpt discusses the broader \u201cContribution of Precious Metal in EBIT\u201d with percentages, which is directly tied to the idea of silver as a byproduct or precious metal contribution to the company\u2019s earnings, thus offering qualitative support for the notion that silver contributes to overall revenue/earnings, even if it does not isolate the exact silver-only revenue figure. The remaining excerpts provide more general references to Hindustan Zinc\u2019s annual reports and presentations and confirm the presence of revenue figures and silver/precious metal discussions, but do not explicitly present silver-specific revenue totals, so they are less directly supportive of the exact field value. Taken together, these excerpts offer partial quantitative context for silver-related revenue and a qualitative link to precious metal contributions, but none provide an exact match for the requested 34252.0 crore total revenue from silver revenue contribution. Therefore, the supporting evidence is partial and best aligns with the idea that silver-related revenue is a component within total revenue, with provided total revenue figures in the cited documents.\n",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu",
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "41"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_revenue_contribution.1.contribution_percentage",
+        "reasoning": "The target field value is a percentage representing silver revenue contribution. The most relevant excerpt discusses the contribution of precious metals in EBIT and contains explicit percentage values (for example, a sequence of numbers that represent metal-related contribution metrics). While this excerpt does not state the exact silver revenue contribution percentage, it is the only piece that directly engages with percentage-based contributions of precious metals, which is conceptually closest to a contribution percentage metric for silver. The other excerpts provide absolute revenue figures (in crore), which are not expressed as a percentage, and a note about disaggregated revenue without a percentage breakdown. The image/content mentioning refined silver bars signals the topic (silver) but lacks quantitative contribution data. Taken together, the EBIT-percentage excerpt offers the strongest, percent-based context related to metal contribution, while the revenue-number excerpts provide numerical magnitudes without the requested percentage format. ",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n",
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          }
+        ],
+        "confidence": "low"
+      },
+      {
+        "field": "silver_production_volumes.4.year_over_year_growth_percentage",
+        "reasoning": "To substantiate the year-over-year growth percentage for the 4th year, I identify the 4th data point in the silver production volumes sequence as the year in question. The sequence shows annual tonnes as 706, 647, 714, 746, 687, with the 4th entry being 746 tonnes and the 3rd entry being 714 tonnes. The YoY growth from 714 to 746 is (746 - 714) / 714 = 32 / 714 \u2248 0.0448, which equals 4.48%. This directly matches the requested finegrained field value. Additionally, the other excerpt explicitly states FY2024 production of 746 MT, corroborating that the 4th-year value is indeed 746 tonnes and supporting the same growth calculation. In summary, the 4th-year production figure and the preceding year\u2019s figure in the excerpts together yield the precise 4.48% YoY growth, aligning with the target field value.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Investor_Presentation_Feb2025_v3_1_eb7a3a88b6.pdf",
+            "excerpts": [
+              "Silver production grew over 2x in last 10 years and 15x in\nlast 2 decades. With FY 2024 production of 746 MT"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_production_volumes.1",
+        "reasoning": "The provided data indicates that Hindustan Zinc's silver production for FY21 was 706 tonnes. This figure is directly supported by an excerpt that lists refined silver production volumes, showing 706 for a particular year, which aligns with the fiscal year in question.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "silver_revenue_contribution.1.total_revenue_in_crore",
+        "reasoning": "To assess relevance for the requested field path, I look for excerpts that discuss Hindustan Zinc\u2019s revenue in a way that could be connected to silver. The most relevant excerpts are those that explicitly acknowledge revenue in the context of silver or silver byproducts, or those that present disaggregated revenue information which could include commodity-level detail. The first excerpt mentions a visual of refined silver bars and indicates revenue context, which could relate to silver and byproduct considerations, making it the strongest partial match. The fifth excerpt (disaggregated revenue table) is directly related to how revenue is broken down, and could contain the kind of breakdown needed to map to a silver-specific revenue line in a real report. The other excerpts provide broader total revenue figures for Hindustan Zinc without explicit linkage to silver, offering partial or contextual support but not direct evidence for the silver-specific revenue line in the path provided. Specifically, the excerpts that present Hindustan Zinc\u2019s total revenue (without explicit silver attribution) are relevant as contextual background but do not confirm the exact silver_revenue_contribution.1.total_revenue_in_crore value. The remaining excerpts discuss EBIT contribution by precious metals or general revenue figures without tying them to the precise field path, offering limited relevance to the exact fine-grained field value.",
+        "citations": [
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "Below table summarises the disaggregated revenue from contracts with customers:"
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "**\u20b9 34,083 crore**\nRevenu",
+              "**\u20b9 6,130 crore**\nrevenu",
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "low"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.0",
+        "reasoning": "The excerpts mention the 'Nippon India Silver ETF' by name and ticker symbol 'SILVERBEES.NS'. Information regarding its performance is provided, including values for '1 Year' and '3 Years' which correspond to the 'returns_1_year_percentage' and 'returns_3_year_cagr_percentage' fields. Specific figures like '179.00' and '59.38' are present in the excerpts, aligning with the provided return percentages. The excerpts also indicate that 'One unit = Approx 1 gram of Silver', and detail the portfolio composition with 'SILVER 999' at 98.57% and 'Cash and Other Receivables' at 1.43%. While the fund manager is stated as 'Nippon India Mutual Fund' in the field value, this is not explicitly mentioned in the provided excerpts. Similarly, the inception date and maximum drawdown percentage are not directly found in the excerpts, and the expense ratio is listed as 0.0% in the field value, which contradicts the general understanding of ETFs having some expense ratio, though specific data for this ETF's expense ratio is not in the excerpts.",
+        "citations": [
+          {
+            "url": "https://finance.yahoo.com/quote/SILVERBEES.NS",
+            "excerpts": [
+              "Nippon India Silver ETF (SILVERBEES.NS)"
+            ],
+            "title": "Nippon India Silver ETF (SILVERBEES.NS)"
+          },
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026",
+              "27,822\n179.00\n40,484\n59.38\nNA\nNA\n41,225\n41.61",
+              "SILVER 999 ( in Kg)\"\n98.57%",
+              "Cash and Other Receivables\n1.43%",
+              "One unit = Approx 1 gram of Silver"
+            ],
+            "title": "Nippon India Silver ETF"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_revenue_contribution.1.fiscal_year",
+        "reasoning": "The most relevant excerpt is the FY2024 integrated annual report, which is the primary source likely containing FY24 silver-related revenue details and production context. It references silver bars production and revenue in the reported year, aligning with the requested FY24 silver revenue contribution. The next most relevant excerpt presents a section on how precious metals contribute to EBIT, with numeric values that likely break out the contribution share of silver (as a precious metal) across fiscal years; this supports the notion that silver has a measurable contribution to earnings during the fiscal year timeline, including the FY24 period. The other excerpts discuss total revenues or non-FY24 contexts, offering indirect or no direct support for the precise FY24 silver revenue contribution figure. Combined, these excerpts provide direct FY24 silver revenue context and a corroborating EBIT contribution view, enabling inference about FY24 silver revenue contribution. ",
+        "citations": [
+          {
+            "url": "https://integratedreport.hzlindia.com/annual-integrated-report-fy-2023-24",
+            "excerpts": [
+              "HZL Integrated Annual Report 2024\n\u20b9 4,076 crore. Revenue. Explore +. Image of refined silver bars with Vedanta embossed on them, indicating the production"
+            ],
+            "title": "HZL Integrated Annual Report 2024"
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "ontribution of Precious Metal in EBIT**\n(%\n41\n28\n27\n45\n38\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_production_volumes.1.production_in_tonnes",
+        "reasoning": "The fine-grained field value corresponds to the second entry in a sequence of annual or quarterly silver production figures expressed in tonnes. The excerpt lists a sequence of Refined Silver tonnes, starting with 706, which matches the target value when selecting the second element of the production_in_tonnes series indicated by the path. This direct alignment shows that the excerpt provides explicit support for the requested field value.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.0.etf_name",
+        "reasoning": "The target field is the exact ETF name, so excerpts that explicitly state 'Nippon India Silver ETF' directly support the field value. Excerpt with the explicit title 'Nippon India Silver ETF (SILVERBEES.NS)' provides a clear identifier that matches the expected ETF name. Excerpts that mention Nippon India Silver ETF in performance notes or fund notes still confirm the entity being queried, reinforcing the correct identification of the ETF name across multiple sources. Excerpts that include the same ETF name in different contexts (scheme performance, fund notes, and product documents) are highly relevant as they corroborate the presence and naming of the ETF in varied authoritative formats. Supporting excerpts that reiterate the ETF name (even if they provide extra data like performance figures or unit measures) further corroborate the field value, but the core assertion remains the explicit naming. Therefore, the most relevant content is the direct ETF name references, followed by corroborating mentions that consistently identify the same Nippon India Silver ETF.",
+        "citations": [
+          {
+            "url": "https://finance.yahoo.com/quote/SILVERBEES.NS",
+            "excerpts": [
+              "Nippon India Silver ETF (SILVERBEES.NS)"
+            ],
+            "title": "Nippon India Silver ETF (SILVERBEES.NS)"
+          },
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026",
+              "27,822\n179.00\n40,484\n59.38\nNA\nNA\n41,225\n41.61",
+              "SILVER 999 ( in Kg)\"\n98.57%",
+              "Cash and Other Receivables\n1.43%",
+              "One unit = Approx 1 gram of Silver"
+            ],
+            "title": "Nippon India Silver ETF"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.0.returns_3_year_cagr_percentage",
+        "reasoning": "The target value is a numeric CAGR figure (59.38) that appears within a performance table for the Nippon India Silver ETF, indicating a 3-year CAGR. This excerpt explicitly lists the sequence of numbers where 59.38 is present, making it the direct source for the requested finegrained field. Other excerpts provide context about the ETF (titles, general performance notes, or metadata like unit descriptions) but do not contain the exact 3-year CAGR value, so they offer indirect or partial support. Therefore, the most relevant information is the excerpt containing the explicit 59.38 figure, while the others help corroborate that the data relates to Nippon India Silver ETF performance data as of Feb 2026 but do not confirm the precise value.",
+        "citations": [
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "27,822\n179.00\n40,484\n59.38\nNA\nNA\n41,225\n41.61",
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026",
+              "SILVER 999 ( in Kg)\"\n98.57%",
+              "Cash and Other Receivables\n1.43%",
+              "One unit = Approx 1 gram of Silver"
+            ],
+            "title": "Nippon India Silver ETF"
+          },
+          {
+            "url": "https://finance.yahoo.com/quote/SILVERBEES.NS",
+            "excerpts": [
+              "Nippon India Silver ETF (SILVERBEES.NS)"
+            ],
+            "title": "Nippon India Silver ETF (SILVERBEES.NS)"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.0.ticker_symbol",
+        "reasoning": "The target fine-grained field value is the ticker_symbol for the Indian silver ETF entry, expected to be the ETF\u2019s ticker. The most directly relevant excerpt mentions the Nippon India Silver ETF with a ticker-like label SILVERBEES.NS, which clearly aligns with the idea of a tickersymbol associated with the ETF. Additional excerpts reference the same ETF by name (Nippon India Silver ETF) and include performance notes and fund notes dated Feb 2026, which corroborate that this ETF is indeed the one tied to the ticker in question. Taken together, these excerpts support that the ticker_symbol value corresponds to SILVERBEES in the context of the Nippon India Silver ETF, even though the exact symbol form in the excerpts includes a domain-like suffix (SILVERBEES.NS) rather than the plain string SILVERBEES in isolation. This provides partial-to-strong support for the field value being SILVERBEES as the ticker symbol for the ETF described in the excerpts.",
+        "citations": [
+          {
+            "url": "https://finance.yahoo.com/quote/SILVERBEES.NS",
+            "excerpts": [
+              "Nippon India Silver ETF (SILVERBEES.NS)"
+            ],
+            "title": "Nippon India Silver ETF (SILVERBEES.NS)"
+          },
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026"
+            ],
+            "title": "Nippon India Silver ETF"
+          }
+        ],
+        "confidence": "medium"
+      },
+      {
+        "field": "silver_production_volumes.3.production_in_tonnes",
+        "reasoning": "One excerpt states that silver production was 714 MT in line with higher lead metal production. Another excerpt provides a table of refined silver production in tonnes, listing 714 as one of the values.",
+        "citations": [
+          {
+            "url": "https://www.hzlindia.com/uploads/Integrated_Annual_Report_FY_2023_16cd9897a3.pdf",
+            "excerpts": [
+              "silver production was 10% higher at 714 MT in line\nwith higher lead metal production."
+            ],
+            "title": "INTEGRATED ANNUAL REPORT 2022-23 EGRATED ..."
+          },
+          {
+            "url": "https://www.hzlindia.com/uploads/Hindustan_Zinc_Limited_Annual_Deck_FY_2025_04011b2c8b.pdf",
+            "excerpts": [
+              "Refined Silver*** (tonnes)\n706\n647\n714\n746\n687\n"
+            ],
+            "title": "Hindustan Zinc Limited"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.0.returns_1_year_percentage",
+        "reasoning": "The target finegrained field is the 1-year return percentage for the Nippon India Silver ETF. The excerpt that lists a sequence of figures includes a standalone 179.00 value in the position that aligns with a numeric 1-year return metric, explicitly matching the requested 179.0. This makes it the most direct evidence supporting the field value. Other excerpts discuss scheme performance and reference time horizons such as 1 Year, 3 Years, and 5 Years, indicating that the document covers annual returns, but they do not provide the exact numeric 1-year percentage. Thus, they are relevant for context but not as directly supportive of the precise value. The combination confirms that the ETF\u2019s 1-year return is reported, and the specific 179.0 figure is the corroborated value for that field.",
+        "citations": [
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "27,822\n179.00\n40,484\n59.38\nNA\nNA\n41,225\n41.61",
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026"
+            ],
+            "title": "Nippon India Silver ETF"
+          }
+        ],
+        "confidence": "high"
+      },
+      {
+        "field": "indian_silver_etfs_analysis.0.fund_manager",
+        "reasoning": "The field value indicates the fund manager for a silver ETF product. The most relevant excerpts explicitly reference Nippon India as the ETF provider (Nippon India Silver ETF) and include performance notes for the Nippon India Silver ETF. These pieces show a direct association between Nippon India and the ETF product, which is consistent with Nippon India Mutual Fund being the managing mutual fund. An additional excerpt also mentions Nippon India in connection with the ETF, reinforcing the inference. While none of the excerpts state the exact phrase \u2018fund manager\u2019, the repeated mention of Nippon India in the context of the ETF strongly supports the conclusion that Nippon India Mutual Fund manages the product. The remaining excerpts provide contextual details about the ETF but do not add further evidence about the fund-manager relationship beyond the Nippon India linkage.",
+        "citations": [
+          {
+            "url": "https://mf.nipponindiaim.com/FundsAndPerformance/ProductNotes/NipponIndia-Silver-ETF-Feb-2026.pdf",
+            "excerpts": [
+              "Nippon India Silver ETF\nFeb 28, 2026 \u2014 Scheme Performance Nippon India Silver ETF as on 28th February, 2026. Fund / Benchmark(Value of \u20b910, 000 invested). 1 Year. 3 Years. 5 Years.",
+              "Scheme Performance Nippon India Silver ETF as on 28th February, 2026"
+            ],
+            "title": "Nippon India Silver ETF"
+          },
+          {
+            "url": "https://finance.yahoo.com/quote/SILVERBEES.NS",
+            "excerpts": [
+              "Nippon India Silver ETF (SILVERBEES.NS)"
+            ],
+            "title": "Nippon India Silver ETF (SILVERBEES.NS)"
+          }
+        ],
+        "confidence": "medium"
+      }
+    ],
+    "type": "json",
+    "beta_fields": null,
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "executive_summary": {
+          "type": "string",
+          "description": "A high-level summary of the key findings, addressing Hindustan Zinc's reliance on silver, its performance as a silver investment, and a comparison with other silver exposure options in India."
+        },
+        "hindustan_zinc_silver_operations_overview": {
+          "type": "string",
+          "description": "An overview of Hindustan Zinc's position as a major silver producer, explaining that silver is a byproduct of its primary zinc-lead mining operations."
+        },
+        "silver_revenue_contribution": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fiscal_year": {
+                "type": "string",
+                "description": "The fiscal year for the revenue data (e.g., 'FY24')."
+              },
+              "silver_revenue_in_crore": {
+                "type": "number",
+                "description": "Revenue generated from the silver segment in INR crore."
+              },
+              "total_revenue_in_crore": {
+                "type": "number",
+                "description": "Total revenue from operations for the company in INR crore."
+              },
+              "contribution_percentage": {
+                "type": "number",
+                "description": "The percentage of total revenue that comes from the silver segment."
+              }
+            },
+            "required": [
+              "fiscal_year",
+              "silver_revenue_in_crore",
+              "total_revenue_in_crore",
+              "contribution_percentage"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Details on Hindustan Zinc's silver revenue and its percentage contribution to the total revenue for fiscal years 2020, 2021, 2022, 2023, 2024, and any available forecasts for FY25 and FY26. This should be an array where each item represents a fiscal year."
+        },
+        "silver_production_volumes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fiscal_year": {
+                "type": "string",
+                "description": "The fiscal year for the production data (e.g., 'FY24')."
+              },
+              "production_in_tonnes": {
+                "type": "number",
+                "description": "The total volume of silver produced in metric tonnes."
+              },
+              "year_over_year_growth_percentage": {
+                "type": "number",
+                "description": "The percentage change in production volume compared to the previous year."
+              }
+            },
+            "required": [
+              "fiscal_year",
+              "production_in_tonnes",
+              "year_over_year_growth_percentage"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Historical data on Hindustan Zinc's annual silver production in metric tonnes for fiscal years 2020, 2021, 2022, 2023, 2024, and any available forecasts for FY25 and FY26."
+        },
+        "impact_of_silver_price_on_financials": {
+          "type": "string",
+          "description": "Analysis of the sensitivity of Hindustan Zinc's key financial metrics, such as Earnings Per Share (EPS), EBITDA, and margins, to fluctuations in silver prices."
+        },
+        "profitability_from_silver_segment": {
+          "type": "object",
+          "properties": {
+            "fiscal_year": {
+              "type": "string",
+              "description": "The fiscal year for the profitability data (e.g., 'FY24')."
+            },
+            "ebit_contribution_percentage": {
+              "type": "number",
+              "description": "The percentage contribution of the precious metals (primarily silver) segment to the company's total Earnings Before Interest and Taxes (EBIT)."
+            }
+          },
+          "required": [
+            "fiscal_year",
+            "ebit_contribution_percentage"
+          ],
+          "additionalProperties": false
+        },
+        "company_guidance_on_silver": {
+          "type": "string",
+          "description": "Summary of guidance provided by Hindustan Zinc's management in investor presentations and conference calls regarding future silver production targets, expansion plans, and strategic initiatives."
+        },
+        "stock_price_correlation_with_silver": {
+          "type": "string",
+          "description": "Historical analysis of the correlation between Hindustan Zinc's share price (NSE: HZNC) and the spot price of silver."
+        },
+        "overview_of_silver_investment_in_india": {
+          "type": "string",
+          "description": "A summary of the primary methods for gaining silver exposure in India, including direct stock investment (like HZL), Exchange Traded Funds (ETFs), and mutual funds."
+        },
+        "hindustan_zinc_stock_as_investment": {
+          "type": "string",
+          "description": "An evaluation of Hindustan Zinc stock as a proxy for investing in silver, considering its business model where silver is a byproduct."
+        },
+        "indian_silver_etfs_analysis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "etf_name": {
+                "type": "string",
+                "description": "The official name of the Silver Exchange Traded Fund."
+              },
+              "ticker_symbol": {
+                "type": "string",
+                "description": "The stock exchange ticker symbol for the ETF (e.g., 'SILVERBEES')."
+              },
+              "fund_manager": {
+                "type": "string",
+                "description": "The asset management company that manages the ETF."
+              },
+              "inception_date": {
+                "type": "string",
+                "description": "The date when the ETF was launched."
+              },
+              "expense_ratio_percentage": {
+                "type": "number",
+                "description": "The total expense ratio (TER) of the fund as a percentage."
+              },
+              "returns_1_year_percentage": {
+                "type": "number",
+                "description": "The investment return over a 1-year period, as a percentage."
+              },
+              "returns_3_year_cagr_percentage": {
+                "type": "number",
+                "description": "The compounded annual growth rate (CAGR) of investment returns over a 3-year period."
+              },
+              "maximum_drawdown_percentage": {
+                "type": "number",
+                "description": "The maximum observed loss from a peak to a trough of the portfolio."
+              }
+            },
+            "required": [
+              "etf_name",
+              "ticker_symbol",
+              "fund_manager",
+              "inception_date",
+              "expense_ratio_percentage",
+              "returns_1_year_percentage",
+              "returns_3_year_cagr_percentage",
+              "maximum_drawdown_percentage"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Detailed profiles of major Indian silver ETFs, including SILVERBEES (Nippon India Silver ETF) and SILVERCASE (Zerodha Silver ETF). Each profile should include details on returns, drawdowns, expense ratios, and assets under management (AUM)."
+        },
+        "performance_comparison_hzl_vs_etfs": {
+          "type": "string",
+          "description": "A comparative analysis of the investment returns of Hindustan Zinc stock versus key Indian silver ETFs over 3-year and 5-year periods."
+        },
+        "recommended_strategy_for_silver_exposure": {
+          "type": "string",
+          "description": "A concluding analysis on the most effective way to get silver exposure in India, weighing the pros and cons of investing in Hindustan Zinc stock versus silver ETFs."
+        },
+        "silver_price_forecast_2026_2028": {
+          "type": "string",
+          "description": "A summary of available silver price forecasts and market outlooks for the years 2026, 2027, and 2028 from various financial analysts and institutions."
+        },
+        "silver_supercycle_thesis": {
+          "type": "string",
+          "description": "An explanation and analysis of the 'silver supercycle' thesis, including the factors that proponents believe could drive a sustained long-term bull market for silver."
+        }
+      },
+      "required": [
+        "executive_summary",
+        "hindustan_zinc_silver_operations_overview",
+        "silver_revenue_contribution",
+        "silver_production_volumes",
+        "impact_of_silver_price_on_financials",
+        "profitability_from_silver_segment",
+        "company_guidance_on_silver",
+        "stock_price_correlation_with_silver",
+        "overview_of_silver_investment_in_india",
+        "hindustan_zinc_stock_as_investment",
+        "indian_silver_etfs_analysis",
+        "performance_comparison_hzl_vs_etfs",
+        "recommended_strategy_for_silver_exposure",
+        "silver_price_forecast_2026_2028",
+        "silver_supercycle_thesis"
+      ],
+      "additionalProperties": false
+    },
+    "content_file": "hindustan-zinc-silver-thesis.md"
+  }
+}
