@@ -38,14 +38,24 @@ WEIGHT_CHOICES = [
 REBAL_TRIGGERS    = ["fixed", "name_change", "score_gap"]
 REBAL_MIN_HOLD    = [15, 20, 25, 30]
 REBAL_MAX_HOLD    = [35, 40, 50, 60, 80]
-REBAL_JITTER      = [0, 3, 5, 10]
-SCORE_GAP_CHOICES = [0.05, 0.10, 0.15, 0.25, 0.40]
+SCORE_GAP_CHOICES = [0.05, 0.10, 0.25]               # narrowed: middle values rarely won
 N_POSITION_CHOICES = [3, 4, 5, 7, 10, 15]
-REGIME_MA_CHOICES = [0, 100, 150, 200]   # 0 = no regime filter
-DD_STOP_CHOICES   = [0.0, 0.15, 0.20, 0.30]  # 0 = no DD stop
-TARGET_VOL_CHOICES = [0.0, 0.15, 0.20, 0.25, 0.30]  # 0 = no vol-targeting; else target annualised
+REGIME_MA_CHOICES = [0, 100, 150, 200]               # 0 = no regime filter
+DD_STOP_CHOICES   = [0.0, 0.15, 0.30]                # narrowed: 0.20 underperformed both
+TARGET_VOL_CHOICES = [0.0, 0.15, 0.20, 0.25]         # dropped 0.30 — too aggressive
 WEIGHT_MODE_CHOICES = ["equal", "score", "sqrt_score"]
-VOL_LOOKBACK_CHOICES = [21, 42, 63]  # days for realised vol estimate
+VOL_LOOKBACK_CHOICES = [21, 42, 63]
+HMM_STATES_CHOICES = [0, 2, 3]                        # 0 = HMM off; 2 or 3 latent regimes
+# Per-state target_vol multipliers (sorted bear → bull):
+#   3-state: [bear, sideways, bull] — e.g. [0.30, 1.00, 1.30]
+#   2-state: [bear, bull]           — e.g. [0.40, 1.20]
+HMM_SCALE_PROFILES = {
+    "off":         None,
+    "balanced":    {2: [0.6, 1.2],  3: [0.4, 1.0, 1.3]},
+    "aggressive":  {2: [0.3, 1.4],  3: [0.2, 1.0, 1.5]},
+    "defensive":   {2: [0.4, 1.0],  3: [0.3, 0.8, 1.1]},
+}
+HMM_PROFILE_CHOICES = list(HMM_SCALE_PROFILES.keys())  # off / balanced / aggressive / defensive
 # Vol-state regime scaling: classify benchmark vol as low/mid/high, scale target_vol per state
 # off       — no scaling (static target_vol)
 # moderate  — low: ×1.3, mid: ×1.0, high: ×0.6
