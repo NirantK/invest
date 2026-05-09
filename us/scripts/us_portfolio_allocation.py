@@ -235,7 +235,8 @@ TICKERS = [
     "AU",      # AngloGold Ashanti
     "AG",      # First Majestic Silver
     "CDE",     # Coeur Mining - silver/gold US producer
-    "MAG",     # MAG Silver
+    # "MAG",   # MAG Silver — yfinance 404, dropped
+
     # === Industrial metals additions ===
     "FCX",     # Freeport-McMoRan - copper/gold (user holds)
     "SCCO",    # Southern Copper (user holds)
@@ -268,7 +269,7 @@ MAX_POSITIONS = 25
 
 # Category groupings (for reporting only)
 GOLD_STREAMERS = ["WPM", "FNV", "RGLD"]           # Royalty/streaming (no op risk)
-SILVER_MINERS  = ["PAAS", "HL", "AG", "CDE", "MAG"]                   # Primary silver miners
+SILVER_MINERS  = ["PAAS", "HL", "AG", "CDE"]                   # Primary silver miners
 GOLD_MINERS    = ["AEM", "GMIN.TO", "BTG", "NEM", "GOLD", "KGC", "AU"]          # Individual gold producers
 GOLD_ETFs      = ["GOAU", "SGDM", "SGDJ", "GBUG", "GDXJ", "GDX"] # Gold/silver miner ETF wrappers
 SILVER_ETFs    = ["SILJ", "SIL"]                          # Silver miner ETFs
