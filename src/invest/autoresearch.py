@@ -228,6 +228,8 @@ def _compute_scores(prices_window: np.ndarray, lookbacks, weights, skip,
     p_end = prices_window[end - 1, :]
     p_min = prices_window[end - min_lb, :]
     eligible = np.isfinite(p_end) & np.isfinite(p_min)
+    if exclude_mask is not None:
+        eligible &= ~exclude_mask
     if not eligible.any():
         return scores
 
@@ -324,10 +326,11 @@ def _topk_from_scores(scores, n_positions):
 def walk_forward(prices: np.ndarray, strat: Strategy,
                  train_days: int = 252, check_every: int = 5,
                  seed_offset: int = 0,
-                 cash_idx: int = -1) -> dict:
-    """cash_idx: column index of a cash-equivalent ticker (LIQUIDBEES) in `prices`.
-    When weight_sum < 1.0 (e.g. HMM gross-cut, regime_off), the deficit is parked
-    in cash_idx instead of earning 0%. Pass -1 to disable."""
+                 cash_idx: int = -1,
+                 exclude_mask: np.ndarray | None = None) -> dict:
+    """cash_idx: column of a cash-equivalent ticker; deficit parks here.
+    exclude_mask: boolean array of columns to exclude from momentum scoring
+    (cash-equivs that would game Sortino). They can still be used via cash_idx."""
     rng = np.random.default_rng(42 + seed_offset)
     n_days, n = prices.shape
     min_history = max(strat.lookbacks) + strat.skip_days + 21
@@ -407,7 +410,8 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
         win_depth = max(train_days, max(strat.lookbacks) + strat.skip_days + 5)
         window = prices[max(0, cur_idx - win_depth):cur_idx, :]
         scores = _compute_scores(window, strat.lookbacks, strat.weights,
-                                  strat.skip_days, strat.score_variant)
+                                  strat.skip_days, strat.score_variant,
+                                  exclude_mask=exclude_mask)
         topk = _topk_from_scores(scores, strat.n_positions)
 
         if force_cash:
@@ -854,9 +858,15 @@ def composite(bt: dict, mc: dict) -> float:
     return pain_ratio * uw_pen * nerve_pen * tail_pen
 
 
+def _build_exclude_mask(fetched: list[str]) -> np.ndarray:
+    return np.array([t in CASH_EQUIV_TICKERS for t in fetched], dtype=bool)
+
+
 def current_picks(prices: np.ndarray, fetched: list[str], strat: Strategy) -> list[str]:
+    exclude = _build_exclude_mask(fetched)
     scores = _compute_scores(prices, strat.lookbacks, strat.weights,
-                              strat.skip_days, strat.score_variant)
+                              strat.skip_days, strat.score_variant,
+                              exclude_mask=exclude)
     topk = _topk_from_scores(scores, strat.n_positions)
     return [fetched[i] for i in topk]
 
@@ -864,7 +874,8 @@ def current_picks(prices: np.ndarray, fetched: list[str], strat: Strategy) -> li
 def evaluate(strat: Strategy, prices: np.ndarray, fetched: list[str],
              daily_rets: np.ndarray, calib: dict, seed: int = 42) -> tuple:
     cash_idx = fetched.index("LIQUIDBEES") if "LIQUIDBEES" in fetched else -1
-    bt = walk_forward(prices, strat, cash_idx=cash_idx)
+    exclude = _build_exclude_mask(fetched)
+    bt = walk_forward(prices, strat, cash_idx=cash_idx, exclude_mask=exclude)
     picks = current_picks(prices, fetched, strat)
     if not picks or bt["rebal_count"] < 3:
         mc = {"p5": 0, "p25": 0, "p50": 0, "p75": 0, "p95": 0,
