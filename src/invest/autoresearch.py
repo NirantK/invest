@@ -227,6 +227,20 @@ def _compute_scores(prices_window: np.ndarray, lookbacks, weights, skip,
     if not eligible.any():
         return scores
 
+    # Min-vol filter: exclude near-zero-vol assets (cash equivalents like LIQUIDBEES)
+    # which game Sortino/sortino_vnorm via near-zero downside vol → infinite scores.
+    # Threshold: 5% annualised vol over the scoring window.
+    MIN_ANN_VOL = 0.05
+    with np.errstate(invalid="ignore", divide="ignore"):
+        check_rets = np.diff(prices_window, axis=0) / prices_window[:-1, :]
+    finite_check = np.isfinite(check_rets)
+    rets_for_vol = np.where(finite_check, check_rets, 0.0)
+    n_finite = finite_check.sum(axis=0).astype(float)
+    mean_r = np.where(n_finite > 0, rets_for_vol.sum(axis=0) / np.maximum(n_finite, 1), 0.0)
+    var_r = np.where(finite_check, (check_rets - mean_r[None, :]) ** 2, 0.0).sum(axis=0)
+    ann_vol = np.where(n_finite > 1, np.sqrt(var_r / np.maximum(n_finite, 1)) * SQRT_252, 0.0)
+    eligible &= ann_vol >= MIN_ANN_VOL
+
     # ── Multi-lookback weighted momentum (vectorised across tickers) ──────────
     # For each lookback, ticker is "available" if start price exists and >0.
     starts = end - lbs                    # (k,)
@@ -476,7 +490,8 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                             scale = min(1.5, eff_target_vol / realised_vol)
                             weights = weights * scale
 
-                # ── HMM direct-gross apply (independent of target_vol) ──
+                # ── HMM direct-gross apply: multiplies weight-sum after vol-targeting ──
+                # Stacks ON TOP of any prior weight scaling (vol-target etc).
                 if (hmm is not None and hmm_bench is not None
                         and cur_idx >= hmm.min_train_days
                         and strat.hmm_apply == "gross"
@@ -485,11 +500,10 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                     s = hmm.predict_state(hmm_bench[max(0, cur_idx - 252):cur_idx])
                     if s >= 0:
                         gross_factor = float(hmm_scales[s])
-                        gross_factor = min(gross_factor, 1.5)  # cap leverage
-                        # Re-normalise weights to current sum then scale to gross_factor
-                        current_sum = weights.sum()
-                        if current_sum > 0:
-                            weights = (weights / current_sum) * gross_factor
+                        # Apply as multiplicative state factor (caps the cap at 1.5x net)
+                        weights = weights * gross_factor
+                        if weights.sum() > 1.5:
+                            weights = weights * (1.5 / weights.sum())
                 days_since_last = 0
                 rebal_count += 1
 
