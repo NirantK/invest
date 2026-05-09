@@ -450,10 +450,12 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                  train_days: int = 252, check_every: int = 5,
                  seed_offset: int = 0,
                  cash_idx: int = -1,
-                 exclude_mask: np.ndarray | None = None) -> dict:
+                 exclude_mask: np.ndarray | None = None,
+                 macro_features: np.ndarray | None = None) -> dict:
     """cash_idx: column of a cash-equivalent ticker; deficit parks here.
-    exclude_mask: boolean array of columns to exclude from momentum scoring
-    (cash-equivs that would game Sortino). They can still be used via cash_idx."""
+    exclude_mask: boolean array of columns to exclude from momentum scoring.
+    macro_features: optional (n_days, k) panel aligned to `prices` rows;
+    forwarded to HMMRegime as macro features (FII, volume, sentiment, etc.)."""
     rng = np.random.default_rng(42 + seed_offset)
     n_days, n = prices.shape
     min_history = max(strat.lookbacks) + strat.skip_days + 21
@@ -511,6 +513,7 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
             n_states=strat.hmm_states,
             feature_window=strat.hmm_feature_window,
             refit_every_days=strat.hmm_refit_days,
+            macro_features=macro_features,
         )
         if strat.hmm_states > 0
         else None
@@ -624,7 +627,11 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                             and cur_idx >= hmm.min_train_days
                             and strat.hmm_apply == "target_vol"):
                         hmm.maybe_refit(hmm_bench, cur_idx)
-                        s = hmm.predict_state(hmm_bench[max(0, cur_idx - 252):cur_idx])
+                        recent_macro = (
+                            macro_features[max(0, cur_idx - 252):cur_idx, :]
+                            if macro_features is not None else None
+                        )
+                        s = hmm.predict_state(hmm_bench[max(0, cur_idx - 252):cur_idx], recent_macro)
                         if s >= 0 and hmm_scales is not None:
                             eff_target_vol = strat.target_vol * hmm_scales[s]
 

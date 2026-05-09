@@ -116,14 +116,17 @@ class HMMRegime:
                 self.fit(prices_to_idx[:cur_idx], macro_slice=macro_slice)
                 self._last_fit_idx = cur_idx
 
-    def predict_state(self, recent_prices: np.ndarray) -> int:
-        """Return current state in [0, n_states-1] sorted by mean return.
+    def predict_state(self, recent_prices: np.ndarray, recent_macro: np.ndarray | None = None) -> int:
+        """Return current state in [0, n_states-1] sorted by mean vol descending.
         Returns -1 if model not fit yet."""
         if self._model is None:
             return -1
-        X = self._features(recent_prices)
+        X = self._features(recent_prices, recent_macro)
         if len(X) < 5:
             return -1
+        # If feature dim doesn't match the trained model, drop macro slice
+        if X.shape[1] != self._model.n_features:
+            X = X[:, : self._model.n_features]
         # Use forward (filtering) — only past data, no look-ahead
         try:
             posteriors = self._model.predict_proba(X)
