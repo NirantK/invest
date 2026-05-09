@@ -326,13 +326,24 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
     weights = np.array([])
     in_cash_until = -1  # absolute cur_idx; if > cur_idx, force cash
 
-    # Equal-weight benchmark — used for regime_ma, vol_state_mode, and HMM.
+    # Equal-weight benchmark — built from mean of daily returns (NOT prices)
+    # so new IPOs joining the universe don't create artificial price jumps that
+    # corrupt HMM features. Reconstruct a level series by cumulative product.
     needs_bench = (
         bool(strat.regime_ma)
         or strat.vol_state_mode != "off"
         or strat.hmm_states > 0
     )
-    benchmark = np.nanmean(prices, axis=1) if needs_bench else None
+    if needs_bench:
+        with np.errstate(invalid="ignore", divide="ignore"):
+            ret_panel = np.diff(prices, axis=0) / prices[:-1, :]
+        # Mask infs/nans, then mean across tickers per day
+        ret_panel = np.where(np.isfinite(ret_panel), ret_panel, np.nan)
+        bench_rets = np.nanmean(ret_panel, axis=1)
+        bench_rets = np.nan_to_num(bench_rets, nan=0.0)
+        benchmark = np.concatenate([[1.0], np.cumprod(1.0 + bench_rets)])
+    else:
+        benchmark = None
     # HMM regime detector: fit annually on benchmark history (no look-ahead).
     hmm = HMMRegime(n_states=strat.hmm_states) if strat.hmm_states > 0 else None
     hmm_scales = None

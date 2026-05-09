@@ -5,9 +5,15 @@ Fit a Gaussian HMM on benchmark daily features (returns + rolling vol),
 identify N latent states, then expose a predict_state() callable that's
 look-ahead-safe (uses only data ≤ t-1 to predict state at t).
 
-States are sorted by mean return so they're stable across refits:
-  state 0 = lowest-return / highest-vol (bear)
-  state N-1 = highest-return / lowest-vol (bull)
+States are sorted by **mean vol descending** so the labeling is stable across
+refits AND aligned with intuition:
+  state 0          = highest-vol (crisis / bear)
+  state N-1        = lowest-vol  (calm   / bull)
+
+Empirically: in financial regimes, high-vol clusters span both crashes (-50%)
+and the violent recoveries that follow. Sorting by mean RETURN puts these
+recovery rallies at "bull" — wrong, because risk is still elevated. Sorting
+by VOL captures the underlying regime correctly.
 
 Caching: fitting is O(n × n_states²); a refit every 252 days is cheap enough.
 """
@@ -72,9 +78,10 @@ class HMMRegime:
                 tol=1e-3,
             )
             model.fit(X)
-            # Sort states by mean return (column 0): low → high
-            mean_rets = model.means_[:, 0]
-            self._state_order = np.argsort(mean_rets)
+            # Sort states by mean VOL descending: state 0 = highest-vol (bear),
+            # state N-1 = lowest-vol (bull). Vol is column 1 of features.
+            mean_vols = model.means_[:, 1]
+            self._state_order = np.argsort(mean_vols)[::-1]  # descending
             self._model = model
         except Exception:
             # On singular cov / non-convergence, leave model as None
