@@ -494,6 +494,22 @@ def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
     max_dd = drawdown.min()
     current_dd = drawdown[-1]
 
+    # Ulcer Index (1Y): sqrt(mean(DD²)) over last 252 trading days
+    # Recompute DD against rolling 1Y peak so 2022 wipeouts don't pollute current regime
+    if n >= LOOKBACK_12M:
+        last_year = prices[-LOOKBACK_12M:]
+        running_max_1y = np.maximum.accumulate(last_year)
+        dd_1y = (last_year - running_max_1y) / running_max_1y
+        ulcer_1y = float(np.sqrt(np.mean(dd_1y ** 2)))
+        max_dd_1y = float(dd_1y.min())
+    else:
+        # Fall back to all-history if <1Y data
+        ulcer_1y = float(np.sqrt(np.mean(drawdown ** 2)))
+        max_dd_1y = float(max_dd)
+
+    # Martin Ratio: weighted-mom / ulcer_1y. Higher = more return per unit of pain.
+    martin = (wt_mom / ulcer_1y) if ulcer_1y > 0.001 else 0.0
+
     # Drawdown durations
     in_dd = drawdown < 0
     periods = []
@@ -520,6 +536,54 @@ def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
         rolling_3m_dd.append(w_dd)
     worst_3m_dd = min(rolling_3m_dd) if rolling_3m_dd else max_dd
 
+    # === Volume + price-level signals ===
+    # 1. 52-week-high distance: how close to recent peak (closer = stronger trend)
+    #    dist52 = 0 means at high; 0.25 = 25% below. Penalty if > 0.25.
+    if closes is not None and len(closes) >= LOOKBACK_12M:
+        max_252 = float(np.nanmax(closes[-LOOKBACK_12M:]))
+        last_close = float(closes[-1])
+        dist52 = 1.0 - (last_close / max_252) if max_252 > 0 else 1.0
+    else:
+        dist52 = float("nan")
+
+    # 2. Dollar-volume slope (3M): is money flow growing or shrinking?
+    #    Positive slope on log(dvol) = accumulation; negative = distribution
+    if dvols is not None and len(dvols) >= LOOKBACK_3M:
+        dv_window = dvols[-LOOKBACK_3M:]
+        dv_window = dv_window[np.isfinite(dv_window) & (dv_window > 0)]
+        if len(dv_window) >= 30:
+            log_dv = np.log(dv_window)
+            x_dv = np.arange(len(log_dv))
+            dv_slope = float(np.polyfit(x_dv, log_dv, 1)[0]) * 252  # annualized
+        else:
+            dv_slope = 0.0
+    else:
+        dv_slope = 0.0
+
+    # 3. Average Daily Dollar Volume (60d) — liquidity gate
+    if dvols is not None and len(dvols) >= 60:
+        adv60 = float(np.nanmean(dvols[-60:]))
+    else:
+        adv60 = 0.0
+
+    # Volume confirmation factor: rewards growing money flow, mildly penalizes shrinking
+    # dv_slope ranges roughly -2 to +2 (annualized log-growth). Map to [0.7, 1.3].
+    vol_factor = float(np.clip(1.0 + 0.15 * dv_slope, 0.7, 1.3))
+
+    # 52WH boost: reward proximity to peak (Minervini/O'Neil style)
+    # dist52 < 0.10: ×1.10; 0.10–0.25: ×1.00; > 0.25: linear penalty down to 0.85
+    if not np.isnan(dist52):
+        if dist52 < 0.10:
+            high_factor = 1.10
+        elif dist52 < 0.25:
+            high_factor = 1.00
+        else:
+            high_factor = max(0.85, 1.00 - 0.50 * (dist52 - 0.25))
+    else:
+        high_factor = 1.00
+
+    score_v2 = score * vol_factor * high_factor
+
     return {
         "ticker": ticker,
         "mom_1m": mom_1m,
@@ -531,7 +595,8 @@ def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
         "fip": fip,
         "smoothness": smoothness,
         "dn_vol": dn_vol,
-        "score": score,
+        "score": score_v2,
+        "score_pricemom": score,  # legacy price-only score for diagnostics
         "score_12_1": score_12_1,
         "wtmf_composite": wtmf_composite,
         "score_wtmf": score_wtmf,
@@ -543,10 +608,16 @@ def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
         "avg_dd_dur": avg_dd_dur,
         "current_dd": current_dd,
         "worst_3m_dd": worst_3m_dd,
+        "dist52": dist52,
+        "dv_slope": dv_slope,
+        "adv60": adv60,
+        "vol_factor": vol_factor,
+        "high_factor": high_factor,
     }
 
 
-def build_scores(prices: pl.DataFrame) -> pl.DataFrame:
+def build_scores(prices: pl.DataFrame, closes: pl.DataFrame | None = None,
+                 dvols: pl.DataFrame | None = None) -> pl.DataFrame:
     """Compute all per-ticker metrics. Returns one row per ticker."""
     tickers = [c for c in prices.columns if c != "date"]
     min_history = LOOKBACK_3M + SKIP_1M  # ~84 trading days (~4 months)
@@ -558,7 +629,9 @@ def build_scores(prices: pl.DataFrame) -> pl.DataFrame:
             skipped.append(t)
             continue
         r = np.diff(p) / p[:-1]
-        rows.append(_score_one(t, p, r))
+        c_arr = closes[t].drop_nulls().to_numpy() if closes is not None and t in closes.columns else None
+        dv_arr = dvols[t].drop_nulls().to_numpy() if dvols is not None and t in dvols.columns else None
+        rows.append(_score_one(t, p, r, c_arr, dv_arr))
     if skipped:
         console.print(f"[dim]Skipped (insufficient history <12M): {', '.join(skipped)}[/]")
     return pl.DataFrame(rows)
@@ -740,9 +813,14 @@ def print_scores_table(scores: pl.DataFrame):
     pass_only = scores.filter(pl.col("wt_mom") > 0).sort("score", descending=True)
     lines = []
     for row in pass_only.iter_rows(named=True):
+        d52 = row.get("dist52", float("nan"))
+        d52_s = f"{d52*100:>3.0f}%" if d52 == d52 else "  - "  # NaN check
+        dvs = row.get("dv_slope", 0.0)
+        adv = row.get("adv60", 0.0)
         lines.append(
-            f"  {row['ticker']:<7} score={row['score']:.2f}  "
-            f"mom={row['wt_mom']*100:+.0f}%  smooth={row['smoothness']:.2f}  dd={row['max_dd']*100:.0f}%"
+            f"  {row['ticker']:<7} score={row['score']:>5.2f}  "
+            f"mom={row['wt_mom']*100:+.0f}%  smooth={row['smoothness']:.2f}  "
+            f"dd={row['max_dd']*100:.0f}%  d52={d52_s}  dvol={dvs:+.2f}  adv=${adv/1e6:.0f}M"
         )
     print("Scores (PASS):")
     print("\n".join(lines))
@@ -831,16 +909,28 @@ def print_exclusions(thesis: dict[str, str], overlap: dict[str, str]) -> None:
     default=MAX_POSITIONS,
     help="Maximum number of positions.",
 )
-def main(min_allocation: float, max_allocation: float, capital: int, max_positions: int):
-    """US Portfolio Allocation - Sortino-weighted Momentum."""
-    prices = fetch_total_return_index(TICKERS)
+@click.option(
+    "--min-adv",
+    type=float,
+    default=5_000_000.0,
+    help="Minimum 60-day average daily dollar volume (liquidity gate). Default $5M.",
+)
+def main(min_allocation: float, max_allocation: float, capital: int, max_positions: int, min_adv: float):
+    """US Portfolio Allocation - Sortino-weighted Momentum + Volume."""
+    prices, closes, dvols = fetch_total_return_index(TICKERS)
     if prices.is_empty():
         print("No data fetched.")
         return
 
-    print(f"data {prices['date'].min()}→{prices['date'].max()}  capital=${capital:,}  n={max_positions}")
+    print(f"data {prices['date'].min()}→{prices['date'].max()}  capital=${capital:,}  n={max_positions}  min_adv=${min_adv/1e6:.1f}M")
 
-    scores = build_scores(prices)
+    scores = build_scores(prices, closes, dvols)
+
+    # Liquidity gate: drop names below ADV threshold
+    illiquid = scores.filter(pl.col("adv60") < min_adv)["ticker"].to_list()
+    if illiquid:
+        scores = scores.filter(pl.col("adv60") >= min_adv)
+        print(f"[dim]ADV filter (<${min_adv/1e6:.1f}M): dropped {', '.join(illiquid)}[/]")
 
     scores_clean, thesis_excl = apply_thesis_groups(scores)
     print_scores_table(scores_clean)
