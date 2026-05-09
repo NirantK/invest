@@ -640,14 +640,17 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
         new.rebal_min_hold = int(rng.choice(REBAL_MIN_HOLD))
     elif field == "rebal_max_hold":
         new.rebal_max_hold = int(rng.choice(REBAL_MAX_HOLD))
-    elif field == "rebal_jitter":
-        new.rebal_jitter = int(rng.choice(REBAL_JITTER))
     elif field == "score_gap_pct":
         new.score_gap_pct = float(rng.choice(SCORE_GAP_CHOICES))
-    elif field == "max_dd_cap":
-        new.max_dd_cap = float(rng.choice([0.30, 0.50, 0.75]))
     elif field == "crash_p_mult":
-        new.crash_p_mult = float(rng.choice([0.5, 1.0, 2.0]))
+        new.crash_p_mult = float(rng.choice([0.5, 1.0]))
+    elif field == "hmm_states":
+        new.hmm_states = int(rng.choice(HMM_STATES_CHOICES))
+        if new.hmm_states == 0:
+            new.hmm_profile = "off"
+    elif field == "hmm_profile":
+        if new.hmm_states > 0:
+            new.hmm_profile = str(rng.choice(["balanced", "aggressive", "defensive"]))
     if new.rebal_min_hold >= new.rebal_max_hold:
         new.rebal_max_hold = new.rebal_min_hold + 20
     return new
