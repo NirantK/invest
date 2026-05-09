@@ -423,9 +423,15 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
     avg_dd_dur_days = float(np.mean(runs)) if runs else 0.0
     n_dd_episodes = len(runs)
 
-    # Ulcer Index = sqrt(mean(DD²)) — penalises both depth × duration
+    # Ulcer Index = sqrt(mean(DD²)) — depth² × time, depth-biased
     ulcer = float(np.sqrt(np.mean(dd ** 2)))
-    martin = cagr / max(ulcer, 1e-3)  # CAGR per unit pain (Martin Ratio)
+    martin = cagr / max(ulcer, 1e-3)
+
+    # Pain Index = mean(|DD|) — area between curve and HWM, divided by time.
+    # Becker & Moore (Zephyr Assoc., ~mid-2000s); R PerformanceAnalytics::PainIndex.
+    # Linear in both depth and duration → matches "5% DD × 24mo > 20% DD × 3mo".
+    pain_index = float(np.abs(dd).mean())
+    pain_ratio = cagr / max(pain_index, 1e-4)
 
     return {"sortino": float(sortino), "calmar": float(calmar),
             "max_dd": max_dd, "cagr": float(cagr),
@@ -437,7 +443,9 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
             "avg_dd_dur_months": avg_dd_dur_days / 21.0,
             "n_dd_episodes":     n_dd_episodes,
             "ulcer":             ulcer,
-            "martin":            float(martin)}
+            "martin":            float(martin),
+            "pain_index":        pain_index,
+            "pain_ratio":        float(pain_ratio)}
 
 
 def _should_rebal(strat, current_picks, new_topk, scores, days_since_last, rng):
@@ -611,22 +619,63 @@ def _duration_penalty(months: float) -> float:
     return 0.05
 
 
+def _underwater_penalty(max_dd_months: float) -> float:
+    """Steep but smooth penalty for max underwater duration.
+       <12mo  → 1.00
+       18mo   → 0.70
+       24mo   → 0.40   (user said "24mo+ is unacceptable")
+       30mo   → 0.15
+       36mo+  → 0.03
+    """
+    if max_dd_months <= 12:
+        return 1.0
+    if max_dd_months <= 24:
+        return 1.0 - 0.6 * (max_dd_months - 12) / 12.0
+    if max_dd_months <= 36:
+        return 0.4 - 0.37 * (max_dd_months - 24) / 12.0
+    return 0.03
+
+
+def _nerve_penalty(max_dd_pct: float, max_dd_months: float) -> float:
+    """Product (depth × years) penalty calibrated to user's stated breaking point.
+       50% × 12mo = 0.50 → penalty 0.50
+       50% × 6mo  = 0.25 → penalty 0.85
+       40% × 2mo  = 0.067 → penalty ~1.0 (sharp DDs OK)
+       20% × 24mo = 0.40 → penalty 0.65
+    """
+    product = max_dd_pct * (max_dd_months / 12.0)
+    if product <= 0.10:
+        return 1.0
+    if product <= 0.50:
+        return 1.0 - 0.5 * (product - 0.10) / 0.40   # → 0.50
+    if product <= 0.80:
+        return 0.5 - 0.45 * (product - 0.50) / 0.30  # → 0.05
+    return 0.05
+
+
 def composite(bt: dict, mc: dict) -> float:
-    """Pain-by-duration composite. Depth doesn't matter; time underwater does.
+    """Pain Ratio (Becker) with smooth duration + nerve penalties.
 
-    Returns CAGR × duration_penalty(max_dd_months) × duration_penalty(avg_dd_months).
+    Primary signal: pain_ratio = CAGR / mean(|DD|). Linear in depth and time, so
+    "5% × 24mo > 20% × 3mo" pricing matches user's framing.
 
-    Multiple cycles of pain compound: a strategy with avg_dd_dur 12 months and
-    max_dd_dur 30 months gets hit on BOTH terms.
+    Multiplied by:
+      _underwater_penalty(max_dd_dur_months)  — discourages >24mo stretches
+      _nerve_penalty(max_dd, max_dd_months)   — calibrated to "50% × 12mo = breaking point"
+      (1 - p_dd_50_in_MC)                     — tail-risk gate from stress MC
     """
     if bt["rebal_count"] < 3 or bt.get("cagr", 0) <= 0:
         return -1.0
-    cagr = bt["cagr"]
-    max_pen = _duration_penalty(bt.get("max_dd_dur_months", 0))
-    avg_pen = _duration_penalty(bt.get("avg_dd_dur_months", 0) * 3)  # avg pain weighed
-    # Tail-risk gate from MC: prob of >50% DD AND staying down (duration-weighted)
+
+    pain_ratio = bt.get("pain_ratio", 0.0)
+    if pain_ratio <= 0:
+        return -1.0
+
+    uw_pen   = _underwater_penalty(bt.get("max_dd_dur_months", 0))
+    nerve_pen = _nerve_penalty(abs(bt.get("max_dd", 0)),
+                                bt.get("max_dd_dur_months", 0))
     tail_pen = 1.0 - mc.get("p_dd_50", 0)
-    return cagr * max_pen * avg_pen * tail_pen
+    return pain_ratio * uw_pen * nerve_pen * tail_pen
 
 
 def current_picks(prices: np.ndarray, fetched: list[str], strat: Strategy) -> list[str]:
