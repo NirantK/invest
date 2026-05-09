@@ -335,15 +335,20 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
         or strat.hmm_states > 0
     )
     if needs_bench:
-        with np.errstate(invalid="ignore", divide="ignore"):
-            ret_panel = np.diff(prices, axis=0) / prices[:-1, :]
-        # Mask infs/nans, then mean across tickers per day
-        ret_panel = np.where(np.isfinite(ret_panel), ret_panel, np.nan)
-        bench_rets = np.nanmean(ret_panel, axis=1)
-        bench_rets = np.nan_to_num(bench_rets, nan=0.0)
-        benchmark = np.concatenate([[1.0], np.cumprod(1.0 + bench_rets)])
+        # Primary benchmark for regime_ma + vol_state: simple price-mean (legacy)
+        benchmark = np.nanmean(prices, axis=1)
     else:
         benchmark = None
+    # Separate clean benchmark for HMM features only — clipped daily returns
+    # (avoids IPO-pop / split contamination of HMM state classification).
+    hmm_bench = None
+    if strat.hmm_states > 0:
+        with np.errstate(invalid="ignore", divide="ignore"):
+            ret_panel = np.diff(prices, axis=0) / prices[:-1, :]
+        ret_panel = np.where(np.isfinite(ret_panel), ret_panel, np.nan)
+        ret_panel = np.clip(ret_panel, -0.20, 0.20)
+        bench_rets = np.nan_to_num(np.nanmean(ret_panel, axis=1), nan=0.0)
+        hmm_bench = np.concatenate([[1.0], np.cumprod(1.0 + bench_rets)])
     # HMM regime detector: fit annually on benchmark history (no look-ahead).
     hmm = HMMRegime(n_states=strat.hmm_states) if strat.hmm_states > 0 else None
     hmm_scales = None
@@ -434,9 +439,9 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                             eff_target_vol = strat.target_vol * scale_table[state]
 
                     # ── HMM regime detection (overrides vol_state_mode if active) ──
-                    if hmm is not None and benchmark is not None and cur_idx >= hmm.min_train_days:
-                        hmm.maybe_refit(benchmark, cur_idx)
-                        s = hmm.predict_state(benchmark[max(0, cur_idx - 252):cur_idx])
+                    if hmm is not None and hmm_bench is not None and cur_idx >= hmm.min_train_days:
+                        hmm.maybe_refit(hmm_bench, cur_idx)
+                        s = hmm.predict_state(hmm_bench[max(0, cur_idx - 252):cur_idx])
                         if s >= 0 and hmm_scales is not None:
                             eff_target_vol = strat.target_vol * hmm_scales[s]
 
