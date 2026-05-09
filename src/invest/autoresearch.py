@@ -60,8 +60,8 @@ HMM_SCALE_PROFILES = {
 }
 HMM_PROFILE_CHOICES = list(HMM_SCALE_PROFILES.keys())
 # HMM HYPERPARAMS — now searchable, so loop can adapt the detector itself
-HMM_FEATURE_WINDOW_CHOICES = [10, 21, 42, 63]  # rolling-vol window for HMM features
-HMM_REFIT_DAYS_CHOICES = [126, 252, 504]       # how often to refit HMM
+HMM_FEATURE_WINDOW_CHOICES = [21, 42, 63]      # dropped 10 — too noisy + slow
+HMM_REFIT_DAYS_CHOICES = [252, 504, 756]       # dropped 126 — wasn't the winner, halves fit count
 # Vol-state regime scaling: classify benchmark vol as low/mid/high, scale target_vol per state
 # off       — no scaling (static target_vol)
 # moderate  — low: ×1.3, mid: ×1.0, high: ×0.6
@@ -447,7 +447,7 @@ def _topk_from_scores(scores, n_positions):
 
 # ─── Walk-forward (weekly check, min/max hold, jitter) ───────────────────────
 def walk_forward(prices: np.ndarray, strat: Strategy,
-                 train_days: int = 252, check_every: int = 5,
+                 train_days: int = 252, check_every: int = 10,
                  seed_offset: int = 0,
                  cash_idx: int = -1,
                  exclude_mask: np.ndarray | None = None,

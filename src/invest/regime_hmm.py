@@ -30,6 +30,11 @@ try:
 except ImportError as e:
     raise ImportError("Install hmmlearn: `uv add hmmlearn`") from e
 
+# Module-level fit cache (process-local). Keyed on hyperparams + train fingerprint.
+# Sweep often re-fits identical config across strategy iters → cuts ~70% EM cost.
+_FIT_CACHE: dict = {}
+_FIT_CACHE_MAX = 64
+
 # Suppress hmmlearn convergence warnings — harmless for our short fits
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="hmmlearn")
 warnings.filterwarnings("ignore", message=".*Model is not converging.*")
@@ -83,11 +88,18 @@ class HMMRegime:
         m = np.nan_to_num(m, nan=0.0, posinf=0.0, neginf=0.0)
         return np.column_stack([base, m])
 
+
     def fit(self, prices: np.ndarray, macro_slice: np.ndarray | None = None) -> None:
-        """Fit on the entire prices array (+ optional aligned macro features)."""
         X = self._features(prices, macro_slice)
         if len(X) < self.min_train_days:
             self._model = None
+            return
+        # Cache key: hyperparams + a cheap fingerprint of training data
+        cksum = float(X[-1].sum() + X[0].sum() + len(X))
+        cache_key = (self.n_states, self.feature_window, X.shape[1], len(X), cksum)
+        cached = HMMRegime._FIT_CACHE.get(cache_key)
+        if cached is not None:
+            self._model, self._state_order = cached
             return
         try:
             model = GaussianHMM(
@@ -99,8 +111,13 @@ class HMMRegime:
             )
             model.fit(X)
             mean_vols = model.means_[:, self._vol_col]
-            self._state_order = np.argsort(mean_vols)[::-1]
+            order = np.argsort(mean_vols)[::-1]
             self._model = model
+            self._state_order = order
+            # LRU-evict if over budget
+            if len(HMMRegime._FIT_CACHE) >= HMMRegime._FIT_CACHE_MAX:
+                HMMRegime._FIT_CACHE.pop(next(iter(HMMRegime._FIT_CACHE)))
+            HMMRegime._FIT_CACHE[cache_key] = (model, order)
         except Exception:
             self._model = None
 
