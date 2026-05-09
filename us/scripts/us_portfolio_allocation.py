@@ -733,6 +733,8 @@ def apply_etf_overlap(
     min_pct: float,
     max_pct: float,
     max_positions: int = MAX_POSITIONS,
+    score_col: str = "score",
+    sizing: str = "raw",
 ) -> tuple[pl.DataFrame, dict[str, str]]:
     """Post-filter: block constituent tickers whose combined weight across all selected ETFs exceeds threshold."""
     selected = set(alloc["ticker"].to_list())
@@ -765,15 +767,32 @@ def apply_etf_overlap(
     if not blocked:
         return alloc, blocked
     filtered = scores.filter(~pl.col("ticker").is_in(list(blocked)))
-    return allocate(filtered, capital, min_pct, max_pct, max_positions), blocked
+    return allocate(filtered, capital, min_pct, max_pct, max_positions,
+                    score_col=score_col, sizing=sizing), blocked
 
 
-def _water_fill(scores: dict[str, float], caps: dict[str, float], capital: float) -> dict[str, float]:
-    """Pour capital into tickers proportional to score. Pin at cap when hit; redistribute remainder
-    to uncapped names by score. Continue until capital exhausted or all names capped.
+SIZING_MODES = {"raw", "sqrt", "equal"}
+
+
+def _transform_for_sizing(scores: dict[str, float], mode: str) -> dict[str, float]:
+    """Transform raw scores into sizing weights based on mode."""
+    if mode == "raw":
+        return dict(scores)
+    if mode == "sqrt":
+        return {t: float(np.sqrt(max(s, 0.0))) for t, s in scores.items()}
+    if mode == "equal":
+        return {t: 1.0 for t in scores}
+    raise ValueError(f"Unknown sizing mode: {mode}")
+
+
+def _water_fill(scores: dict[str, float], caps: dict[str, float], capital: float,
+                sizing: str = "raw") -> dict[str, float]:
+    """Pour capital into tickers proportional to (transformed) score. Pin at cap when hit;
+    redistribute remainder to uncapped names. Continue until capital exhausted or all names capped.
     """
+    weights = _transform_for_sizing(scores, sizing)
     pinned = {}
-    active = dict(scores)
+    active = dict(weights)
     remaining = float(capital)
 
     while active and remaining > 0.01:
@@ -803,31 +822,32 @@ def _water_fill(scores: dict[str, float], caps: dict[str, float], capital: float
 def allocate(
     scores: pl.DataFrame, capital: int, min_pct: float, max_pct: float,
     max_positions: int = MAX_POSITIONS,
+    score_col: str = "score",
+    sizing: str = "raw",
 ) -> pl.DataFrame:
     """Filter, weight, constrain. Returns allocation DataFrame.
 
-    Algorithm: water-filling by score, capped at max_pct (or per-ticker override).
-    Names below min_pct are dropped at the end and their share redistributed
-    pro-rata to remaining uncapped names (cascading until stable).
+    score_col: column to rank/select on ("score", "score_martin", "score_sortino", "score_rank")
+    sizing: how to translate score → weight ("raw", "sqrt", "equal")
     """
-    # Filter positive momentum, cap at max_positions by score
-    df = scores.filter(pl.col("wt_mom") > 0).sort("score", descending=True).head(max_positions)
+    df = scores.filter(pl.col("wt_mom") > 0).sort(score_col, descending=True).head(max_positions)
 
     if len(df) == 0:
         return pl.DataFrame()
 
+    total = df[score_col].sum()
+    if total <= 0:
+        return pl.DataFrame()
     df = df.with_columns(
-        (pl.col("score") / df["score"].sum()).alias("weight")
+        (pl.col(score_col) / total).alias("weight")
     )
 
     min_amount = capital * min_pct
-    scores_dict = {row["ticker"]: row["score"] for row in df.iter_rows(named=True)}
+    scores_dict = {row["ticker"]: row[score_col] for row in df.iter_rows(named=True)}
     caps = {t: capital * TICKER_MAX_ALLOC.get(t, max_pct) for t in scores_dict}
 
-    alloc_dict = _water_fill(scores_dict, caps, capital)
+    alloc_dict = _water_fill(scores_dict, caps, capital, sizing=sizing)
 
-    # Drop below-min names; redistribute via water-fill on the trimmed set.
-    # Cascade: dropping may free capital that pushes others over min, which may push others below max.
     for _ in range(50):
         below_min = [t for t, v in alloc_dict.items() if 0 < v < min_amount]
         if not below_min:
@@ -838,7 +858,7 @@ def allocate(
         if not scores_dict:
             alloc_dict = {}
             break
-        alloc_dict = _water_fill(scores_dict, caps, capital)
+        alloc_dict = _water_fill(scores_dict, caps, capital, sizing=sizing)
 
     # Rebuild DataFrame
     rows = [{"ticker": t, "alloc_usd": alloc_dict[t]} for t in alloc_dict if alloc_dict[t] > 0]
