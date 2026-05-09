@@ -335,10 +335,14 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
     benchmark = np.nanmean(prices, axis=1) if needs_bench else None
     # HMM regime detector: fit annually on benchmark history (no look-ahead).
     hmm = HMMRegime(n_states=strat.hmm_states) if strat.hmm_states > 0 else None
-    hmm_scales = (
-        HMM_SCALE_PROFILES.get(strat.hmm_profile, {}).get(strat.hmm_states)
-        if hmm is not None else None
-    )
+    hmm_scales = None
+    if hmm is not None:
+        profile_table = HMM_SCALE_PROFILES.get(strat.hmm_profile)
+        if isinstance(profile_table, dict):
+            hmm_scales = profile_table.get(strat.hmm_states)
+    if hmm_scales is None:
+        # Inconsistent state (e.g. hmm_states>0 but profile="off") — disable HMM
+        hmm = None
 
     while cur_idx < n_days:
         # Defensive overlays
@@ -666,9 +670,13 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
         new.hmm_states = int(rng.choice(HMM_STATES_CHOICES))
         if new.hmm_states == 0:
             new.hmm_profile = "off"
+        elif new.hmm_profile == "off":  # ensure consistency
+            new.hmm_profile = str(rng.choice(["balanced", "aggressive", "defensive"]))
     elif field == "hmm_profile":
         if new.hmm_states > 0:
             new.hmm_profile = str(rng.choice(["balanced", "aggressive", "defensive"]))
+        else:
+            new.hmm_profile = "off"
     if new.rebal_min_hold >= new.rebal_max_hold:
         new.rebal_max_hold = new.rebal_min_hold + 20
     return new
