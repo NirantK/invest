@@ -763,6 +763,50 @@ def _fetch_etf_weights(etf: str) -> dict[str, float]:
     return dict(zip(holdings.index.tolist(), holdings["Holding Percent"].tolist()))
 
 
+def apply_sleeve_caps(
+    alloc: pl.DataFrame,
+    scores: pl.DataFrame,
+    capital: int,
+    min_pct: float,
+    max_pct: float,
+    max_positions: int,
+    score_col: str,
+    sizing: str,
+) -> tuple[pl.DataFrame, dict[str, str]]:
+    """Enforce per-sleeve caps. Iteratively demote lowest-score name in over-cap sleeve,
+    re-run allocation on remaining universe, until all sleeves are under cap."""
+    blocked: dict[str, str] = {}
+    if alloc.is_empty():
+        return alloc, blocked
+
+    for _ in range(50):
+        breaches = []
+        for sleeve_name, members, cap_pct in SLEEVE_CAPS:
+            sleeve_amt = alloc.filter(pl.col("ticker").is_in(members))["alloc_usd"].sum()
+            if sleeve_amt > capital * cap_pct + 1:
+                # Find lowest-score name in this sleeve currently allocated
+                in_sleeve = alloc.filter(pl.col("ticker").is_in(members)).sort(score_col)
+                if not in_sleeve.is_empty():
+                    drop = in_sleeve[0]["ticker"].item()
+                    breaches.append((sleeve_name, drop, sleeve_amt / capital))
+
+        if not breaches:
+            break
+
+        # Drop one name per iteration: the worst offender (largest sleeve breach)
+        breaches.sort(key=lambda x: -x[2])
+        sleeve_name, drop_ticker, _ = breaches[0]
+        blocked[drop_ticker] = f"sleeve cap: {sleeve_name}"
+        already_blocked = set(blocked.keys())
+        filtered = scores.filter(~pl.col("ticker").is_in(list(already_blocked)))
+        alloc = allocate(filtered, capital, min_pct, max_pct, max_positions,
+                         score_col=score_col, sizing=sizing)
+        if alloc.is_empty():
+            return alloc, blocked
+
+    return alloc, blocked
+
+
 def apply_etf_overlap(
     alloc: pl.DataFrame,
     scores: pl.DataFrame,
@@ -1070,6 +1114,10 @@ def main(min_allocation: float, max_allocation: float, capital: int, max_positio
     alloc, overlap_excl = apply_etf_overlap(alloc, scores_clean, capital, min_allocation,
                                              max_allocation, max_positions,
                                              score_col=score_col, sizing=sizing)
+    alloc, sleeve_excl = apply_sleeve_caps(alloc, scores_clean, capital, min_allocation,
+                                            max_allocation, max_positions, score_col, sizing)
+    if sleeve_excl:
+        print(f"[dim]Sleeve caps: " + ", ".join(f"{t}({r})" for t, r in sleeve_excl.items()) + "[/]")
 
     if alloc.is_empty():
         print("No positions passed filters.")
