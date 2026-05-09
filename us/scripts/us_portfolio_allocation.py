@@ -582,7 +582,14 @@ def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
     else:
         high_factor = 1.00
 
-    score_v2 = score * vol_factor * high_factor
+    # Legacy Sortino-style score (kept for diagnostics + backtest comparison)
+    score_sortino = score * vol_factor * high_factor
+
+    # New: Martin-anchored score (returns per unit of pain, with quality multipliers)
+    score_martin = martin * smoothness * vol_factor * high_factor
+
+    # Default reported score: Martin (user pivoted from Sharpe to Ulcer/Martin)
+    score_v2 = score_martin
 
     return {
         "ticker": ticker,
@@ -596,7 +603,12 @@ def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
         "smoothness": smoothness,
         "dn_vol": dn_vol,
         "score": score_v2,
-        "score_pricemom": score,  # legacy price-only score for diagnostics
+        "score_sortino": score_sortino,  # legacy Sortino-style for backtest A/B
+        "score_martin": score_martin,    # Martin-anchored (currently default)
+        "score_pricemom": score,         # raw Sortino without volume/level boosts
+        "ulcer_1y": ulcer_1y,
+        "max_dd_1y": max_dd_1y,
+        "martin": martin,
         "score_12_1": score_12_1,
         "wtmf_composite": wtmf_composite,
         "score_wtmf": score_wtmf,
@@ -614,6 +626,43 @@ def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
         "vol_factor": vol_factor,
         "high_factor": high_factor,
     }
+
+
+def add_rank_scores(scores: pl.DataFrame) -> pl.DataFrame:
+    """Add cross-sectional rank-based composite score.
+
+    Each signal converted to percentile rank (0..1), then averaged.
+    Lower-is-better signals (ulcer_1y, dist52) inverted before ranking.
+    Result column: score_rank in [0, 1].
+    """
+    pos = scores.filter(pl.col("wt_mom") > 0)
+    if pos.is_empty():
+        return scores.with_columns(pl.lit(0.0).alias("score_rank"))
+
+    n = len(pos)
+
+    def _pct_rank(col: str, descending: bool = True) -> pl.Expr:
+        # Higher value = higher rank (1.0 = best). For lower-is-better, pass descending=False.
+        return (pl.col(col).rank(method="average", descending=not descending) - 1) / max(n - 1, 1)
+
+    ranked = pos.with_columns([
+        _pct_rank("wt_mom").alias("r_mom"),
+        _pct_rank("smoothness").alias("r_smooth"),
+        _pct_rank("ulcer_1y", descending=False).alias("r_ulcer"),  # lower ulcer → higher rank
+        _pct_rank("dv_slope").alias("r_dvol"),
+        _pct_rank("dist52", descending=False).alias("r_d52"),       # closer to high → higher rank
+    ])
+    # Composite: mean of 5 percentile ranks (range 0..1)
+    ranked = ranked.with_columns(
+        ((pl.col("r_mom") + pl.col("r_smooth") + pl.col("r_ulcer")
+          + pl.col("r_dvol") + pl.col("r_d52")) / 5.0).alias("score_rank")
+    )
+
+    # Join back; non-passing tickers get score_rank=0
+    keep_cols = ["ticker", "score_rank", "r_mom", "r_smooth", "r_ulcer", "r_dvol", "r_d52"]
+    return scores.join(ranked.select(keep_cols), on="ticker", how="left").with_columns(
+        pl.col("score_rank").fill_null(0.0)
+    )
 
 
 def build_scores(prices: pl.DataFrame, closes: pl.DataFrame | None = None,
@@ -809,20 +858,24 @@ def round_to_nearest(value: float, multiple: int = 1000) -> int:
 
 
 def print_scores_table(scores: pl.DataFrame):
-    """Compact scores: one line per ticker, PASS only."""
+    """Compact scores: one line per ticker, PASS only. Shows Martin + Ulcer."""
     pass_only = scores.filter(pl.col("wt_mom") > 0).sort("score", descending=True)
     lines = []
     for row in pass_only.iter_rows(named=True):
         d52 = row.get("dist52", float("nan"))
-        d52_s = f"{d52*100:>3.0f}%" if d52 == d52 else "  - "  # NaN check
+        d52_s = f"{d52*100:>3.0f}%" if d52 == d52 else "  - "
         dvs = row.get("dv_slope", 0.0)
         adv = row.get("adv60", 0.0)
+        ulcer = row.get("ulcer_1y", 0.0)
+        martin = row.get("martin", 0.0)
+        cur_dd = row.get("current_dd", 0.0)
         lines.append(
-            f"  {row['ticker']:<7} score={row['score']:>5.2f}  "
-            f"mom={row['wt_mom']*100:+.0f}%  smooth={row['smoothness']:.2f}  "
-            f"dd={row['max_dd']*100:.0f}%  d52={d52_s}  dvol={dvs:+.2f}  adv=${adv/1e6:.0f}M"
+            f"  {row['ticker']:<7} S={row['score']:>5.2f}  "
+            f"M={martin:>5.2f}  Ulc={ulcer*100:>4.0f}%  "
+            f"mom={row['wt_mom']*100:+.0f}%  cur={cur_dd*100:>4.0f}%  "
+            f"d52={d52_s}  dv={dvs:+.2f}  adv=${adv/1e6:.0f}M"
         )
-    print("Scores (PASS):")
+    print("Scores (PASS) — S=score, M=Martin, Ulc=Ulcer1Y, cur=current_dd:")
     print("\n".join(lines))
 
 
@@ -931,6 +984,12 @@ def main(min_allocation: float, max_allocation: float, capital: int, max_positio
     if illiquid:
         scores = scores.filter(pl.col("adv60") >= min_adv)
         print(f"[dim]ADV filter (<${min_adv/1e6:.1f}M): dropped {', '.join(illiquid)}[/]")
+
+    # In-pain filter: don't enter names already in -25%+ drawdown
+    in_pain = scores.filter(pl.col("current_dd") < -0.25)["ticker"].to_list()
+    if in_pain:
+        scores = scores.filter(pl.col("current_dd") >= -0.25)
+        print(f"[dim]In-pain filter (current_dd <-25%): dropped {', '.join(in_pain)}[/]")
 
     scores_clean, thesis_excl = apply_thesis_groups(scores)
     print_scores_table(scores_clean)
