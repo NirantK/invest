@@ -1014,11 +1014,21 @@ def composite(bt: dict, mc: dict) -> float:
     if pain_ratio <= 0:
         return -1.0
 
+    cagr = bt.get("cagr", 0.0)
+    # CAGR engagement: 20% STCG drag means Indian short-term needs real alpha.
+    # <10%: zero credit. 10-25%: linear ramp 0→1. >25%: extra credit up to 1.4.
+    if cagr < 0.10:
+        cagr_mult = 0.0
+    elif cagr < 0.25:
+        cagr_mult = (cagr - 0.10) / 0.15
+    else:
+        cagr_mult = 1.0 + min(0.4, (cagr - 0.25) / 0.50)
+
     uw_pen   = _underwater_penalty(bt.get("max_dd_dur_months", 0))
     nerve_pen = _nerve_penalty(abs(bt.get("max_dd", 0)),
                                 bt.get("max_dd_dur_months", 0))
     tail_pen = 1.0 - mc.get("p_dd_50", 0)
-    return pain_ratio * uw_pen * nerve_pen * tail_pen
+    return pain_ratio * cagr_mult * uw_pen * nerve_pen * tail_pen
 
 
 def _build_exclude_mask(fetched: list[str]) -> np.ndarray:
@@ -1085,13 +1095,22 @@ def run_loop(prices: np.ndarray, fetched: list[str], dates: np.ndarray,
         if pending:
             strat = pending.pop(0)
             origin = "karpathy"
-        elif best is None or rng.random() < 0.30:
+        elif best is None or rng.random() < 0.40:
             strat = random_strategy(rng)
             origin = "random"
         else:
-            base = best["strategy"]
-            if isinstance(base, dict):
-                base = Strategy.from_dict(base)
+            # Sample base from top-K log entries (not just best) to escape basins.
+            base = None
+            if log_path.exists() and rng.random() < 0.50:
+                top, _ = _read_top_bottom(log_path, 20, 0)
+                top = [r for r in top if r.get("score", 0) > 0]
+                if len(top) >= 5:
+                    pick = top[int(rng.integers(0, len(top)))]
+                    base = Strategy.from_dict(pick["strategy"])
+            if base is None:
+                base = best["strategy"]
+                if isinstance(base, dict):
+                    base = Strategy.from_dict(base)
             strat = mutate_strategy(base, rng)
             origin = "greedy"
 
