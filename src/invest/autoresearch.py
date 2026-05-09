@@ -753,7 +753,9 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
             "ulcer":             ulcer,
             "martin":            float(martin),
             "pain_index":        pain_index,
-            "pain_ratio":        float(pain_ratio)}
+            "pain_ratio":        float(pain_ratio),
+            "_pv":               pv,
+            "_dates_idx":        np.arange(start - 1, start - 1 + len(pv))}
 
 
 def _should_rebal(strat, current_picks, new_topk, scores, days_since_last, rng):
