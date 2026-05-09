@@ -133,7 +133,8 @@ def _baltas_slopes(prices_window: np.ndarray) -> np.ndarray:
     """
     n_days, n = prices_window.shape
     slopes = np.zeros(n)
-    log_p_all = np.where(prices_window > 0, np.log(prices_window), np.nan)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        log_p_all = np.where(prices_window > 0, np.log(prices_window), np.nan)
     # Per ticker mask + polyfit — Python loop here is unavoidable because the
     # valid index set differs per column. But this variant is one of five and
     # the rest are vectorised, so the amortised cost is small.
@@ -222,15 +223,14 @@ def _compute_scores(prices_window: np.ndarray, lookbacks, weights, skip,
         full_vol_safe = np.where(full_vol > 0, full_vol, _MIN_DN_VOL)
         base = (wt_mom / full_vol_safe) / dn_vol_safe
     elif variant == "martin":
-        # Ulcer index per ticker on raw price path (NaN-safe via ffill).
-        p_ff = _ffill_2d(p)
-        # If column starts with NaN, leave as 1.0 to avoid div-by-zero;
-        # those tickers fail the eligibility mask anyway.
-        first_nz = np.where(np.isfinite(p_ff) & (p_ff > 0), p_ff, 1.0)
-        rmax = np.maximum.accumulate(np.where(np.isfinite(first_nz), first_nz, 0), axis=0)
+        # Match legacy semantics: cumulative max with NaN propagation. Tickers
+        # with leading NaN end up with NaN score → eligibility mask leaves -inf
+        # in the same places as the old loop's NaN scores (which are filtered
+        # downstream by _topk_from_scores's isfinite gate).
         with np.errstate(invalid="ignore", divide="ignore"):
-            dd = (first_nz - rmax) / np.where(rmax > 0, rmax, 1.0)
-        ulcer = np.sqrt((dd ** 2).mean(axis=0))
+            rmax = np.maximum.accumulate(p, axis=0)
+            dd = (p - rmax) / rmax
+            ulcer = np.sqrt(np.mean(dd ** 2, axis=0))
         base = wt_mom / np.maximum(ulcer, 1e-3)
     elif variant == "wtmf":
         signs = np.where(avail, np.sign(moms), 0.0).sum(axis=0)
@@ -342,15 +342,12 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
         seg_end = min(cur_idx + check_every, n_days)
         if current_picks:
             seg = prices[cur_idx:seg_end, current_picks].copy()
-            for j in range(seg.shape[1]):
-                for i in range(1, seg.shape[0]):
-                    if np.isnan(seg[i, j]):
-                        seg[i, j] = seg[i - 1, j]
+            seg = _ffill_2d(seg)
             if not np.isnan(seg[0]).any():
                 normed = seg / seg[0]
                 port = (normed * weights).sum(axis=1)
                 last = portfolio_values[-1]
-                portfolio_values.extend([last * v for v in port])
+                portfolio_values.extend((last * port).tolist())
             else:
                 portfolio_values.extend([portfolio_values[-1]] * (seg_end - cur_idx))
         else:
