@@ -15,7 +15,6 @@ from pathlib import Path
 
 from invest.autoresearch import (
     LOOKBACK_CHOICES,
-    REBAL_JITTER,
     REBAL_MAX_HOLD,
     REBAL_MIN_HOLD,
     REBAL_TRIGGERS,
@@ -24,6 +23,7 @@ from invest.autoresearch import (
     Strategy,
     WEIGHT_CHOICES,
 )
+REBAL_JITTER = [0, 3, 5, 10]  # legacy display only — sampler no longer uses
 
 
 PROMPT_TEMPLATE = """You are an investment research agent. You're optimising a portfolio

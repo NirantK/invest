@@ -22,6 +22,7 @@ from pathlib import Path
 import numpy as np
 
 from invest.momentum import score_one
+from invest.regime_hmm import HMMRegime
 
 # ─── Search space ────────────────────────────────────────────────────────────
 SCORE_VARIANTS = ["sortino_pricemom", "sortino_vnorm", "martin", "wtmf", "baltas"]
@@ -325,9 +326,19 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
     weights = np.array([])
     in_cash_until = -1  # absolute cur_idx; if > cur_idx, force cash
 
-    # Equal-weight benchmark — used for both regime_ma and vol_state_mode.
-    needs_bench = bool(strat.regime_ma) or strat.vol_state_mode != "off"
+    # Equal-weight benchmark — used for regime_ma, vol_state_mode, and HMM.
+    needs_bench = (
+        bool(strat.regime_ma)
+        or strat.vol_state_mode != "off"
+        or strat.hmm_states > 0
+    )
     benchmark = np.nanmean(prices, axis=1) if needs_bench else None
+    # HMM regime detector: fit annually on benchmark history (no look-ahead).
+    hmm = HMMRegime(n_states=strat.hmm_states) if strat.hmm_states > 0 else None
+    hmm_scales = (
+        HMM_SCALE_PROFILES.get(strat.hmm_profile, {}).get(strat.hmm_states)
+        if hmm is not None else None
+    )
 
     while cur_idx < n_days:
         # Defensive overlays
@@ -406,6 +417,13 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                                 "defensive": {"low": 1.00, "mid": 0.7, "high": 0.40},
                             }.get(strat.vol_state_mode, {"low": 1.0, "mid": 1.0, "high": 1.0})
                             eff_target_vol = strat.target_vol * scale_table[state]
+
+                    # ── HMM regime detection (overrides vol_state_mode if active) ──
+                    if hmm is not None and benchmark is not None and cur_idx >= hmm.min_train_days:
+                        hmm.maybe_refit(benchmark, cur_idx)
+                        s = hmm.predict_state(benchmark[max(0, cur_idx - 252):cur_idx])
+                        if s >= 0 and hmm_scales is not None:
+                            eff_target_vol = strat.target_vol * hmm_scales[s]
 
                     vw = prices[cur_idx - strat.vol_lookback:cur_idx, current_picks]
                     vw = _ffill_2d(vw.copy())
