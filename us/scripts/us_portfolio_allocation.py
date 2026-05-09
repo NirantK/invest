@@ -254,7 +254,12 @@ TICKERS = [
     "PICK",    # iShares MSCI Global Metals & Mining (broad)
     "FCG",     # First Trust Natural Gas - gas E&P
     "AIQ",     # Global X AI & Tech ETF
+    # === Regime gate / benchmark (not for allocation; used only for SPY 50/200 DMA) ===
+    "SPY",
 ]
+
+# Tickers in TICKERS purely for regime/benchmark use (NOT eligible for allocation)
+BENCHMARK_TICKERS = {"SPY"}
 
 BITCOIN_DCA_TARGET_PCT = 0.05
 BITCOIN_MONTHLY_DCA_PCT = 0.001
