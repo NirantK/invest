@@ -308,8 +308,9 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
     weights = np.array([])
     in_cash_until = -1  # absolute cur_idx; if > cur_idx, force cash
 
-    # Optional regime benchmark = equal-weight all-name proxy
-    benchmark = np.nanmean(prices, axis=1) if strat.regime_ma else None
+    # Equal-weight benchmark — used for both regime_ma and vol_state_mode.
+    needs_bench = bool(strat.regime_ma) or strat.vol_state_mode != "off"
+    benchmark = np.nanmean(prices, axis=1) if needs_bench else None
 
     while cur_idx < n_days:
         # Defensive overlays
@@ -364,6 +365,31 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                     weights = raw / raw.sum()
                 # Vol targeting: scale gross exposure to hit target portfolio vol
                 if strat.target_vol > 0 and cur_idx > strat.vol_lookback + 5:
+                    # ── Vol-state regime detection (dynamic) ──────────────
+                    # Classify benchmark vol over last 60d; scale target_vol per state.
+                    eff_target_vol = strat.target_vol
+                    if strat.vol_state_mode != "off" and cur_idx >= 60:
+                        bw = benchmark[cur_idx - 60:cur_idx] if benchmark is not None else None
+                        if bw is None:
+                            bw = np.nanmean(prices[cur_idx - 60:cur_idx, :], axis=1)
+                        bw = bw[np.isfinite(bw) & (bw > 0)]
+                        if len(bw) >= 30:
+                            br = np.diff(bw) / bw[:-1]
+                            cur_vol = float(br.std() * SQRT_252)
+                            # Absolute thresholds calibrated to Indian equity (~14-22% normal)
+                            if cur_vol < 0.14:
+                                state = "low"
+                            elif cur_vol > 0.22:
+                                state = "high"
+                            else:
+                                state = "mid"
+                            scale_table = {
+                                "moderate":  {"low": 1.30, "mid": 1.0, "high": 0.60},
+                                "aggressive":{"low": 1.60, "mid": 1.0, "high": 0.30},
+                                "defensive": {"low": 1.00, "mid": 0.7, "high": 0.40},
+                            }.get(strat.vol_state_mode, {"low": 1.0, "mid": 1.0, "high": 1.0})
+                            eff_target_vol = strat.target_vol * scale_table[state]
+
                     vw = prices[cur_idx - strat.vol_lookback:cur_idx, current_picks]
                     vw = _ffill_2d(vw.copy())
                     if not np.isnan(vw).any():
@@ -371,7 +397,7 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                         port_rets = vrets @ weights
                         realised_vol = port_rets.std() * SQRT_252
                         if realised_vol > 1e-4:
-                            scale = min(1.5, strat.target_vol / realised_vol)
+                            scale = min(1.5, eff_target_vol / realised_vol)
                             weights = weights * scale
                 days_since_last = 0
                 rebal_count += 1
@@ -589,6 +615,8 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
         new.vol_lookback = int(rng.choice(VOL_LOOKBACK_CHOICES))
     elif field == "weight_mode":
         new.weight_mode = str(rng.choice(WEIGHT_MODE_CHOICES))
+    elif field == "vol_state_mode":
+        new.vol_state_mode = str(rng.choice(VOL_STATE_CHOICES))
     elif field == "rebal_trigger":
         new.rebal_trigger = str(rng.choice(REBAL_TRIGGERS))
     elif field == "rebal_min_hold":
