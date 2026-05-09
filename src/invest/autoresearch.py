@@ -43,6 +43,9 @@ SCORE_GAP_CHOICES = [0.05, 0.10, 0.15, 0.25, 0.40]
 N_POSITION_CHOICES = [3, 4, 5, 7, 10, 15]
 REGIME_MA_CHOICES = [0, 100, 150, 200]   # 0 = no regime filter
 DD_STOP_CHOICES   = [0.0, 0.15, 0.20, 0.30]  # 0 = no DD stop
+TARGET_VOL_CHOICES = [0.0, 0.15, 0.20, 0.25, 0.30]  # 0 = no vol-targeting; else target annualised
+WEIGHT_MODE_CHOICES = ["equal", "score", "sqrt_score"]
+VOL_LOOKBACK_CHOICES = [21, 42, 63]  # days for realised vol estimate
 
 
 @dataclass
@@ -62,6 +65,10 @@ class Strategy:
     # Defensive overlays (loop discovers their value)
     regime_ma:        int = 0   # 0=off, else benchmark MA window in days; cash if below
     dd_stop_pct:      float = 0.0  # 0=off, else pause to cash if portfolio DD > this
+    # Position sizing + vol targeting
+    target_vol:       float = 0.0   # 0=off; else target annualised portfolio vol
+    vol_lookback:     int = 42      # days for realised-vol estimate
+    weight_mode:      str = "equal" # equal | score | sqrt_score
 
     def to_dict(self):
         d = asdict(self)
@@ -86,6 +93,9 @@ class Strategy:
             crash_p_mult=float(d.get("crash_p_mult", 1.0)),
             regime_ma=int(d.get("regime_ma", 0)),
             dd_stop_pct=float(d.get("dd_stop_pct", 0.0)),
+            target_vol=float(d.get("target_vol", 0.0)),
+            vol_lookback=int(d.get("vol_lookback", 42)),
+            weight_mode=str(d.get("weight_mode", "equal")),
         )
 
 
@@ -475,6 +485,9 @@ def random_strategy(rng) -> Strategy:
         crash_p_mult=float(rng.choice([0.5, 1.0, 2.0])),
         regime_ma=int(rng.choice(REGIME_MA_CHOICES)),
         dd_stop_pct=float(rng.choice(DD_STOP_CHOICES)),
+        target_vol=float(rng.choice(TARGET_VOL_CHOICES)),
+        vol_lookback=int(rng.choice(VOL_LOOKBACK_CHOICES)),
+        weight_mode=str(rng.choice(WEIGHT_MODE_CHOICES)),
     )
 
 
@@ -485,6 +498,7 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
         "rebal_trigger", "rebal_min_hold", "rebal_max_hold", "rebal_jitter",
         "score_gap_pct", "max_dd_cap", "crash_p_mult",
         "regime_ma", "dd_stop_pct",
+        "target_vol", "vol_lookback", "weight_mode",
     ])
     if field == "lookbacks":
         new.lookbacks = LOOKBACK_CHOICES[rng.integers(len(LOOKBACK_CHOICES))]
