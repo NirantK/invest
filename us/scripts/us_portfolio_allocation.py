@@ -18,7 +18,14 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from invest.momentum import score_one as _shared_score_one
+from invest.momentum import score_one, LOOKBACK_3M, SKIP_1M
+from invest.allocate import (
+    allocate as _shared_allocate,
+    add_rank_scores as _shared_add_rank_scores,
+    apply_thesis_groups as _shared_apply_thesis_groups,
+    apply_sleeve_caps as _shared_apply_sleeve_caps,
+    apply_etf_overlap as _shared_apply_etf_overlap,
+)
 
 CACHE_DIR = Path(__file__).parent.parent / "data" / "price_cache"
 
@@ -476,71 +483,16 @@ def fetch_total_return_index(tickers: list[str], period: str = "3y") -> tuple[pl
     return _to_df("tri"), _to_df("close"), _to_df("dvol")
 
 
-def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
-               closes: np.ndarray | None = None, dvols: np.ndarray | None = None) -> dict:
-    """Delegate to invest.momentum.score_one (shared US/India lib).
-
-    Kept as a thin wrapper so the rest of this file's API is unchanged.
-    """
-    result = _shared_score_one(ticker, prices, returns, closes, dvols)
-    if result is None:
-        # Mirror the historical contract: callers expect a dict; build_scores filters on history.
-        return {"ticker": ticker, "wt_mom": 0.0, "score": 0.0, "score_sortino": 0.0,
-                "score_martin": 0.0, "score_pricemom": 0.0, "score_12_1": 0.0,
-                "score_wtmf": 0.0, "score_baltas": 0.0,
-                "mom_1m": 0.0, "mom_3m": 0.0, "mom_6m": 0.0, "mom_12m": 0.0,
-                "quality": 0.0, "fip": 0.5, "smoothness": 0.0, "dn_vol": 1e-4,
-                "ulcer_1y": 0.0, "max_dd_1y": 0.0, "martin": 0.0,
-                "wtmf_composite": 0.0, "baltas_slope": 0.0, "baltas_tstat": 0.0,
-                "max_dd": 0.0, "max_dd_dur": 0, "avg_dd_dur": 0.0,
-                "current_dd": 0.0, "worst_3m_dd": 0.0,
-                "dist52": float("nan"), "dv_slope": 0.0, "adv60": 0.0,
-                "vol_factor": 1.0, "high_factor": 1.0, "latest_price": 0.0}
-    return result
-
-
 def add_rank_scores(scores: pl.DataFrame) -> pl.DataFrame:
-    """Add cross-sectional rank-based composite score.
-
-    Each signal converted to percentile rank (0..1), then averaged.
-    Lower-is-better signals (ulcer_1y, dist52) inverted before ranking.
-    Result column: score_rank in [0, 1].
-    """
-    pos = scores.filter(pl.col("wt_mom") > 0)
-    if pos.is_empty():
-        return scores.with_columns(pl.lit(0.0).alias("score_rank"))
-
-    n = len(pos)
-
-    def _pct_rank(col: str, descending: bool = True) -> pl.Expr:
-        # Higher value = higher rank (1.0 = best). For lower-is-better, pass descending=False.
-        return (pl.col(col).rank(method="average", descending=not descending) - 1) / max(n - 1, 1)
-
-    ranked = pos.with_columns([
-        _pct_rank("wt_mom").alias("r_mom"),
-        _pct_rank("smoothness").alias("r_smooth"),
-        _pct_rank("ulcer_1y", descending=False).alias("r_ulcer"),  # lower ulcer → higher rank
-        _pct_rank("dv_slope").alias("r_dvol"),
-        _pct_rank("dist52", descending=False).alias("r_d52"),       # closer to high → higher rank
-    ])
-    # Composite: mean of 5 percentile ranks (range 0..1)
-    ranked = ranked.with_columns(
-        ((pl.col("r_mom") + pl.col("r_smooth") + pl.col("r_ulcer")
-          + pl.col("r_dvol") + pl.col("r_d52")) / 5.0).alias("score_rank")
-    )
-
-    # Join back; non-passing tickers get score_rank=0
-    keep_cols = ["ticker", "score_rank", "r_mom", "r_smooth", "r_ulcer", "r_dvol", "r_d52"]
-    return scores.join(ranked.select(keep_cols), on="ticker", how="left").with_columns(
-        pl.col("score_rank").fill_null(0.0)
-    )
+    """Cross-sectional rank composite. Delegates to shared lib."""
+    return _shared_add_rank_scores(scores)
 
 
 def build_scores(prices: pl.DataFrame, closes: pl.DataFrame | None = None,
                  dvols: pl.DataFrame | None = None) -> pl.DataFrame:
-    """Compute all per-ticker metrics. Returns one row per ticker."""
+    """Compute all per-ticker metrics via shared score_one. Returns one row per ticker."""
     tickers = [c for c in prices.columns if c != "date"]
-    min_history = LOOKBACK_3M + SKIP_1M  # ~84 trading days (~4 months)
+    min_history = LOOKBACK_3M + SKIP_1M
     rows = []
     skipped = []
     for t in tickers:
@@ -551,41 +503,12 @@ def build_scores(prices: pl.DataFrame, closes: pl.DataFrame | None = None,
         r = np.diff(p) / p[:-1]
         c_arr = closes[t].drop_nulls().to_numpy() if closes is not None and t in closes.columns else None
         dv_arr = dvols[t].drop_nulls().to_numpy() if dvols is not None and t in dvols.columns else None
-        rows.append(_score_one(t, p, r, c_arr, dv_arr))
+        result = score_one(t, p, r, c_arr, dv_arr)
+        if result is not None:
+            rows.append(result)
     if skipped:
         console.print(f"[dim]Skipped (insufficient history <12M): {', '.join(skipped)}[/]")
-    return pl.DataFrame(rows)
-
-
-def apply_thesis_groups(
-    scores: pl.DataFrame,
-) -> tuple[pl.DataFrame, dict[str, str]]:
-    """Pre-filter: within each same-thesis group, keep only top max_picks by fee-adjusted score."""
-    excluded: dict[str, str] = {}
-    for max_picks, group in THESIS_GROUPS:
-        in_group = (
-            scores
-            .filter(pl.col("ticker").is_in(group) & (pl.col("wt_mom") > 0))
-            .with_columns(
-                pl.col("ticker")
-                .map_elements(lambda t: EXPENSE_RATIOS.get(t, 0.0), return_dtype=pl.Float64)
-                .alias("expense_ratio")
-            )
-            .with_columns(
-                (pl.col("score") * (1 - pl.col("expense_ratio"))).alias("fee_adj_score")
-            )
-            .sort("fee_adj_score", descending=True)
-        )
-        if len(in_group) <= max_picks:
-            continue
-        winner = in_group[0]["ticker"].item()
-        for row in in_group[max_picks:].iter_rows(named=True):
-            fee_pct = row["expense_ratio"] * 100
-            excluded[row["ticker"]] = (
-                f"same thesis as {winner} "
-                f"(score {row['score']:.2f}, fee {fee_pct:.2f}%)"
-            )
-    return scores.filter(~pl.col("ticker").is_in(list(excluded))), excluded
+    return pl.DataFrame(rows) if rows else pl.DataFrame()
 
 
 @daily_disk_cache
@@ -597,192 +520,52 @@ def _fetch_etf_weights(etf: str) -> dict[str, float]:
     return dict(zip(holdings.index.tolist(), holdings["Holding Percent"].tolist()))
 
 
+def apply_thesis_groups(scores: pl.DataFrame, score_col: str = "score") -> tuple[pl.DataFrame, dict[str, str]]:
+    """Platform wrapper: passes US THESIS_GROUPS + EXPENSE_RATIOS to shared engine."""
+    return _shared_apply_thesis_groups(scores, THESIS_GROUPS, EXPENSE_RATIOS, score_col=score_col)
+
+
 def apply_sleeve_caps(
-    alloc: pl.DataFrame,
-    scores: pl.DataFrame,
-    capital: int,
-    min_pct: float,
-    max_pct: float,
-    max_positions: int,
-    score_col: str,
-    sizing: str,
+    alloc: pl.DataFrame, scores: pl.DataFrame, capital: int,
+    min_pct: float, max_pct: float, max_positions: int,
+    score_col: str, sizing: str,
 ) -> tuple[pl.DataFrame, dict[str, str]]:
-    """Enforce per-sleeve caps. Iteratively demote lowest-score name in over-cap sleeve,
-    re-run allocation on remaining universe, until all sleeves are under cap."""
-    blocked: dict[str, str] = {}
-    if alloc.is_empty():
-        return alloc, blocked
-
-    for _ in range(50):
-        breaches = []
-        for sleeve_name, members, cap_pct in SLEEVE_CAPS:
-            sleeve_amt = alloc.filter(pl.col("ticker").is_in(members))["alloc_usd"].sum()
-            if sleeve_amt > capital * cap_pct + 1:
-                # Find lowest-score name in this sleeve currently allocated
-                in_sleeve = alloc.filter(pl.col("ticker").is_in(members)).sort(score_col)
-                if not in_sleeve.is_empty():
-                    drop = in_sleeve[0]["ticker"].item()
-                    breaches.append((sleeve_name, drop, sleeve_amt / capital))
-
-        if not breaches:
-            break
-
-        # Drop one name per iteration: the worst offender (largest sleeve breach)
-        breaches.sort(key=lambda x: -x[2])
-        sleeve_name, drop_ticker, _ = breaches[0]
-        blocked[drop_ticker] = f"sleeve cap: {sleeve_name}"
-        already_blocked = set(blocked.keys())
-        filtered = scores.filter(~pl.col("ticker").is_in(list(already_blocked)))
-        alloc = allocate(filtered, capital, min_pct, max_pct, max_positions,
-                         score_col=score_col, sizing=sizing)
-        if alloc.is_empty():
-            return alloc, blocked
-
-    return alloc, blocked
+    """Platform wrapper: passes US SLEEVE_CAPS to shared engine."""
+    return _shared_apply_sleeve_caps(
+        alloc, scores, capital, min_pct, max_pct, max_positions,
+        SLEEVE_CAPS, score_col=score_col, sizing=sizing,
+        ticker_max_alloc=TICKER_MAX_ALLOC,
+    )
 
 
 def apply_etf_overlap(
-    alloc: pl.DataFrame,
-    scores: pl.DataFrame,
-    capital: int,
-    min_pct: float,
-    max_pct: float,
-    max_positions: int = MAX_POSITIONS,
-    score_col: str = "score",
-    sizing: str = "raw",
+    alloc: pl.DataFrame, scores: pl.DataFrame, capital: int,
+    min_pct: float, max_pct: float, max_positions: int = MAX_POSITIONS,
+    score_col: str = "score", sizing: str = "raw",
 ) -> tuple[pl.DataFrame, dict[str, str]]:
-    """Post-filter: block constituent tickers whose combined weight across all selected ETFs exceeds threshold."""
-    selected = set(alloc["ticker"].to_list())
-    universe = set(scores["ticker"].to_list())
-    blocked: dict[str, str] = {}
-
-    # Pre-fetch holdings for every selected ETF that has a weight threshold
-    etf_holdings: dict[str, dict[str, float]] = {
-        etf: _fetch_etf_weights(etf)
-        for etf in selected & set(ETF_OVERLAP)
-        if ETF_OVERLAP[etf][1] > 0.0
-    }
-
-    for etf in selected & set(ETF_OVERLAP):
-        constituents, weight_threshold = ETF_OVERLAP[etf]
-        in_universe = [t for t in constituents if t in universe]
-
-        if weight_threshold > 0.0:
-            # Sum constituent weights across ALL selected ETFs, not just this one
-            combined = sum(
-                sum(holdings.get(t, 0.0) for t in in_universe)
-                for holdings in etf_holdings.values()
-            )
-            if combined <= weight_threshold:
-                continue  # not concentrated enough across the portfolio
-
-        for ticker in in_universe:
-            blocked[ticker] = f"held inside {etf}"
-
-    if not blocked:
-        return alloc, blocked
-    filtered = scores.filter(~pl.col("ticker").is_in(list(blocked)))
-    return allocate(filtered, capital, min_pct, max_pct, max_positions,
-                    score_col=score_col, sizing=sizing), blocked
-
-
-SIZING_MODES = {"raw", "sqrt", "equal"}
-
-
-def _transform_for_sizing(scores: dict[str, float], mode: str) -> dict[str, float]:
-    """Transform raw scores into sizing weights based on mode."""
-    if mode == "raw":
-        return dict(scores)
-    if mode == "sqrt":
-        return {t: float(np.sqrt(max(s, 0.0))) for t, s in scores.items()}
-    if mode == "equal":
-        return {t: 1.0 for t in scores}
-    raise ValueError(f"Unknown sizing mode: {mode}")
-
-
-def _water_fill(scores: dict[str, float], caps: dict[str, float], capital: float,
-                sizing: str = "raw") -> dict[str, float]:
-    """Pour capital into tickers proportional to (transformed) score. Pin at cap when hit;
-    redistribute remainder to uncapped names. Continue until capital exhausted or all names capped.
-    """
-    weights = _transform_for_sizing(scores, sizing)
-    pinned = {}
-    active = dict(weights)
-    remaining = float(capital)
-
-    while active and remaining > 0.01:
-        total_score = sum(active.values())
-        if total_score <= 0:
-            break
-
-        # Find tightest binding cap: which ticker would hit cap first?
-        # For each active ticker, fraction_to_pour = score/total_score
-        # Capacity to absorb before hitting cap = caps[t] / fraction_to_pour
-        binding = min((caps[t] * total_score / s for t, s in active.items() if s > 0),
-                      default=remaining)
-        pour = min(remaining, binding)
-        for t, s in list(active.items()):
-            add = (s / total_score) * pour
-            allocated = pinned.get(t, 0) + add
-            if allocated >= caps[t] - 0.01:
-                pinned[t] = caps[t]
-                del active[t]
-            else:
-                pinned[t] = allocated
-        remaining -= pour
-
-    return pinned
+    """Platform wrapper: passes US ETF_OVERLAP + holdings provider to shared engine."""
+    return _shared_apply_etf_overlap(
+        alloc, scores, capital, min_pct, max_pct, max_positions,
+        ETF_OVERLAP, holdings_provider=_fetch_etf_weights,
+        score_col=score_col, sizing=sizing,
+        ticker_max_alloc=TICKER_MAX_ALLOC,
+    )
 
 
 def allocate(
     scores: pl.DataFrame, capital: int, min_pct: float, max_pct: float,
     max_positions: int = MAX_POSITIONS,
-    score_col: str = "score",
-    sizing: str = "raw",
+    score_col: str = "score", sizing: str = "raw",
 ) -> pl.DataFrame:
-    """Filter, weight, constrain. Returns allocation DataFrame.
-
-    score_col: column to rank/select on ("score", "score_martin", "score_sortino", "score_rank")
-    sizing: how to translate score → weight ("raw", "sqrt", "equal")
-    """
-    df = scores.filter(pl.col("wt_mom") > 0).sort(score_col, descending=True).head(max_positions)
-
-    if len(df) == 0:
-        return pl.DataFrame()
-
-    total = df[score_col].sum()
-    if total <= 0:
-        return pl.DataFrame()
-    df = df.with_columns(
-        (pl.col(score_col) / total).alias("weight")
+    """Platform wrapper: passes US TICKER_MAX_ALLOC to shared engine."""
+    return _shared_allocate(
+        scores, capital, min_pct, max_pct, max_positions,
+        score_col=score_col, sizing=sizing,
+        ticker_max_alloc=TICKER_MAX_ALLOC,
     )
 
-    min_amount = capital * min_pct
-    scores_dict = {row["ticker"]: row[score_col] for row in df.iter_rows(named=True)}
-    caps = {t: capital * TICKER_MAX_ALLOC.get(t, max_pct) for t in scores_dict}
 
-    alloc_dict = _water_fill(scores_dict, caps, capital, sizing=sizing)
-
-    for _ in range(50):
-        below_min = [t for t, v in alloc_dict.items() if 0 < v < min_amount]
-        if not below_min:
-            break
-        for t in below_min:
-            del scores_dict[t]
-            del caps[t]
-        if not scores_dict:
-            alloc_dict = {}
-            break
-        alloc_dict = _water_fill(scores_dict, caps, capital, sizing=sizing)
-
-    # Rebuild DataFrame
-    rows = [{"ticker": t, "alloc_usd": alloc_dict[t]} for t in alloc_dict if alloc_dict[t] > 0]
-    if not rows:
-        return pl.DataFrame()
-    alloc_df = pl.DataFrame(rows)
-
-    # Join back with scores
-    return df.join(alloc_df, on="ticker", how="inner")
+SIZING_MODES = {"raw", "sqrt", "equal"}
 
 
 def round_to_nearest(value: float, multiple: int = 1000) -> int:
