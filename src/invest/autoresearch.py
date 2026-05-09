@@ -46,6 +46,12 @@ DD_STOP_CHOICES   = [0.0, 0.15, 0.20, 0.30]  # 0 = no DD stop
 TARGET_VOL_CHOICES = [0.0, 0.15, 0.20, 0.25, 0.30]  # 0 = no vol-targeting; else target annualised
 WEIGHT_MODE_CHOICES = ["equal", "score", "sqrt_score"]
 VOL_LOOKBACK_CHOICES = [21, 42, 63]  # days for realised vol estimate
+# Vol-state regime scaling: classify benchmark vol as low/mid/high, scale target_vol per state
+# off       — no scaling (static target_vol)
+# moderate  — low: ×1.3, mid: ×1.0, high: ×0.6
+# aggressive — low: ×1.6, mid: ×1.0, high: ×0.3 (defensive in high-vol regimes)
+# defensive — low: ×1.0, mid: ×0.7, high: ×0.4 (asymmetric — only cuts down)
+VOL_STATE_CHOICES = ["off", "moderate", "aggressive", "defensive"]
 
 
 @dataclass
@@ -69,6 +75,7 @@ class Strategy:
     target_vol:       float = 0.0   # 0=off; else target annualised portfolio vol
     vol_lookback:     int = 42      # days for realised-vol estimate
     weight_mode:      str = "equal" # equal | score | sqrt_score
+    vol_state_mode:   str = "off"   # off | moderate | aggressive | defensive
 
     def to_dict(self):
         d = asdict(self)
@@ -96,6 +103,7 @@ class Strategy:
             target_vol=float(d.get("target_vol", 0.0)),
             vol_lookback=int(d.get("vol_lookback", 42)),
             weight_mode=str(d.get("weight_mode", "equal")),
+            vol_state_mode=str(d.get("vol_state_mode", "off")),
         )
 
 
@@ -548,6 +556,7 @@ def random_strategy(rng) -> Strategy:
         target_vol=float(rng.choice(TARGET_VOL_CHOICES)),
         vol_lookback=int(rng.choice(VOL_LOOKBACK_CHOICES)),
         weight_mode=str(rng.choice(WEIGHT_MODE_CHOICES)),
+        vol_state_mode=str(rng.choice(VOL_STATE_CHOICES)),
     )
 
 
@@ -558,7 +567,7 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
         "rebal_trigger", "rebal_min_hold", "rebal_max_hold", "rebal_jitter",
         "score_gap_pct", "max_dd_cap", "crash_p_mult",
         "regime_ma", "dd_stop_pct",
-        "target_vol", "vol_lookback", "weight_mode",
+        "target_vol", "vol_lookback", "weight_mode", "vol_state_mode",
     ])
     if field == "lookbacks":
         new.lookbacks = LOOKBACK_CHOICES[rng.integers(len(LOOKBACK_CHOICES))]
