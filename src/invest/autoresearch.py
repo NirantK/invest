@@ -68,24 +68,28 @@ VOL_STATE_CHOICES = ["off", "moderate", "aggressive", "defensive"]
 class Strategy:
     lookbacks:        tuple[int, int, int]
     weights:          tuple[float, float, float]
-    skip_days:        int
     score_variant:    str
     n_positions:      int
     rebal_trigger:    str
     rebal_min_hold:   int
     rebal_max_hold:   int
-    rebal_jitter:     int
     score_gap_pct:    float
-    max_dd_cap:       float
     crash_p_mult:     float = 1.0
-    # Defensive overlays (loop discovers their value)
-    regime_ma:        int = 0   # 0=off, else benchmark MA window in days; cash if below
-    dd_stop_pct:      float = 0.0  # 0=off, else pause to cash if portfolio DD > this
+    # Defensive overlays
+    regime_ma:        int = 0
+    dd_stop_pct:      float = 0.0
     # Position sizing + vol targeting
-    target_vol:       float = 0.0   # 0=off; else target annualised portfolio vol
-    vol_lookback:     int = 42      # days for realised-vol estimate
-    weight_mode:      str = "equal" # equal | score | sqrt_score
-    vol_state_mode:   str = "off"   # off | moderate | aggressive | defensive
+    target_vol:       float = 0.0
+    vol_lookback:     int = 42
+    weight_mode:      str = "equal"
+    vol_state_mode:   str = "off"
+    # HMM regime detection (data-driven mode switching)
+    hmm_states:       int = 0          # 0=off, 2 or 3 latent states
+    hmm_profile:      str = "off"      # off | balanced | aggressive | defensive
+    # Constants — dropped from search space (low importance):
+    skip_days:        int = 21         # 1M skip is academic standard; jitter not material
+    rebal_jitter:     int = 5          # ~weekly tolerance; doesn't change outcomes
+    max_dd_cap:       float = 0.50     # bucket cap; rarely binds in our backtest
 
     def to_dict(self):
         d = asdict(self)
@@ -98,15 +102,12 @@ class Strategy:
         return cls(
             lookbacks=tuple(d["lookbacks"]),
             weights=tuple(d["weights"]),
-            skip_days=int(d["skip_days"]),
             score_variant=str(d["score_variant"]),
             n_positions=int(d["n_positions"]),
             rebal_trigger=str(d["rebal_trigger"]),
             rebal_min_hold=int(d["rebal_min_hold"]),
             rebal_max_hold=int(d["rebal_max_hold"]),
-            rebal_jitter=int(d["rebal_jitter"]),
             score_gap_pct=float(d["score_gap_pct"]),
-            max_dd_cap=float(d["max_dd_cap"]),
             crash_p_mult=float(d.get("crash_p_mult", 1.0)),
             regime_ma=int(d.get("regime_ma", 0)),
             dd_stop_pct=float(d.get("dd_stop_pct", 0.0)),
@@ -114,6 +115,12 @@ class Strategy:
             vol_lookback=int(d.get("vol_lookback", 42)),
             weight_mode=str(d.get("weight_mode", "equal")),
             vol_state_mode=str(d.get("vol_state_mode", "off")),
+            hmm_states=int(d.get("hmm_states", 0)),
+            hmm_profile=str(d.get("hmm_profile", "off")),
+            # Constants
+            skip_days=int(d.get("skip_days", 21)),
+            rebal_jitter=int(d.get("rebal_jitter", 5)),
+            max_dd_cap=float(d.get("max_dd_cap", 0.50)),
         )
 
 
@@ -574,36 +581,38 @@ def random_strategy(rng) -> Strategy:
     min_h = int(rng.choice(REBAL_MIN_HOLD))
     max_h_choices = [m for m in REBAL_MAX_HOLD if m > min_h]
     max_h = int(rng.choice(max_h_choices))
+    hmm_n = int(rng.choice(HMM_STATES_CHOICES))
+    hmm_p = "off" if hmm_n == 0 else str(rng.choice(["balanced", "aggressive", "defensive"]))
     return Strategy(
         lookbacks=LOOKBACK_CHOICES[rng.integers(len(LOOKBACK_CHOICES))],
         weights=WEIGHT_CHOICES[rng.integers(len(WEIGHT_CHOICES))],
-        skip_days=int(rng.choice([0, 21])),
         score_variant=str(rng.choice(SCORE_VARIANTS)),
         n_positions=int(rng.choice(N_POSITION_CHOICES)),
         rebal_trigger=str(rng.choice(REBAL_TRIGGERS)),
         rebal_min_hold=min_h,
         rebal_max_hold=max_h,
-        rebal_jitter=int(rng.choice(REBAL_JITTER)),
         score_gap_pct=float(rng.choice(SCORE_GAP_CHOICES)),
-        max_dd_cap=float(rng.choice([0.30, 0.50, 0.75])),
-        crash_p_mult=float(rng.choice([0.5, 1.0, 2.0])),
+        crash_p_mult=float(rng.choice([0.5, 1.0])),
         regime_ma=int(rng.choice(REGIME_MA_CHOICES)),
         dd_stop_pct=float(rng.choice(DD_STOP_CHOICES)),
         target_vol=float(rng.choice(TARGET_VOL_CHOICES)),
         vol_lookback=int(rng.choice(VOL_LOOKBACK_CHOICES)),
         weight_mode=str(rng.choice(WEIGHT_MODE_CHOICES)),
         vol_state_mode=str(rng.choice(VOL_STATE_CHOICES)),
+        hmm_states=hmm_n,
+        hmm_profile=hmm_p,
     )
 
 
 def mutate_strategy(base: Strategy, rng) -> Strategy:
     new = Strategy(**asdict(base))
     field = rng.choice([
-        "lookbacks", "weights", "skip_days", "score_variant", "n_positions",
-        "rebal_trigger", "rebal_min_hold", "rebal_max_hold", "rebal_jitter",
-        "score_gap_pct", "max_dd_cap", "crash_p_mult",
+        "lookbacks", "weights", "score_variant", "n_positions",
+        "rebal_trigger", "rebal_min_hold", "rebal_max_hold",
+        "score_gap_pct", "crash_p_mult",
         "regime_ma", "dd_stop_pct",
         "target_vol", "vol_lookback", "weight_mode", "vol_state_mode",
+        "hmm_states", "hmm_profile",
     ])
     if field == "lookbacks":
         new.lookbacks = LOOKBACK_CHOICES[rng.integers(len(LOOKBACK_CHOICES))]
