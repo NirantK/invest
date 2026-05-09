@@ -40,7 +40,7 @@ REBAL_TRIGGERS    = ["fixed", "name_change", "score_gap"]
 REBAL_MIN_HOLD    = [15, 20, 25, 30]
 REBAL_MAX_HOLD    = [35, 40, 50, 60, 80]
 SCORE_GAP_CHOICES = [0.05, 0.10, 0.25]               # narrowed: middle values rarely won
-N_POSITION_CHOICES = [3, 4, 5, 7, 10, 15]
+N_POSITION_CHOICES = [3, 4, 5, 7, 10, 15, 20, 25, 30, 50]
 REGIME_MA_CHOICES = [0, 100, 150, 200]               # 0 = no regime filter
 DD_STOP_CHOICES   = [0.0, 0.15, 0.30]                # narrowed: 0.20 underperformed both
 TARGET_VOL_CHOICES = [0.0, 0.15, 0.20, 0.25]         # dropped 0.30 — too aggressive
@@ -170,6 +170,10 @@ def load_crash_calibration(path: Path) -> dict:
 SQRT_252 = np.sqrt(252)
 _MIN_DN_VOL = 1e-4
 
+# Tickers excluded from momentum scoring (they game Sortino with near-zero vol).
+# They CAN still be used as cash sleeve via the cash-fill / force-cash path.
+CASH_EQUIV_TICKERS = {"LIQUIDBEES", "LIQUIDIETF"}
+
 
 def _baltas_slopes(prices_window: np.ndarray) -> np.ndarray:
     """Per-ticker annualised log-price slope (×252). NaN-aware via masked polyfit.
@@ -204,7 +208,7 @@ def _baltas_slopes(prices_window: np.ndarray) -> np.ndarray:
 
 
 def _compute_scores(prices_window: np.ndarray, lookbacks, weights, skip,
-                    variant: str) -> np.ndarray:
+                    variant: str, exclude_mask: np.ndarray | None = None) -> np.ndarray:
     """Per-ticker score; nan-safe; -inf for insufficient data; higher = better.
 
     Vectorised across tickers via numpy broadcasting. Identical semantics to
@@ -226,20 +230,6 @@ def _compute_scores(prices_window: np.ndarray, lookbacks, weights, skip,
     eligible = np.isfinite(p_end) & np.isfinite(p_min)
     if not eligible.any():
         return scores
-
-    # Min-vol filter: exclude near-zero-vol assets (cash equivalents like LIQUIDBEES)
-    # which game Sortino/sortino_vnorm via near-zero downside vol → infinite scores.
-    # Threshold: 5% annualised vol over the scoring window.
-    MIN_ANN_VOL = 0.05
-    with np.errstate(invalid="ignore", divide="ignore"):
-        check_rets = np.diff(prices_window, axis=0) / prices_window[:-1, :]
-    finite_check = np.isfinite(check_rets)
-    rets_for_vol = np.where(finite_check, check_rets, 0.0)
-    n_finite = finite_check.sum(axis=0).astype(float)
-    mean_r = np.where(n_finite > 0, rets_for_vol.sum(axis=0) / np.maximum(n_finite, 1), 0.0)
-    var_r = np.where(finite_check, (check_rets - mean_r[None, :]) ** 2, 0.0).sum(axis=0)
-    ann_vol = np.where(n_finite > 1, np.sqrt(var_r / np.maximum(n_finite, 1)) * SQRT_252, 0.0)
-    eligible &= ann_vol >= MIN_ANN_VOL
 
     # ── Multi-lookback weighted momentum (vectorised across tickers) ──────────
     # For each lookback, ticker is "available" if start price exists and >0.
