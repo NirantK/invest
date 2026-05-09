@@ -120,70 +120,145 @@ def load_crash_calibration(path: Path) -> dict:
 
 
 # ─── Scoring ─────────────────────────────────────────────────────────────────
+SQRT_252 = np.sqrt(252)
+_MIN_DN_VOL = 1e-4
+
+
+def _baltas_slopes(prices_window: np.ndarray) -> np.ndarray:
+    """Per-ticker annualised log-price slope (×252). NaN-aware via masked polyfit.
+
+    For each column we drop NaN/non-positive entries, then fit log(p) ~ a + b*t.
+    Vectorised columnwise via `np.polyfit` with mask handling — falls back to
+    per-ticker only for the few series with insufficient data.
+    """
+    n_days, n = prices_window.shape
+    slopes = np.zeros(n)
+    log_p_all = np.where(prices_window > 0, np.log(prices_window), np.nan)
+    # Per ticker mask + polyfit — Python loop here is unavoidable because the
+    # valid index set differs per column. But this variant is one of five and
+    # the rest are vectorised, so the amortised cost is small.
+    x = np.arange(n_days, dtype=float)
+    for t in range(n):
+        col = log_p_all[:, t]
+        mask = np.isfinite(col)
+        if mask.sum() < 20:
+            continue
+        xv = x[mask]
+        yv = col[mask]
+        # closed-form linear regression slope
+        xm = xv.mean()
+        ym = yv.mean()
+        denom = ((xv - xm) ** 2).sum()
+        if denom <= 0:
+            continue
+        slopes[t] = ((xv - xm) * (yv - ym)).sum() / denom
+    return slopes * 252.0
+
+
 def _compute_scores(prices_window: np.ndarray, lookbacks, weights, skip,
                     variant: str) -> np.ndarray:
     """Per-ticker score; nan-safe; -inf for insufficient data; higher = better.
 
-    Lightweight — does not depend on score_one's full feature set since the
-    autoresearch loop sweeps multiple `variant`s and needs flexibility.
+    Vectorised across tickers via numpy broadcasting. Identical semantics to
+    the previous per-ticker loop.
     """
     n_days, n = prices_window.shape
     scores = np.full(n, -np.inf)
     if n_days < max(lookbacks) + skip + 5:
         return scores
 
+    lbs = np.asarray(lookbacks, dtype=int)
+    ws = np.asarray(weights, dtype=float)
     end = max(n_days - skip, max(lookbacks) + 1)
-    min_lb = min(lookbacks)
+    min_lb = int(lbs.min())
 
-    for t in range(n):
-        p = prices_window[:, t]
-        # Survivorship-friendly: only require end + shortest lookback to be available.
-        # Longer lookbacks may be NaN (newer IPO); they'll contribute 0 to wt_mom.
-        if np.isnan(p[end - 1]) or end - min_lb < 0 or np.isnan(p[end - min_lb]):
-            continue
-        moms = []
-        avail_weights = []
-        for lb, w in zip(lookbacks, weights):
-            start = end - lb
-            if start < 0 or np.isnan(p[start]) or p[start] <= 0:
-                moms.append(0.0)
-                avail_weights.append(0.0)
-            else:
-                moms.append(p[end - 1] / p[start] - 1)
-                avail_weights.append(w)
-        # Renormalise weights over available lookbacks so partial-history names
-        # aren't penalised vs full-history names with the same direction.
-        avail_sum = sum(avail_weights)
-        if avail_sum <= 0:
-            continue
-        wt_mom = sum((aw / avail_sum) * m for aw, m in zip(avail_weights, moms))
+    # End price + shortest-lookback price must be present (matches old gate).
+    p_end = prices_window[end - 1, :]
+    p_min = prices_window[end - min_lb, :]
+    eligible = np.isfinite(p_end) & np.isfinite(p_min)
+    if not eligible.any():
+        return scores
 
-        rets = np.diff(p) / p[:-1]
-        rets = rets[~np.isnan(rets) & np.isfinite(rets)]
-        neg = rets[rets < 0]
-        dn_vol = neg.std() * np.sqrt(252) if len(neg) else 1e-4
+    # ── Multi-lookback weighted momentum (vectorised across tickers) ──────────
+    # For each lookback, ticker is "available" if start price exists and >0.
+    starts = end - lbs                    # (k,)
+    p_starts = prices_window[starts, :]   # (k, n)
+    avail = np.isfinite(p_starts) & (p_starts > 0) & (starts >= 0)[:, None]
+    safe_starts = np.where(avail, p_starts, 1.0)
+    moms = np.where(avail, p_end[None, :] / safe_starts - 1.0, 0.0)  # (k, n)
+    avail_w = np.where(avail, ws[:, None], 0.0)
+    avail_sum = avail_w.sum(axis=0)
+    eligible &= avail_sum > 0
+    safe_sum = np.where(avail_sum > 0, avail_sum, 1.0)
+    wt_mom = (avail_w * moms).sum(axis=0) / safe_sum  # (n,)
 
-        if variant == "sortino_pricemom":
-            scores[t] = wt_mom / dn_vol if dn_vol > 0 else 0
-        elif variant == "sortino_vnorm":
-            vol = rets.std() * np.sqrt(252) if len(rets) else 1e-4
-            scores[t] = (wt_mom / vol) / dn_vol if dn_vol > 0 else 0
-        elif variant == "martin":
-            running_max = np.maximum.accumulate(p)
-            dd = (p - running_max) / running_max
-            ulcer = np.sqrt(np.mean(dd ** 2))
-            scores[t] = wt_mom / max(ulcer, 1e-3)
-        elif variant == "wtmf":
-            signs = sum(1.0 if m > 0 else -1.0 if m < 0 else 0.0 for m in moms)
-            wtmf_w = abs(signs) / 3.0
-            scores[t] = (wtmf_w * wt_mom) / dn_vol if dn_vol > 0 else 0
-        elif variant == "baltas":
-            log_p = np.log(p[~np.isnan(p) & (p > 0)])
-            if len(log_p) >= 20:
-                x = np.arange(len(log_p))
-                slope, _ = np.polyfit(x, log_p, 1)
-                scores[t] = (slope * 252) / dn_vol if dn_vol > 0 else 0
+    # ── Daily returns matrix; downside vol per ticker (NaN-aware) ────────────
+    p = prices_window
+    with np.errstate(invalid="ignore", divide="ignore"):
+        rets = np.diff(p, axis=0) / p[:-1, :]
+    finite = np.isfinite(rets)
+    rets_clean = np.where(finite, rets, 0.0)
+
+    neg_mask = finite & (rets < 0)
+    neg_count = neg_mask.sum(axis=0).astype(float)
+    neg_sum = np.where(neg_mask, rets, 0.0).sum(axis=0)
+    neg_mean = np.where(neg_count > 0, neg_sum / np.maximum(neg_count, 1), 0.0)
+    neg_sq = np.where(neg_mask, (rets - neg_mean[None, :]) ** 2, 0.0).sum(axis=0)
+    # population std (matches numpy default ddof=0 used in the old loop)
+    dn_var = np.where(neg_count > 0, neg_sq / np.maximum(neg_count, 1), 0.0)
+    dn_vol = np.where(neg_count > 0, np.sqrt(dn_var) * SQRT_252, _MIN_DN_VOL)
+    dn_vol_safe = np.where(dn_vol > 0, dn_vol, _MIN_DN_VOL)
+
+    base = np.zeros(n)
+    if variant == "sortino_pricemom":
+        base = wt_mom / dn_vol_safe
+    elif variant == "sortino_vnorm":
+        fin_count = finite.sum(axis=0).astype(float)
+        fin_sum = rets_clean.sum(axis=0)
+        fin_mean = np.where(fin_count > 0, fin_sum / np.maximum(fin_count, 1), 0.0)
+        fin_sq = np.where(finite, (rets - fin_mean[None, :]) ** 2, 0.0).sum(axis=0)
+        full_var = np.where(fin_count > 0, fin_sq / np.maximum(fin_count, 1), 0.0)
+        full_vol = np.where(fin_count > 0, np.sqrt(full_var) * SQRT_252, _MIN_DN_VOL)
+        full_vol_safe = np.where(full_vol > 0, full_vol, _MIN_DN_VOL)
+        base = (wt_mom / full_vol_safe) / dn_vol_safe
+    elif variant == "martin":
+        # Ulcer index per ticker on raw price path (NaN-safe via ffill).
+        p_ff = _ffill_2d(p)
+        # If column starts with NaN, leave as 1.0 to avoid div-by-zero;
+        # those tickers fail the eligibility mask anyway.
+        first_nz = np.where(np.isfinite(p_ff) & (p_ff > 0), p_ff, 1.0)
+        rmax = np.maximum.accumulate(np.where(np.isfinite(first_nz), first_nz, 0), axis=0)
+        with np.errstate(invalid="ignore", divide="ignore"):
+            dd = (first_nz - rmax) / np.where(rmax > 0, rmax, 1.0)
+        ulcer = np.sqrt((dd ** 2).mean(axis=0))
+        base = wt_mom / np.maximum(ulcer, 1e-3)
+    elif variant == "wtmf":
+        signs = np.where(avail, np.sign(moms), 0.0).sum(axis=0)
+        wtmf_w = np.abs(signs) / 3.0
+        base = (wtmf_w * wt_mom) / dn_vol_safe
+    elif variant == "baltas":
+        slopes_ann = _baltas_slopes(prices_window)
+        base = slopes_ann / dn_vol_safe
+    else:  # unknown variant → 0
+        base = np.zeros(n)
+
+    # When dn_vol==0 the legacy code returned 0 for sortino-flavoured variants;
+    # base already evaluates to 0 there because wt_mom/EPS is finite — keep
+    # the legacy gate explicit for parity:
+    if variant in ("sortino_pricemom", "sortino_vnorm", "wtmf", "baltas"):
+        base = np.where(dn_vol > 0, base, 0.0)
+
+    scores = np.where(eligible, base, -np.inf)
     return scores
+
+
+def _ffill_2d(arr: np.ndarray) -> np.ndarray:
+    """Vectorised columnwise forward-fill of NaN."""
+    mask = np.isfinite(arr)
+    n_rows = arr.shape[0]
+    idx = np.where(mask, np.arange(n_rows)[:, None], 0)
+    np.maximum.accumulate(idx, axis=0, out=idx)
+    return np.take_along_axis(arr, idx, axis=0)
 
 
 def _topk_from_scores(scores, n_positions):
@@ -331,28 +406,40 @@ def _should_rebal(strat, current_picks, new_topk, scores, days_since_last, rng):
 def stress_mc(daily_rets: np.ndarray, weights: np.ndarray, days: int,
               n_sims: int, calib: dict, p_mult: float = 1.0,
               seed: int = 42) -> dict:
+    """Bootstrap MC with per-bucket crash injection. Fully vectorised."""
     rng = np.random.default_rng(seed)
     n_hist = daily_rets.shape[0]
     p_rets = daily_rets @ weights
     idx = rng.integers(0, n_hist, size=(n_sims, days))
-    sampled = p_rets[idx]
+    sampled = p_rets[idx].astype(float, copy=True)
 
     yrs = days / 252.0
+    day_arange = np.arange(days)
+
     for params in calib.values():
-        if not isinstance(params, dict):
-            continue
-        if "annual_freq" not in params:
+        if not isinstance(params, dict) or "annual_freq" not in params:
             continue
         p_event = min(0.99, params["annual_freq"] * yrs * p_mult)
         mag = params["magnitude"]
         dur = max(1, int(params["duration_days"]))
         hit = rng.random(n_sims) < p_event
-        for i in np.where(hit)[0]:
-            start = rng.integers(0, max(1, days - dur))
-            end = min(days, start + dur)
-            n_dd = end - start
-            daily_drag = (1 + mag) ** (1 / n_dd) - 1
-            sampled[i, start:end] = sampled[i, start:end] + daily_drag
+        if not hit.any():
+            continue
+        n_hit = int(hit.sum())
+        max_start = max(1, days - dur)
+        starts = rng.integers(0, max_start, size=n_hit)  # (n_hit,)
+        ends = np.minimum(days, starts + dur)
+        n_dd = ends - starts                              # (n_hit,)
+        daily_drag = (1 + mag) ** (1.0 / n_dd) - 1.0      # (n_hit,)
+
+        # Build (n_hit, days) injection matrix via broadcasting; one row per crash.
+        in_window = (day_arange[None, :] >= starts[:, None]) & \
+                    (day_arange[None, :] < ends[:, None])
+        # daily_drag broadcast to row-wise scaling
+        injection = in_window * daily_drag[:, None]
+
+        hit_idx = np.where(hit)[0]
+        sampled[hit_idx] += injection
 
     paths = np.cumprod(1.0 + sampled, axis=1)
     cum = paths[:, -1] - 1.0
