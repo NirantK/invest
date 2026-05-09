@@ -618,8 +618,6 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
         new.lookbacks = LOOKBACK_CHOICES[rng.integers(len(LOOKBACK_CHOICES))]
     elif field == "weights":
         new.weights = WEIGHT_CHOICES[rng.integers(len(WEIGHT_CHOICES))]
-    elif field == "skip_days":
-        new.skip_days = int(rng.choice([0, 21]))
     elif field == "score_variant":
         new.score_variant = str(rng.choice(SCORE_VARIANTS))
     elif field == "n_positions":
