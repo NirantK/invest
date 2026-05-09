@@ -41,30 +41,51 @@ class HMMRegime:
     feature_window: int = 21          # days for rolling vol feature
     refit_every_days: int = 252       # refit HMM annually
     min_train_days: int = 504         # need 2y history before first fit
+    macro_features: np.ndarray | None = None  # optional (n_days, k) macro stack
     _model: GaussianHMM | None = None
     _state_order: np.ndarray = field(default_factory=lambda: np.arange(0))
     _last_fit_idx: int = -1
+    _vol_col: int = 1                 # column index used for state-sort by vol
 
-    def _features(self, prices: np.ndarray) -> np.ndarray:
-        """Return (n_days-feature_window, 2) array: [daily_log_ret, rolling_vol].
-        Vectorised rolling std via stride_tricks — ~50× faster than Python loop."""
-        p = prices[~np.isnan(prices) & (prices > 0)]
+    def _features(self, prices: np.ndarray, macro_slice: np.ndarray | None = None) -> np.ndarray:
+        """Return (n_aligned, 2+k) array: [daily_log_ret, rolling_vol, *macro_features].
+        macro_slice (if given) must be aligned to the prices array; trailing
+        feature_window rows are dropped to match the rolling-vol alignment.
+        """
+        # NaN-aware filter — keep aligned indices into the original array
+        valid_mask = ~np.isnan(prices) & (prices > 0)
+        p = prices[valid_mask]
         if len(p) < self.feature_window + 5:
-            return np.zeros((0, 2))
+            return np.zeros((0, 2 + (macro_slice.shape[1] if macro_slice is not None else 0)))
         log_rets = np.diff(np.log(p))
         n = len(log_rets)
         if n < self.feature_window:
-            return np.zeros((0, 2))
-        # Rolling std via sliding_window_view (stride_tricks) — pure numpy, no copy
+            return np.zeros((0, 2 + (macro_slice.shape[1] if macro_slice is not None else 0)))
         windows = np.lib.stride_tricks.sliding_window_view(log_rets, self.feature_window)
-        # population std (matches old loop's .std() default ddof=0)
         rolling_vol = windows.std(axis=1)
         returns_aligned = log_rets[self.feature_window - 1:]
-        return np.column_stack([returns_aligned, rolling_vol])
+        base = np.column_stack([returns_aligned, rolling_vol])
 
-    def fit(self, prices: np.ndarray) -> None:
-        """Fit on the entire prices array. Call rarely (annually)."""
-        X = self._features(prices)
+        if macro_slice is None:
+            return base
+        # Align macro to base: macro has same length as `prices`. After
+        # filtering valid_mask + diff(log) + sliding_window, base length =
+        # len(p) - self.feature_window. Take last `len(base)` macro rows
+        # corresponding to the same prices indices (approximation: tail-align).
+        m = macro_slice
+        if m.shape[0] >= len(base):
+            m = m[-len(base):, :]
+        else:
+            # pad with zeros at front
+            pad = np.zeros((len(base) - m.shape[0], m.shape[1]))
+            m = np.vstack([pad, m])
+        # Replace NaN with 0 (neutral)
+        m = np.nan_to_num(m, nan=0.0, posinf=0.0, neginf=0.0)
+        return np.column_stack([base, m])
+
+    def fit(self, prices: np.ndarray, macro_slice: np.ndarray | None = None) -> None:
+        """Fit on the entire prices array (+ optional aligned macro features)."""
+        X = self._features(prices, macro_slice)
         if len(X) < self.min_train_days:
             self._model = None
             return
@@ -72,25 +93,27 @@ class HMMRegime:
             model = GaussianHMM(
                 n_components=self.n_states,
                 covariance_type="diag",
-                n_iter=30,             # ~2-3× speedup; converges in 10-20 iters typically
+                n_iter=30,
                 random_state=42,
                 tol=1e-3,
             )
             model.fit(X)
-            # Sort states by mean VOL descending: state 0 = highest-vol (bear),
-            # state N-1 = lowest-vol (bull). Vol is column 1 of features.
-            mean_vols = model.means_[:, 1]
-            self._state_order = np.argsort(mean_vols)[::-1]  # descending
+            mean_vols = model.means_[:, self._vol_col]
+            self._state_order = np.argsort(mean_vols)[::-1]
             self._model = model
         except Exception:
-            # On singular cov / non-convergence, leave model as None
             self._model = None
 
     def maybe_refit(self, prices_to_idx: np.ndarray, cur_idx: int) -> None:
-        """Refit if it's been >= refit_every_days since last fit."""
+        """Refit if it's been >= refit_every_days since last fit. If
+        macro_features is set on the dataclass, slice it to cur_idx."""
         if self._model is None or cur_idx - self._last_fit_idx >= self.refit_every_days:
             if cur_idx >= self.min_train_days:
-                self.fit(prices_to_idx[:cur_idx])
+                macro_slice = (
+                    self.macro_features[:cur_idx, :]
+                    if self.macro_features is not None else None
+                )
+                self.fit(prices_to_idx[:cur_idx], macro_slice=macro_slice)
                 self._last_fit_idx = cur_idx
 
     def predict_state(self, recent_prices: np.ndarray) -> int:
