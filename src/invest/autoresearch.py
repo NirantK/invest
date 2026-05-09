@@ -55,8 +55,13 @@ HMM_SCALE_PROFILES = {
     "balanced":    {2: [0.6, 1.2],  3: [0.4, 1.0, 1.3]},
     "aggressive":  {2: [0.3, 1.4],  3: [0.2, 1.0, 1.5]},
     "defensive":   {2: [0.4, 1.0],  3: [0.3, 0.8, 1.1]},
+    "ultra_def":   {2: [0.2, 0.9],  3: [0.1, 0.6, 1.0]},  # cuts hard in any non-bull state
+    "ultra_agg":   {2: [0.5, 1.5],  3: [0.3, 1.2, 1.5]},  # max leverage in bull
 }
-HMM_PROFILE_CHOICES = list(HMM_SCALE_PROFILES.keys())  # off / balanced / aggressive / defensive
+HMM_PROFILE_CHOICES = list(HMM_SCALE_PROFILES.keys())
+# HMM HYPERPARAMS — now searchable, so loop can adapt the detector itself
+HMM_FEATURE_WINDOW_CHOICES = [10, 21, 42, 63]  # rolling-vol window for HMM features
+HMM_REFIT_DAYS_CHOICES = [126, 252, 504]       # how often to refit HMM
 # Vol-state regime scaling: classify benchmark vol as low/mid/high, scale target_vol per state
 # off       — no scaling (static target_vol)
 # moderate  — low: ×1.3, mid: ×1.0, high: ×0.6
@@ -84,9 +89,12 @@ class Strategy:
     vol_lookback:     int = 42
     weight_mode:      str = "equal"
     vol_state_mode:   str = "off"
-    # HMM regime detection (data-driven mode switching)
-    hmm_states:       int = 0          # 0=off, 2 or 3 latent states
-    hmm_profile:      str = "off"      # off | balanced | aggressive | defensive
+    # HMM regime detection — adapts BOTH detection (window/refit) AND response (gross)
+    hmm_states:        int = 0         # 0=off, 2 or 3 latent states
+    hmm_profile:       str = "off"     # off | balanced | aggressive | defensive | ultra_def | ultra_agg
+    hmm_feature_window: int = 21       # rolling-vol window for HMM features
+    hmm_refit_days:    int = 252       # cadence of HMM refit
+    hmm_apply:         str = "off"     # "target_vol" (legacy) | "gross" (multiplies weight sum directly)
     # Constants — dropped from search space (low importance):
     skip_days:        int = 21         # 1M skip is academic standard; jitter not material
     rebal_jitter:     int = 5          # ~weekly tolerance; doesn't change outcomes
@@ -118,6 +126,9 @@ class Strategy:
             vol_state_mode=str(d.get("vol_state_mode", "off")),
             hmm_states=int(d.get("hmm_states", 0)),
             hmm_profile=str(d.get("hmm_profile", "off")),
+            hmm_feature_window=int(d.get("hmm_feature_window", 21)),
+            hmm_refit_days=int(d.get("hmm_refit_days", 252)),
+            hmm_apply=str(d.get("hmm_apply", "off")),
             # Constants
             skip_days=int(d.get("skip_days", 21)),
             rebal_jitter=int(d.get("rebal_jitter", 5)),
@@ -639,6 +650,9 @@ def random_strategy(rng) -> Strategy:
         vol_state_mode=str(rng.choice(VOL_STATE_CHOICES)),
         hmm_states=hmm_n,
         hmm_profile=hmm_p,
+        hmm_feature_window=int(rng.choice(HMM_FEATURE_WINDOW_CHOICES)),
+        hmm_refit_days=int(rng.choice(HMM_REFIT_DAYS_CHOICES)),
+        hmm_apply=("off" if hmm_n == 0 else str(rng.choice(["gross", "target_vol"]))),
     )
 
 
