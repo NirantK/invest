@@ -1096,7 +1096,9 @@ def run_loop(prices: np.ndarray, fetched: list[str], dates: np.ndarray,
             origin = "greedy"
 
         bt, mc, picks, score = evaluate(strat, prices, fetched, daily_rets,
-                                         calib, seed)
+                                         calib, seed, macro_features=macro_features)
+        # Strip non-JSON fields before logging (added for trailing-returns probe)
+        bt = {k: v for k, v in bt.items() if not k.startswith("_")}
         rec = {
             "iter": it, "origin": origin,
             "strategy": strat.to_dict(),
