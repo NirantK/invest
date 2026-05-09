@@ -327,56 +327,39 @@ def fetch_all(
 # Momentum scoring (mirrors US script logic)
 # ---------------------------------------------------------------------------
 
-def compute_momentum(prices: pl.DataFrame, key: str) -> dict | None:
-    """Compute momentum metrics for one ticker."""
+def compute_momentum(prices: pl.DataFrame, key: str,
+                     name: str | None = None,
+                     theme: str | None = None) -> dict | None:
+    """Compute full momentum metric set for one ticker via shared lib.
+
+    name/theme: optional display fields. If omitted and key is in INDIA_UNIVERSE,
+    fall back to that lookup (preserves old call sites).
+    """
+    from invest.momentum import score_one
+
     if key not in prices.columns:
         return None
 
     p = prices[key].drop_nulls().to_numpy()
-    n = len(p)
+    if len(p) < 2:
+        return None
+    returns = np.concatenate([[0.0], np.diff(p) / p[:-1]])
 
-    if n < LOOKBACK_3M + SKIP_1M:
+    out = score_one(key, p, returns)
+    if out is None:
         return None
 
-    def mom(lookback):
-        if n < lookback + SKIP_1M:
-            return 0.0
-        end_idx = n - SKIP_1M
-        start_idx = end_idx - lookback
-        return (p[end_idx - 1] / p[start_idx]) - 1
+    # Resolve display metadata
+    if name is None and key in INDIA_UNIVERSE:
+        name = INDIA_UNIVERSE[key][0]
+    if theme is None and key in INDIA_UNIVERSE:
+        theme = INDIA_UNIVERSE[key][3]
 
-    mom_3m = mom(LOOKBACK_3M)
-    mom_6m = mom(LOOKBACK_6M)
-    mom_12m = mom(LOOKBACK_12M)
-    wt_mom = 0.2 * mom_3m + 0.4 * mom_6m + 0.4 * mom_12m
-
-    returns = np.diff(p) / p[:-1]
-    neg_returns = returns[returns < 0]
-    dn_vol = neg_returns.std() * np.sqrt(252) if len(neg_returns) > 0 else 0.0001
-
-    running_max = np.maximum.accumulate(p)
-    drawdown = (p - running_max) / running_max
-    max_dd = drawdown.min()
-    current_dd = drawdown[-1]
-
-    # Sortino-weighted score (same as US script)
-    score = wt_mom / dn_vol if dn_vol > 0 else 0.0
-
-    return {
-        "key": key,
-        "name": INDIA_UNIVERSE[key][0],
-        "category": INDIA_UNIVERSE[key][3],
-        "records": n,
-        "mom_3m": mom_3m,
-        "mom_6m": mom_6m,
-        "mom_12m": mom_12m,
-        "wt_mom": wt_mom,
-        "dn_vol": dn_vol,
-        "score": score,
-        "max_dd": max_dd,
-        "current_dd": current_dd,
-        "latest_price": float(p[-1]),
-    }
+    out["key"] = key
+    out["name"] = name or key
+    out["category"] = theme or ""
+    out["records"] = len(p)
+    return out
 
 
 def score_all(prices: pl.DataFrame) -> pl.DataFrame:

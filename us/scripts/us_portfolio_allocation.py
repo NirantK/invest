@@ -431,240 +431,25 @@ def fetch_total_return_index(tickers: list[str], period: str = "3y") -> tuple[pl
 
 def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
                closes: np.ndarray | None = None, dvols: np.ndarray | None = None) -> dict:
-    """Compute all metrics for one ticker in numpy. Returns dict for polars row.
+    """Delegate to invest.momentum.score_one (shared US/India lib).
 
-    closes: raw close prices (for 52WH distance)
-    dvols: dollar volumes (close × volume) for ADV + dvol slope
+    Kept as a thin wrapper so the rest of this file's API is unchanged.
     """
-    n = len(prices)
-
-    # Momentum with 1-month skip
-    def mom(lookback):
-        if n < lookback + SKIP_1M:
-            return 0.0
-        end_idx = n - SKIP_1M
-        start_idx = end_idx - lookback
-        return (prices[end_idx - 1] / prices[start_idx]) - 1
-
-    mom_1m = mom(LOOKBACK_1M)
-    mom_3m = mom(LOOKBACK_3M)
-    mom_6m = mom(LOOKBACK_6M)
-    mom_12m = mom(LOOKBACK_12M)
-    wt_mom = 0.2 * mom_3m + 0.4 * mom_6m + 0.4 * mom_12m
-
-    # Downside volatility
-    neg_returns = returns[returns < 0]
-    dn_vol = neg_returns.std() * np.sqrt(252) if len(neg_returns) > 0 else 0.0001
-
-    # Quality (R² of log price path)
-    end_idx = n - SKIP_1M if SKIP_1M > 0 else n
-    start_idx = max(0, end_idx - LOOKBACK_12M)
-    window = prices[start_idx:end_idx]
-
-    if len(window) < 20:
-        quality = 0.0
-    else:
-        log_prices = np.log(window)
-        x = np.arange(len(log_prices))
-        coeffs = np.polyfit(x, log_prices, 1)
-        fitted = np.polyval(coeffs, x)
-        ss_res = np.sum((log_prices - fitted) ** 2)
-        ss_tot = np.sum((log_prices - log_prices.mean()) ** 2)
-        quality = max(1 - (ss_res / ss_tot), 0.0) if ss_tot > 0 else 0.0
-
-    # Frog-in-the-Pan (FIP): fraction of positive daily returns in 12M-1M window.
-    # Alpha Architect: prefers stocks that grind up steadily over those with a few large spikes.
-    fip_returns = returns[start_idx:end_idx]
-    fip = float(np.mean(fip_returns > 0)) if len(fip_returns) > 0 else 0.5
-
-    # Composite smoothness: geometric mean of trend linearity (R²) and daily consistency (FIP)
-    smoothness = (quality * fip) ** 0.5
-
-    # Score (composite: 20% 3M, 40% 6M, 40% 12M, smoothness-adjusted)
-    score = (wt_mom * smoothness) / dn_vol if dn_vol > 0 else 0.0
-
-    # 12-1 momentum score (pure 12M skip-1M signal, common academic factor)
-    score_12_1 = (mom_12m * smoothness) / dn_vol if dn_vol > 0 else 0.0
-
-    # --- WTMF composite signal (WisdomTree Managed Futures style) ---
-    # Binary sign at each horizon: +1 if positive, -1 if negative
-    # Composite ranges from -3 (all bearish) to +3 (all bullish)
-    # Weight: +3 → full, +1 → 2/3, 0 → zero
-    m3_sign = 1.0 if mom_3m > 0 else (-1.0 if mom_3m < 0 else 0.0)
-    m6_sign = 1.0 if mom_6m > 0 else (-1.0 if mom_6m < 0 else 0.0)
-    m12_sign = 1.0 if mom_12m > 0 else (-1.0 if mom_12m < 0 else 0.0)
-    wtmf_composite = m3_sign + m6_sign + m12_sign  # -3 to +3
-
-    # WTMF score: composite signal scaled by momentum magnitude, vol-adjusted
-    wtmf_weight = abs(wtmf_composite) / 3.0  # 0, 1/3, 2/3, or 1
-    wtmf_mom = wtmf_weight * wt_mom
-    score_wtmf = (wtmf_mom * smoothness) / dn_vol if dn_vol > 0 else 0.0
-
-    # --- Baltas-Kosowski trend-fit signal ---
-    # Instead of return sign, fit a linear trend to price path and use:
-    # 1. Slope (annualized) as the momentum signal
-    # 2. t-statistic of slope as the confidence filter
-    # This reduces turnover ~2/3 vs simple return sign (Baltas & Kosowski 2013)
-    if len(window) >= 20:
-        log_w = np.log(window)
-        x_w = np.arange(len(log_w))
-        # Linear regression: log_price = slope * t + intercept
-        slope_bk, intercept_bk = np.polyfit(x_w, log_w, 1)
-        # Annualized slope (daily slope * 252)
-        baltas_slope = slope_bk * 252
-        # t-statistic of slope
-        residuals = log_w - (slope_bk * x_w + intercept_bk)
-        se_slope = np.sqrt(np.sum(residuals**2) / (len(x_w) - 2)) / np.sqrt(np.sum((x_w - x_w.mean())**2))
-        baltas_tstat = slope_bk / se_slope if se_slope > 0 else 0.0
-        # Only take position when trend is statistically significant (|t| > 1.5)
-        baltas_signal = baltas_slope if abs(baltas_tstat) > 1.5 else 0.0
-    else:
-        baltas_slope = 0.0
-        baltas_tstat = 0.0
-        baltas_signal = 0.0
-
-    # Baltas score: trend-fit slope (vol-adjusted), only when significant
-    score_baltas = (baltas_signal * quality) / dn_vol if dn_vol > 0 else 0.0
-
-    # Drawdown metrics
-    running_max = np.maximum.accumulate(prices)
-    drawdown = (prices - running_max) / running_max
-
-    max_dd = drawdown.min()
-    current_dd = drawdown[-1]
-
-    # Ulcer Index (1Y): sqrt(mean(DD²)) over last 252 trading days
-    # Recompute DD against rolling 1Y peak so 2022 wipeouts don't pollute current regime
-    if n >= LOOKBACK_12M:
-        last_year = prices[-LOOKBACK_12M:]
-        running_max_1y = np.maximum.accumulate(last_year)
-        dd_1y = (last_year - running_max_1y) / running_max_1y
-        ulcer_1y = float(np.sqrt(np.mean(dd_1y ** 2)))
-        max_dd_1y = float(dd_1y.min())
-    else:
-        # Fall back to all-history if <1Y data
-        ulcer_1y = float(np.sqrt(np.mean(drawdown ** 2)))
-        max_dd_1y = float(max_dd)
-
-    # Martin Ratio: weighted-mom / ulcer_1y. Higher = more return per unit of pain.
-    martin = (wt_mom / ulcer_1y) if ulcer_1y > 0.001 else 0.0
-
-    # Drawdown durations
-    in_dd = drawdown < 0
-    periods = []
-    start = None
-    for i in range(len(in_dd)):
-        if in_dd[i] and start is None:
-            start = i
-        elif not in_dd[i] and start is not None:
-            periods.append(i - start)
-            start = None
-    if start is not None:
-        periods.append(len(in_dd) - start)
-
-    max_dd_dur = max(periods) if periods else 0
-    avg_dd_dur = np.mean(periods) if periods else 0
-
-    # Rolling 3M max drawdown
-    window_size = 63
-    rolling_3m_dd = []
-    for i in range(window_size, len(prices)):
-        w = prices[i - window_size : i]
-        w_max = np.maximum.accumulate(w)
-        w_dd = ((w - w_max) / w_max).min()
-        rolling_3m_dd.append(w_dd)
-    worst_3m_dd = min(rolling_3m_dd) if rolling_3m_dd else max_dd
-
-    # === Volume + price-level signals ===
-    # 1. 52-week-high distance: how close to recent peak (closer = stronger trend)
-    #    dist52 = 0 means at high; 0.25 = 25% below. Penalty if > 0.25.
-    if closes is not None and len(closes) >= LOOKBACK_12M:
-        max_252 = float(np.nanmax(closes[-LOOKBACK_12M:]))
-        last_close = float(closes[-1])
-        dist52 = 1.0 - (last_close / max_252) if max_252 > 0 else 1.0
-    else:
-        dist52 = float("nan")
-
-    # 2. Dollar-volume slope (3M): is money flow growing or shrinking?
-    #    Positive slope on log(dvol) = accumulation; negative = distribution
-    if dvols is not None and len(dvols) >= LOOKBACK_3M:
-        dv_window = dvols[-LOOKBACK_3M:]
-        dv_window = dv_window[np.isfinite(dv_window) & (dv_window > 0)]
-        if len(dv_window) >= 30:
-            log_dv = np.log(dv_window)
-            x_dv = np.arange(len(log_dv))
-            dv_slope = float(np.polyfit(x_dv, log_dv, 1)[0]) * 252  # annualized
-        else:
-            dv_slope = 0.0
-    else:
-        dv_slope = 0.0
-
-    # 3. Average Daily Dollar Volume (60d) — liquidity gate
-    if dvols is not None and len(dvols) >= 60:
-        adv60 = float(np.nanmean(dvols[-60:]))
-    else:
-        adv60 = 0.0
-
-    # Volume confirmation factor: rewards growing money flow, mildly penalizes shrinking
-    # dv_slope ranges roughly -2 to +2 (annualized log-growth). Map to [0.7, 1.3].
-    vol_factor = float(np.clip(1.0 + 0.15 * dv_slope, 0.7, 1.3))
-
-    # 52WH boost: reward proximity to peak (Minervini/O'Neil style)
-    # dist52 < 0.10: ×1.10; 0.10–0.25: ×1.00; > 0.25: linear penalty down to 0.85
-    if not np.isnan(dist52):
-        if dist52 < 0.10:
-            high_factor = 1.10
-        elif dist52 < 0.25:
-            high_factor = 1.00
-        else:
-            high_factor = max(0.85, 1.00 - 0.50 * (dist52 - 0.25))
-    else:
-        high_factor = 1.00
-
-    # Legacy Sortino-style score (kept for diagnostics + backtest comparison)
-    score_sortino = score * vol_factor * high_factor
-
-    # New: Martin-anchored score (returns per unit of pain, with quality multipliers)
-    score_martin = martin * smoothness * vol_factor * high_factor
-
-    # Default reported score: Martin (user pivoted from Sharpe to Ulcer/Martin)
-    score_v2 = score_martin
-
-    return {
-        "ticker": ticker,
-        "mom_1m": mom_1m,
-        "mom_3m": mom_3m,
-        "mom_6m": mom_6m,
-        "mom_12m": mom_12m,
-        "wt_mom": wt_mom,
-        "quality": quality,
-        "fip": fip,
-        "smoothness": smoothness,
-        "dn_vol": dn_vol,
-        "score": score_v2,
-        "score_sortino": score_sortino,  # legacy Sortino-style for backtest A/B
-        "score_martin": score_martin,    # Martin-anchored (currently default)
-        "score_pricemom": score,         # raw Sortino without volume/level boosts
-        "ulcer_1y": ulcer_1y,
-        "max_dd_1y": max_dd_1y,
-        "martin": martin,
-        "score_12_1": score_12_1,
-        "wtmf_composite": wtmf_composite,
-        "score_wtmf": score_wtmf,
-        "baltas_slope": baltas_slope,
-        "baltas_tstat": baltas_tstat,
-        "score_baltas": score_baltas,
-        "max_dd": max_dd,
-        "max_dd_dur": max_dd_dur,
-        "avg_dd_dur": avg_dd_dur,
-        "current_dd": current_dd,
-        "worst_3m_dd": worst_3m_dd,
-        "dist52": dist52,
-        "dv_slope": dv_slope,
-        "adv60": adv60,
-        "vol_factor": vol_factor,
-        "high_factor": high_factor,
-    }
+    result = _shared_score_one(ticker, prices, returns, closes, dvols)
+    if result is None:
+        # Mirror the historical contract: callers expect a dict; build_scores filters on history.
+        return {"ticker": ticker, "wt_mom": 0.0, "score": 0.0, "score_sortino": 0.0,
+                "score_martin": 0.0, "score_pricemom": 0.0, "score_12_1": 0.0,
+                "score_wtmf": 0.0, "score_baltas": 0.0,
+                "mom_1m": 0.0, "mom_3m": 0.0, "mom_6m": 0.0, "mom_12m": 0.0,
+                "quality": 0.0, "fip": 0.5, "smoothness": 0.0, "dn_vol": 1e-4,
+                "ulcer_1y": 0.0, "max_dd_1y": 0.0, "martin": 0.0,
+                "wtmf_composite": 0.0, "baltas_slope": 0.0, "baltas_tstat": 0.0,
+                "max_dd": 0.0, "max_dd_dur": 0, "avg_dd_dur": 0.0,
+                "current_dd": 0.0, "worst_3m_dd": 0.0,
+                "dist52": float("nan"), "dv_slope": 0.0, "adv60": 0.0,
+                "vol_factor": 1.0, "high_factor": 1.0, "latest_price": 0.0}
+    return result
 
 
 def add_rank_scores(scores: pl.DataFrame) -> pl.DataFrame:
