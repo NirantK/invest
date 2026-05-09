@@ -311,7 +311,7 @@ AI_INFRA = [
     "NVDA", "AVGO", "MU", "ANET", "MRVL", "CRDO", "ALAB",
     "AMAT", "LRCX", "KLAC", "TEM", "SMH", "AIQ",
 ]
-AI_POWER = ["TLN", "VST", "CEG", "OKLO"]  # Nuclear/gas data center power
+AI_POWER = ["TLN", "VST", "CEG", "OKLO", "GEV", "POWL"]  # Nuclear/gas data center power + grid
 BIOTECH = ["ARWR", "IONS", "NTLA", "MRNA", "WVE", "ALNY"]
 CRYPTO_AI = ["CIFR", "IREN", "HUT", "APLD", "BTDR", "CLSK", "BITF", "RIOT", "CORZ"]  # overlaps AI_INFRA intentionally
 DEFENSE = ["RKLB"]

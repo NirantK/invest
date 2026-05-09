@@ -1662,6 +1662,25 @@ def _load_market_data(
     global AVG_SHARE_PRICE, HALF_SPREAD_BPS, CCORP_TAX_RATE, SEC_FINRA_FEE_PER_SHARE
 
     global SAFE_HAVENS
+    if market == "ai-infra":
+        # India AI-Infra stock universe (from india/scripts/ai_infra_universe.py)
+        sys.path.insert(0, str(Path(__file__).parent.parent.parent / "india" / "scripts"))
+        from ai_infra_universe import AI_INFRA_UNIVERSE  # type: ignore
+
+        cfg = MarketConfig(
+            portfolio_value=2_500_000.0, commission_per_share=0.0,
+            min_commission=0.0, avg_share_price=500.0,
+            half_spread_bps=38.0, tax_rate=0.20, sec_finra_fee=0.0,
+            label=f"India AI-Infra ({len(AI_INFRA_UNIVERSE)} stocks, ₹25L)",
+        )
+        yf_tickers = [v[1] for v in AI_INFRA_UNIVERSE.values()]
+        console.print(f"[bold]Fetching {len(yf_tickers)} AI-infra tickers ({period})...[/]")
+        prices, dates, fetched = fetch_all_numpy(yf_tickers, period)
+        console.print(f"[green]Got {len(fetched)}, {prices.shape[0]} days ({dates[0]} → {dates[-1]})[/]")
+        SAFE_HAVENS = set()  # no safe havens in this stock universe
+        earn_mom = None
+        return prices, dates, fetched, earn_mom, cfg
+
     if market == "india":
         pass  # SAFE_HAVENS set after fetched list is built
         # India cost model (2026 rates)
@@ -1780,7 +1799,7 @@ def _load_sweep_results(market: str) -> list[WalkForwardResult] | None:
 @click.option("--min-train", default=252, help="Min training days.")
 @click.option("--oos-window", default=126, help="OOS test window days.")
 @click.option("--max-dd-cap", default=1.0, help="MaxDD cap for survivable scenario (1.0 = no cap).")
-@click.option("--market", default="us", type=click.Choice(["us", "india"]),
+@click.option("--market", default="us", type=click.Choice(["us", "india", "ai-infra"]),
               help="Market: 'us' for US equities (yfinance), 'india' for MFs (mfapi.in).")
 @click.option("--mc-only", is_flag=True, help="Skip sweep, reuse cached results for MC + allocation.")
 def main(top: int, period: str, workers: int, min_train: int, oos_window: int,
