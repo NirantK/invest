@@ -195,6 +195,23 @@ TICKERS = [
     # === Zephyr (@zephyr_z9) ===
     "AMD",     # AMD - semis, "mispriced" call
     "STX",     # Seagate - storage with SNDK
+    # === Biotech winners (high DD, high Martin in 1Y window) ===
+    "IONS",    # Ionis - siRNA leader, GalNAc partner
+    "NTLA",    # Intellia - CRISPR, big DD survivor
+    "MRNA",    # Moderna - mRNA platform, AI-discovery thesis
+    # === AI hardware / data center hyperscale ===
+    "SMCI",    # Super Micro - AI server hardware
+    "DELL",    # Dell - AI server demand
+    "VRT",     # Vertiv - data center cooling/power
+    # === AI Power (nuclear + gas for data centers) ===
+    "TLN",     # Talen Energy - nuclear, AWS deal
+    "VST",     # Vistra - nuclear/gas, AI power thesis
+    "CEG",     # Constellation Energy - nuclear, MSFT deal
+    "OKLO",    # Oklo - SMR nuclear, Sam Altman backed
+    # === Defense / Space momentum ===
+    "RKLB",    # Rocket Lab - defense + space
+    # === AI Apps / GovTech ===
+    "PLTR",    # Palantir - AI + government
 ]
 
 BITCOIN_DCA_TARGET_PCT = 0.05
@@ -249,8 +266,25 @@ SOFTWARE = ["CSU.TO"]
 AI_INFRA = [
     "BE", "CRWV", "INTC", "LITE", "CORZ", "IREN", "APLD", "SNDK",
     "CIFR", "EQT", "COHR", "SEI", "TSEM", "RIOT", "KRC", "HUT", "WYFI",
+    "SMCI", "DELL", "VRT", "STX", "AMD", "PLTR",
 ]
+AI_POWER = ["TLN", "VST", "CEG", "OKLO"]  # Nuclear/gas data center power
+BIOTECH = ["ARWR", "IONS", "NTLA", "MRNA", "WVE", "ALNY"]
+CRYPTO_AI = ["CIFR", "IREN", "HUT", "APLD", "BTDR", "CLSK", "BITF", "RIOT", "CORZ"]  # overlaps AI_INFRA intentionally
+DEFENSE = ["RKLB"]
 AGRICULTURE = ["DBA", "CF", "IPI", "MOO"]
+
+# Sleeve caps for diversification discipline. Applied AFTER allocate(), demoting lowest-score
+# names in over-cap sleeves until under threshold.
+SLEEVE_CAPS: list[tuple[str, list[str], float]] = [
+    ("AI Infra",      AI_INFRA, 0.40),
+    ("AI Power",      AI_POWER, 0.20),
+    ("Biotech",       BIOTECH, 0.15),
+    ("Crypto-AI",     CRYPTO_AI, 0.15),
+    ("Energy",        ENERGY, 0.15),
+    ("Real Assets",   GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + GOLD_ETFs + SILVER_ETFs + INDUSTRIAL_METALS + URANIUM + PLATINUM, 0.20),
+    ("Defensive",     FACTOR_US + FACTOR_INTL + FACTOR_EM, 0.15),
+]
 
 CATEGORIES = [
     ("Gold Streamers", GOLD_STREAMERS),
@@ -269,6 +303,9 @@ CATEGORIES = [
     ("Bitcoin", BITCOIN),
     ("Software", SOFTWARE),
     ("AI Infra", AI_INFRA),
+    ("AI Power", AI_POWER),
+    ("Biotech", BIOTECH),
+    ("Defense/Space", DEFENSE),
 ]
 
 # If an ETF is selected, these individual tickers are blocked (already embedded in the ETF).
@@ -988,7 +1025,20 @@ def print_exclusions(thesis: dict[str, str], overlap: dict[str, str]) -> None:
     default=5_000_000.0,
     help="Minimum 60-day average daily dollar volume (liquidity gate). Default $5M.",
 )
-def main(min_allocation: float, max_allocation: float, capital: int, max_positions: int, min_adv: float):
+@click.option(
+    "--score-col",
+    type=click.Choice(["score", "score_martin", "score_sortino", "score_rank"]),
+    default="score",
+    help="Which score column to rank/select on.",
+)
+@click.option(
+    "--sizing",
+    type=click.Choice(["raw", "sqrt", "equal"]),
+    default="raw",
+    help="Position sizing mode: raw=score-weighted, sqrt=compressed, equal=1/N.",
+)
+def main(min_allocation: float, max_allocation: float, capital: int, max_positions: int,
+         min_adv: float, score_col: str, sizing: str):
     """US Portfolio Allocation - Sortino-weighted Momentum + Volume."""
     prices, closes, dvols = fetch_total_return_index(TICKERS)
     if prices.is_empty():
@@ -1012,9 +1062,14 @@ def main(min_allocation: float, max_allocation: float, capital: int, max_positio
         print(f"[dim]In-pain filter (current_dd <-25%): dropped {', '.join(in_pain)}[/]")
 
     scores_clean, thesis_excl = apply_thesis_groups(scores)
+    scores_clean = add_rank_scores(scores_clean)
     print_scores_table(scores_clean)
-    alloc = allocate(scores_clean, capital, min_allocation, max_allocation, max_positions)
-    alloc, overlap_excl = apply_etf_overlap(alloc, scores_clean, capital, min_allocation, max_allocation, max_positions)
+    print(f"\n[score_col={score_col}, sizing={sizing}]")
+    alloc = allocate(scores_clean, capital, min_allocation, max_allocation, max_positions,
+                     score_col=score_col, sizing=sizing)
+    alloc, overlap_excl = apply_etf_overlap(alloc, scores_clean, capital, min_allocation,
+                                             max_allocation, max_positions,
+                                             score_col=score_col, sizing=sizing)
 
     if alloc.is_empty():
         print("No positions passed filters.")
