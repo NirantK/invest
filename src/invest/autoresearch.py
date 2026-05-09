@@ -361,7 +361,15 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
         bench_rets = np.nan_to_num(np.nanmean(ret_panel, axis=1), nan=0.0)
         hmm_bench = np.concatenate([[1.0], np.cumprod(1.0 + bench_rets)])
     # HMM regime detector: fit annually on benchmark history (no look-ahead).
-    hmm = HMMRegime(n_states=strat.hmm_states) if strat.hmm_states > 0 else None
+    hmm = (
+        HMMRegime(
+            n_states=strat.hmm_states,
+            feature_window=strat.hmm_feature_window,
+            refit_every_days=strat.hmm_refit_days,
+        )
+        if strat.hmm_states > 0
+        else None
+    )
     hmm_scales = None
     if hmm is not None:
         profile_table = HMM_SCALE_PROFILES.get(strat.hmm_profile)
@@ -449,8 +457,10 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                             }.get(strat.vol_state_mode, {"low": 1.0, "mid": 1.0, "high": 1.0})
                             eff_target_vol = strat.target_vol * scale_table[state]
 
-                    # ── HMM regime detection (overrides vol_state_mode if active) ──
-                    if hmm is not None and hmm_bench is not None and cur_idx >= hmm.min_train_days:
+                    # ── HMM regime detection (legacy: scale target_vol) ──
+                    if (hmm is not None and hmm_bench is not None
+                            and cur_idx >= hmm.min_train_days
+                            and strat.hmm_apply == "target_vol"):
                         hmm.maybe_refit(hmm_bench, cur_idx)
                         s = hmm.predict_state(hmm_bench[max(0, cur_idx - 252):cur_idx])
                         if s >= 0 and hmm_scales is not None:
@@ -664,7 +674,7 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
         "score_gap_pct", "crash_p_mult",
         "regime_ma", "dd_stop_pct",
         "target_vol", "vol_lookback", "weight_mode", "vol_state_mode",
-        "hmm_states", "hmm_profile",
+        "hmm_states", "hmm_profile", "hmm_feature_window", "hmm_refit_days", "hmm_apply",
     ])
     if field == "lookbacks":
         new.lookbacks = LOOKBACK_CHOICES[rng.integers(len(LOOKBACK_CHOICES))]
@@ -704,9 +714,18 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
             new.hmm_profile = str(rng.choice(["balanced", "aggressive", "defensive"]))
     elif field == "hmm_profile":
         if new.hmm_states > 0:
-            new.hmm_profile = str(rng.choice(["balanced", "aggressive", "defensive"]))
+            new.hmm_profile = str(rng.choice([k for k in HMM_PROFILE_CHOICES if k != "off"]))
         else:
             new.hmm_profile = "off"
+    elif field == "hmm_feature_window":
+        new.hmm_feature_window = int(rng.choice(HMM_FEATURE_WINDOW_CHOICES))
+    elif field == "hmm_refit_days":
+        new.hmm_refit_days = int(rng.choice(HMM_REFIT_DAYS_CHOICES))
+    elif field == "hmm_apply":
+        if new.hmm_states > 0:
+            new.hmm_apply = str(rng.choice(["gross", "target_vol"]))
+        else:
+            new.hmm_apply = "off"
     if new.rebal_min_hold >= new.rebal_max_hold:
         new.rebal_max_hold = new.rebal_min_hold + 20
     return new
