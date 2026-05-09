@@ -168,6 +168,33 @@ TICKERS = [
     "SILJ",    # ETFMG Prime Junior Silver Miners - Rule: "real money is in stocks"
     "XOP",     # SPDR S&P Oil & Gas E&P - Rule: chronic underinvestment
     "MOO",     # VanEck Agribusiness - Costa agri thesis
+    # === Leo Aschenbrenner 13F Q4 2025 (additional) ===
+    "PSIX",    # Power Solutions - data center backup power
+    "BTDR",    # Bitdeer - bitcoin mining / AI hosting
+    "CLSK",    # CleanSpark - bitcoin mining
+    "BITF",    # Bitfarms - bitcoin mining
+    "LBRT",    # Liberty Energy - oilfield services / data center power
+    "BWC",     # Babcock & Wilcox - small modular reactors / nuclear
+    "PUMP",    # ProPetro - oilfield services
+    # === Citrini 2026 watchlist ===
+    "ACN",     # Accenture - AI job loss beneficiary
+    "IBM",     # IBM - AI job loss beneficiary
+    "ZM",      # Zoom - AI job loss beneficiary
+    "INTU",    # Intuit - AI job loss beneficiary
+    "DG",      # Dollar General - AI job loss beneficiary
+    "TGT",     # Target - AI job loss beneficiary
+    "UPS",     # UPS - AI job loss beneficiary
+    "CMG",     # Chipotle - back-of-house automation
+    "CAVA",    # Cava - slop bowl automation
+    "SG",      # Sweetgreen - slop bowl automation
+    "WVE",     # Wave Life Sciences - GalNAc-siRNA weight loss
+    "ARWR",    # Arrowhead - GalNAc-siRNA weight loss
+    "ALNY",    # Alnylam - GalNAc-siRNA pioneer
+    "RL",      # Ralph Lauren - luxury / Girlfriend Index
+    "AS",      # Amer Sports - luxury / Girlfriend Index
+    # === Zephyr (@zephyr_z9) ===
+    "AMD",     # AMD - semis, "mispriced" call
+    "STX",     # Seagate - storage with SNDK
 ]
 
 BITCOIN_DCA_TARGET_PCT = 0.05
@@ -608,49 +635,89 @@ def allocate(
     scores: pl.DataFrame, capital: int, min_pct: float, max_pct: float,
     max_positions: int = MAX_POSITIONS,
 ) -> pl.DataFrame:
-    """Filter, weight, constrain. Returns allocation DataFrame."""
-    # Filter positive momentum
-    df = scores.filter(pl.col("wt_mom") > 0)
+    """Filter, weight, constrain. Returns allocation DataFrame.
+
+    Algorithm: water-filling by score, capped at max_pct (or per-ticker override).
+    Names below min_pct are dropped at the end and their share redistributed
+    pro-rata to remaining uncapped names (cascading until stable).
+    """
+    # Filter positive momentum, cap at max_positions by score
+    df = scores.filter(pl.col("wt_mom") > 0).sort("score", descending=True).head(max_positions)
 
     if len(df) == 0:
         return pl.DataFrame()
 
-    # Weight by score
-    total_score = df["score"].sum()
-    df = df.with_columns((pl.col("score") / total_score).alias("weight"))
-
-    # Cap at max_positions
-    df = df.sort("score", descending=True).head(max_positions)
+    df = df.with_columns(
+        (pl.col("score") / df["score"].sum()).alias("weight")
+    )
 
     # Iterative min/max constraints
     min_amount = capital * min_pct
-    max_amount = capital * max_pct
+    ticker_caps = {row["ticker"]: capital * TICKER_MAX_ALLOC.get(row["ticker"], max_pct)
+                   for row in df.iter_rows(named=True)}
 
-    # Convert to pandas for iterative constraint logic (polars doesn't support item assignment)
     alloc_dict = {row["ticker"]: row["weight"] * capital for row in df.iter_rows(named=True)}
 
-    for _ in range(100):
+    # Pin tickers that hit max cap; redistribute excess only to uncapped names.
+    # Drop tickers below min; redistribute their share to remaining names.
+    # Iterate until stable (no new pins, no new drops).
+    for _ in range(200):
         changed = False
 
-        # Zero out below minimum
-        for t in list(alloc_dict.keys()):
-            if 0 < alloc_dict[t] < min_amount:
-                alloc_dict[t] = 0
-                changed = True
-
-        # Cap above maximum (global or per-ticker override)
-        for t in alloc_dict:
-            ticker_max = capital * TICKER_MAX_ALLOC.get(t, max_pct)
-            if alloc_dict[t] > ticker_max:
-                alloc_dict[t] = ticker_max
-                changed = True
-
-        # Renormalize
-        current_total = sum(alloc_dict.values())
-        if abs(current_total - capital) > 1:
-            scale = capital / current_total
-            alloc_dict = {t: v * scale for t, v in alloc_dict.items()}
+        # Drop below-min tickers (zero them out)
+        below_min = [t for t, v in alloc_dict.items() if 0 < v < min_amount]
+        for t in below_min:
+            alloc_dict[t] = 0
             changed = True
+
+        # Renormalize to capital across active (>0) tickers
+        active = {t: v for t, v in alloc_dict.items() if v > 0}
+        if not active:
+            break
+        current_total = sum(active.values())
+        if current_total > 0 and abs(current_total - capital) > 1:
+            scale = capital / current_total
+            for t in active:
+                alloc_dict[t] = active[t] * scale
+            changed = True
+
+        # Pin over-cap tickers; distribute excess to uncapped only (Hamilton apportionment style)
+        capped = {t: v for t, v in alloc_dict.items()
+                  if v > 0 and v >= ticker_caps[t] - 0.01}
+        uncapped = {t: v for t, v in alloc_dict.items()
+                    if v > 0 and v < ticker_caps[t] - 0.01}
+
+        # Force-set capped tickers exactly at their cap
+        for t in list(capped.keys()):
+            if alloc_dict[t] > ticker_caps[t]:
+                alloc_dict[t] = ticker_caps[t]
+                changed = True
+
+        capped_total = sum(ticker_caps[t] for t in capped)
+        remaining_capital = capital - capped_total
+
+        if uncapped and remaining_capital > 0:
+            uncapped_total = sum(uncapped.values())
+            if uncapped_total > 0:
+                # Try to distribute remaining_capital pro-rata to uncapped tickers
+                scale = remaining_capital / uncapped_total
+                for t in uncapped:
+                    new_val = uncapped[t] * scale
+                    # If new_val pushes uncapped over cap, pin it (next iteration handles cascade)
+                    if new_val > ticker_caps[t]:
+                        if alloc_dict[t] != ticker_caps[t]:
+                            alloc_dict[t] = ticker_caps[t]
+                            changed = True
+                    else:
+                        if abs(alloc_dict[t] - new_val) > 0.5:
+                            alloc_dict[t] = new_val
+                            changed = True
+        elif uncapped and remaining_capital <= 0:
+            # All capital used by capped tickers; uncapped get 0
+            for t in uncapped:
+                if alloc_dict[t] > 0:
+                    alloc_dict[t] = 0
+                    changed = True
 
         if not changed:
             break
@@ -779,6 +846,7 @@ def main(min_allocation: float, max_allocation: float, capital: int, max_positio
     scores = build_scores(prices)
 
     scores_clean, thesis_excl = apply_thesis_groups(scores)
+    print_scores_table(scores_clean)
     alloc = allocate(scores_clean, capital, min_allocation, max_allocation, max_positions)
     alloc, overlap_excl = apply_etf_overlap(alloc, scores_clean, capital, min_allocation, max_allocation, max_positions)
 
