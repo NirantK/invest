@@ -180,6 +180,14 @@ CASH_EQUIV_TICKERS: set[str] = {
     "SETF10GILT", "MOGSEC",
 }
 
+# Precious metals — low-vol commodity proxies that win sortino_vnorm. Capped
+# to PRECIOUS_MAX_PICKS in topk so equity momentum has to compete on its own.
+PRECIOUS_TICKERS: set[str] = {
+    "GOLDBEES", "SETFGOLD", "GOLDIETF", "GOLDETF",
+    "SILVERBEES", "SILVERETF", "MASILVER",
+}
+PRECIOUS_MAX_PICKS: int = 2
+
 
 def precompute_score_panel(prices: np.ndarray, lookbacks, weights, skip: int,
                             variant: str, exclude_mask: np.ndarray | None = None,
@@ -437,12 +445,28 @@ def _ffill_2d(arr: np.ndarray) -> np.ndarray:
     return np.take_along_axis(arr, idx, axis=0)
 
 
-def _topk_from_scores(scores, n_positions):
+def _topk_from_scores(scores, n_positions, cap_mask=None, cap_max=None):
+    """Return top-n indices by score. If cap_mask + cap_max given, indices
+    where cap_mask[i] is True are capped to at most cap_max picks (replaced
+    with next-best non-cap candidates).
+    """
     valid = np.where(np.isfinite(scores) & (scores > 0))[0]
     if len(valid) == 0:
         return np.array([], dtype=int)
     order = valid[np.argsort(scores[valid])[::-1]]
-    return order[:n_positions]
+    if cap_mask is None or cap_max is None:
+        return order[:n_positions]
+    picked = []
+    cap_count = 0
+    for i in order:
+        if cap_mask[i]:
+            if cap_count >= cap_max:
+                continue
+            cap_count += 1
+        picked.append(i)
+        if len(picked) >= n_positions:
+            break
+    return np.array(picked, dtype=int)
 
 
 # ─── Walk-forward (weekly check, min/max hold, jitter) ───────────────────────
@@ -451,9 +475,13 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                  seed_offset: int = 0,
                  cash_idx: int = -1,
                  exclude_mask: np.ndarray | None = None,
+                 cap_mask: np.ndarray | None = None,
+                 cap_max: int | None = None,
                  macro_features: np.ndarray | None = None) -> dict:
     """cash_idx: column of a cash-equivalent ticker; deficit parks here.
     exclude_mask: boolean array of columns to exclude from momentum scoring.
+    cap_mask + cap_max: limit how many picks can come from masked tickers
+    (e.g., precious metals).
     macro_features: optional (n_days, k) panel aligned to `prices` rows;
     forwarded to HMMRegime as macro features (FII, volume, sentiment, etc.)."""
     rng = np.random.default_rng(42 + seed_offset)
@@ -562,7 +590,8 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                 scores = _compute_scores(window, strat.lookbacks, strat.weights,
                                           strat.skip_days, strat.score_variant,
                                           exclude_mask=exclude_mask)
-            topk = _topk_from_scores(scores, strat.n_positions)
+            topk = _topk_from_scores(scores, strat.n_positions,
+                                      cap_mask=cap_mask, cap_max=cap_max)
         else:
             scores = None
             topk = np.array([], dtype=int)
@@ -1035,12 +1064,18 @@ def _build_exclude_mask(fetched: list[str]) -> np.ndarray:
     return np.array([t in CASH_EQUIV_TICKERS for t in fetched], dtype=bool)
 
 
+def _build_precious_mask(fetched: list[str]) -> np.ndarray:
+    return np.array([t in PRECIOUS_TICKERS for t in fetched], dtype=bool)
+
+
 def current_picks(prices: np.ndarray, fetched: list[str], strat: Strategy) -> list[str]:
     exclude = _build_exclude_mask(fetched)
+    cap_mask = _build_precious_mask(fetched)
     scores = _compute_scores(prices, strat.lookbacks, strat.weights,
                               strat.skip_days, strat.score_variant,
                               exclude_mask=exclude)
-    topk = _topk_from_scores(scores, strat.n_positions)
+    topk = _topk_from_scores(scores, strat.n_positions,
+                              cap_mask=cap_mask, cap_max=PRECIOUS_MAX_PICKS)
     return [fetched[i] for i in topk]
 
 
