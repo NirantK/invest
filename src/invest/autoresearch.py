@@ -475,6 +475,21 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                         if realised_vol > 1e-4:
                             scale = min(1.5, eff_target_vol / realised_vol)
                             weights = weights * scale
+
+                # ── HMM direct-gross apply (independent of target_vol) ──
+                if (hmm is not None and hmm_bench is not None
+                        and cur_idx >= hmm.min_train_days
+                        and strat.hmm_apply == "gross"
+                        and hmm_scales is not None):
+                    hmm.maybe_refit(hmm_bench, cur_idx)
+                    s = hmm.predict_state(hmm_bench[max(0, cur_idx - 252):cur_idx])
+                    if s >= 0:
+                        gross_factor = float(hmm_scales[s])
+                        gross_factor = min(gross_factor, 1.5)  # cap leverage
+                        # Re-normalise weights to current sum then scale to gross_factor
+                        current_sum = weights.sum()
+                        if current_sum > 0:
+                            weights = (weights / current_sum) * gross_factor
                 days_since_last = 0
                 rebal_count += 1
 
