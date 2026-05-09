@@ -170,9 +170,15 @@ def load_crash_calibration(path: Path) -> dict:
 SQRT_252 = np.sqrt(252)
 _MIN_DN_VOL = 1e-4
 
-# Tickers excluded from momentum scoring (they game Sortino with near-zero vol).
-# They CAN still be used as cash sleeve via the cash-fill / force-cash path.
-CASH_EQUIV_TICKERS = {"LIQUIDBEES", "LIQUIDIETF"}
+# Tickers excluded from momentum scoring (their near-zero vol gives unbeatable
+# Sortino scores). They REMAIN in the universe for the cash-fill / force-cash
+# path — strategy goes to LIQUIDBEES via HMM regime cuts, not by ranking.
+CASH_EQUIV_TICKERS: set[str] = {
+    "LIQUIDBEES", "LIQUIDIETF",
+    # Bharat Bonds + gilts — also low-vol debt that games sortino_vnorm
+    "EBBETF0430", "EBBETF0431", "EBBETF0433",
+    "SETF10GILT", "MOGSEC",
+}
 
 
 def _baltas_slopes(prices_window: np.ndarray) -> np.ndarray:
