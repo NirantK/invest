@@ -333,7 +333,11 @@ def _topk_from_scores(scores, n_positions):
 # ─── Walk-forward (weekly check, min/max hold, jitter) ───────────────────────
 def walk_forward(prices: np.ndarray, strat: Strategy,
                  train_days: int = 252, check_every: int = 5,
-                 seed_offset: int = 0) -> dict:
+                 seed_offset: int = 0,
+                 cash_idx: int = -1) -> dict:
+    """cash_idx: column index of a cash-equivalent ticker (LIQUIDBEES) in `prices`.
+    When weight_sum < 1.0 (e.g. HMM gross-cut, regime_off), the deficit is parked
+    in cash_idx instead of earning 0%. Pass -1 to disable."""
     rng = np.random.default_rng(42 + seed_offset)
     n_days, n = prices.shape
     min_history = max(strat.lookbacks) + strat.skip_days + 21
@@ -511,14 +515,35 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
         if current_picks:
             # Use prior bar so the first segment day produces a return, not a price-jump.
             anchor = max(0, cur_idx - 1)
-            seg = prices[anchor:seg_end, current_picks].copy()
+            # Fill the deficit (1 - sum(weights)) with cash-equiv (LIQUIDBEES) if available.
+            # User: "Allow strategy to go to LIQUIDBEES when it helps returns" — HMM
+            # bear-state cuts gross to e.g. 30%; the missing 70% earns LIQUIDBEES yield
+            # (~6-7% interest accrual) instead of 0%.
+            cash_w = max(0.0, 1.0 - float(weights.sum()))
+            seg_cols = list(current_picks)
+            seg_weights = weights.copy()
+            if cash_idx >= 0 and cash_idx not in seg_cols and cash_w > 1e-4:
+                seg_cols = list(current_picks) + [cash_idx]
+                seg_weights = np.concatenate([weights, [cash_w]])
+            seg = prices[anchor:seg_end, seg_cols].copy()
             seg = _ffill_2d(seg)
             if not np.isnan(seg).any() and seg.shape[0] >= 2:
-                # Weighted daily returns (weights may sum >1 = leverage, <1 = cash drag)
                 drets = np.diff(seg, axis=0) / seg[:-1, :]
-                basket_rets = drets @ weights        # (seg_days,)
+                basket_rets = drets @ seg_weights
                 last = portfolio_values[-1]
                 pv_seg = last * np.cumprod(1.0 + basket_rets)
+                portfolio_values.extend(pv_seg.tolist())
+            else:
+                portfolio_values.extend([portfolio_values[-1]] * (seg_end - cur_idx))
+        elif cash_idx >= 0:
+            # No equity picks (force_cash or empty topk) — earn LIQUIDBEES yield
+            anchor = max(0, cur_idx - 1)
+            seg = prices[anchor:seg_end, [cash_idx]].copy()
+            seg = _ffill_2d(seg)
+            if not np.isnan(seg).any() and seg.shape[0] >= 2:
+                drets = np.diff(seg, axis=0) / seg[:-1, :]
+                last = portfolio_values[-1]
+                pv_seg = last * np.cumprod(1.0 + drets[:, 0])
                 portfolio_values.extend(pv_seg.tolist())
             else:
                 portfolio_values.extend([portfolio_values[-1]] * (seg_end - cur_idx))
@@ -848,7 +873,8 @@ def current_picks(prices: np.ndarray, fetched: list[str], strat: Strategy) -> li
 
 def evaluate(strat: Strategy, prices: np.ndarray, fetched: list[str],
              daily_rets: np.ndarray, calib: dict, seed: int = 42) -> tuple:
-    bt = walk_forward(prices, strat)
+    cash_idx = fetched.index("LIQUIDBEES") if "LIQUIDBEES" in fetched else -1
+    bt = walk_forward(prices, strat, cash_idx=cash_idx)
     picks = current_picks(prices, fetched, strat)
     if not picks or bt["rebal_count"] < 3:
         mc = {"p5": 0, "p25": 0, "p50": 0, "p75": 0, "p95": 0,
