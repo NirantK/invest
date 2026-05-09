@@ -351,37 +351,52 @@ def _build_total_return(close: np.ndarray, divs: np.ndarray) -> np.ndarray:
 
 
 @daily_disk_cache
-def _fetch_one(ticker: str, period: str) -> pl.DataFrame | None:
-    """Fetch total return index for one ticker. Returns None on failure."""
+def _fetch_one_v2(ticker: str, period: str) -> dict | None:
+    """Fetch TRI + close + dollar volume for one ticker. Returns dict of arrays or None."""
     hist = yf.Ticker(ticker).history(period=period)
     if hist.empty:
         return None
-    tri = _build_total_return(hist["Close"].values, hist["Dividends"].values)
+    closes = hist["Close"].values
+    vols = hist["Volume"].values
+    divs = hist["Dividends"].values
+    tri = _build_total_return(closes, divs)
+    dvol = closes * vols
     date_strs = [d.strftime("%Y-%m-%d") for d in hist.index.to_pydatetime()]
-    return pl.DataFrame({"date": date_strs, ticker: tri})
+    return {"date": date_strs, "tri": tri, "close": closes, "dvol": dvol}
 
 
-def fetch_total_return_index(tickers: list[str], period: str = "3y") -> pl.DataFrame:
-    """Fetch total return prices (includes reinvested dividends) as polars DataFrame."""
-    frames = []
+def fetch_total_return_index(tickers: list[str], period: str = "3y") -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
+    """Fetch (TRI, close, dollar-volume) DataFrames keyed by date, columns by ticker."""
+    fetched: dict[str, dict] = {}
     with ThreadPoolExecutor(max_workers=8) as pool:
-        futures = {pool.submit(_fetch_one, t, period): t for t in tickers}
+        futures = {pool.submit(_fetch_one_v2, t, period): t for t in tickers}
         for future in as_completed(futures):
+            t = futures[future]
             result = future.result()
             if result is not None:
-                frames.append(result)
+                fetched[t] = result
 
-    if not frames:
-        return pl.DataFrame()
+    if not fetched:
+        empty = pl.DataFrame()
+        return empty, empty, empty
 
-    result = frames[0]
-    for f in frames[1:]:
-        result = result.join(f, on="date", how="full", coalesce=True)
-    return result.sort("date")
+    def _to_df(field: str) -> pl.DataFrame:
+        frames = [pl.DataFrame({"date": v["date"], t: v[field]}) for t, v in fetched.items()]
+        out = frames[0]
+        for f in frames[1:]:
+            out = out.join(f, on="date", how="full", coalesce=True)
+        return out.sort("date")
+
+    return _to_df("tri"), _to_df("close"), _to_df("dvol")
 
 
-def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray) -> dict:
-    """Compute all metrics for one ticker in numpy. Returns dict for polars row."""
+def _score_one(ticker: str, prices: np.ndarray, returns: np.ndarray,
+               closes: np.ndarray | None = None, dvols: np.ndarray | None = None) -> dict:
+    """Compute all metrics for one ticker in numpy. Returns dict for polars row.
+
+    closes: raw close prices (for 52WH distance)
+    dvols: dollar volumes (close × volume) for ADV + dvol slope
+    """
     n = len(prices)
 
     # Momentum with 1-month skip
@@ -631,6 +646,38 @@ def apply_etf_overlap(
     return allocate(filtered, capital, min_pct, max_pct, max_positions), blocked
 
 
+def _water_fill(scores: dict[str, float], caps: dict[str, float], capital: float) -> dict[str, float]:
+    """Pour capital into tickers proportional to score. Pin at cap when hit; redistribute remainder
+    to uncapped names by score. Continue until capital exhausted or all names capped.
+    """
+    pinned = {}
+    active = dict(scores)
+    remaining = float(capital)
+
+    while active and remaining > 0.01:
+        total_score = sum(active.values())
+        if total_score <= 0:
+            break
+
+        # Find tightest binding cap: which ticker would hit cap first?
+        # For each active ticker, fraction_to_pour = score/total_score
+        # Capacity to absorb before hitting cap = caps[t] / fraction_to_pour
+        binding = min((caps[t] * total_score / s for t, s in active.items() if s > 0),
+                      default=remaining)
+        pour = min(remaining, binding)
+        for t, s in list(active.items()):
+            add = (s / total_score) * pour
+            allocated = pinned.get(t, 0) + add
+            if allocated >= caps[t] - 0.01:
+                pinned[t] = caps[t]
+                del active[t]
+            else:
+                pinned[t] = allocated
+        remaining -= pour
+
+    return pinned
+
+
 def allocate(
     scores: pl.DataFrame, capital: int, min_pct: float, max_pct: float,
     max_positions: int = MAX_POSITIONS,
@@ -651,81 +698,31 @@ def allocate(
         (pl.col("score") / df["score"].sum()).alias("weight")
     )
 
-    # Iterative min/max constraints
     min_amount = capital * min_pct
-    ticker_caps = {row["ticker"]: capital * TICKER_MAX_ALLOC.get(row["ticker"], max_pct)
-                   for row in df.iter_rows(named=True)}
+    scores_dict = {row["ticker"]: row["score"] for row in df.iter_rows(named=True)}
+    caps = {t: capital * TICKER_MAX_ALLOC.get(t, max_pct) for t in scores_dict}
 
-    alloc_dict = {row["ticker"]: row["weight"] * capital for row in df.iter_rows(named=True)}
+    alloc_dict = _water_fill(scores_dict, caps, capital)
 
-    # Pin tickers that hit max cap; redistribute excess only to uncapped names.
-    # Drop tickers below min; redistribute their share to remaining names.
-    # Iterate until stable (no new pins, no new drops).
-    for _ in range(200):
-        changed = False
-
-        # Drop below-min tickers (zero them out)
+    # Drop below-min names; redistribute via water-fill on the trimmed set.
+    # Cascade: dropping may free capital that pushes others over min, which may push others below max.
+    for _ in range(50):
         below_min = [t for t, v in alloc_dict.items() if 0 < v < min_amount]
+        if not below_min:
+            break
         for t in below_min:
-            alloc_dict[t] = 0
-            changed = True
-
-        # Renormalize to capital across active (>0) tickers
-        active = {t: v for t, v in alloc_dict.items() if v > 0}
-        if not active:
+            del scores_dict[t]
+            del caps[t]
+        if not scores_dict:
+            alloc_dict = {}
             break
-        current_total = sum(active.values())
-        if current_total > 0 and abs(current_total - capital) > 1:
-            scale = capital / current_total
-            for t in active:
-                alloc_dict[t] = active[t] * scale
-            changed = True
-
-        # Pin over-cap tickers; distribute excess to uncapped only (Hamilton apportionment style)
-        capped = {t: v for t, v in alloc_dict.items()
-                  if v > 0 and v >= ticker_caps[t] - 0.01}
-        uncapped = {t: v for t, v in alloc_dict.items()
-                    if v > 0 and v < ticker_caps[t] - 0.01}
-
-        # Force-set capped tickers exactly at their cap
-        for t in list(capped.keys()):
-            if alloc_dict[t] > ticker_caps[t]:
-                alloc_dict[t] = ticker_caps[t]
-                changed = True
-
-        capped_total = sum(ticker_caps[t] for t in capped)
-        remaining_capital = capital - capped_total
-
-        if uncapped and remaining_capital > 0:
-            uncapped_total = sum(uncapped.values())
-            if uncapped_total > 0:
-                # Try to distribute remaining_capital pro-rata to uncapped tickers
-                scale = remaining_capital / uncapped_total
-                for t in uncapped:
-                    new_val = uncapped[t] * scale
-                    # If new_val pushes uncapped over cap, pin it (next iteration handles cascade)
-                    if new_val > ticker_caps[t]:
-                        if alloc_dict[t] != ticker_caps[t]:
-                            alloc_dict[t] = ticker_caps[t]
-                            changed = True
-                    else:
-                        if abs(alloc_dict[t] - new_val) > 0.5:
-                            alloc_dict[t] = new_val
-                            changed = True
-        elif uncapped and remaining_capital <= 0:
-            # All capital used by capped tickers; uncapped get 0
-            for t in uncapped:
-                if alloc_dict[t] > 0:
-                    alloc_dict[t] = 0
-                    changed = True
-
-        if not changed:
-            break
+        alloc_dict = _water_fill(scores_dict, caps, capital)
 
     # Rebuild DataFrame
-    alloc_df = pl.DataFrame(
-        [{"ticker": t, "alloc_usd": alloc_dict[t]} for t in alloc_dict if alloc_dict[t] > 0]
-    )
+    rows = [{"ticker": t, "alloc_usd": alloc_dict[t]} for t in alloc_dict if alloc_dict[t] > 0]
+    if not rows:
+        return pl.DataFrame()
+    alloc_df = pl.DataFrame(rows)
 
     # Join back with scores
     return df.join(alloc_df, on="ticker", how="inner")
