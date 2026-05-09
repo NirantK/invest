@@ -652,7 +652,11 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                         and strat.hmm_apply == "gross"
                         and hmm_scales is not None):
                     hmm.maybe_refit(hmm_bench, cur_idx)
-                    s = hmm.predict_state(hmm_bench[max(0, cur_idx - 252):cur_idx])
+                    recent_macro = (
+                        macro_features[max(0, cur_idx - 252):cur_idx, :]
+                        if macro_features is not None else None
+                    )
+                    s = hmm.predict_state(hmm_bench[max(0, cur_idx - 252):cur_idx], recent_macro)
                     if s >= 0:
                         gross_factor = float(hmm_scales[s])
                         # Apply as multiplicative state factor (caps the cap at 1.5x net)
@@ -1031,10 +1035,12 @@ def current_picks(prices: np.ndarray, fetched: list[str], strat: Strategy) -> li
 
 
 def evaluate(strat: Strategy, prices: np.ndarray, fetched: list[str],
-             daily_rets: np.ndarray, calib: dict, seed: int = 42) -> tuple:
+             daily_rets: np.ndarray, calib: dict, seed: int = 42,
+             macro_features: np.ndarray | None = None) -> tuple:
     cash_idx = fetched.index("LIQUIDBEES") if "LIQUIDBEES" in fetched else -1
     exclude = _build_exclude_mask(fetched)
-    bt = walk_forward(prices, strat, cash_idx=cash_idx, exclude_mask=exclude)
+    bt = walk_forward(prices, strat, cash_idx=cash_idx, exclude_mask=exclude,
+                      macro_features=macro_features)
     picks = current_picks(prices, fetched, strat)
     if not picks or bt["rebal_count"] < 3:
         mc = {"p5": 0, "p25": 0, "p50": 0, "p75": 0, "p95": 0,
@@ -1055,7 +1061,8 @@ def run_loop(prices: np.ndarray, fetched: list[str], dates: np.ndarray,
              calib: dict, *, n_iters: int, log_path: Path, best_path: Path,
              seed: int = 42, print_every: int = 25,
              pending_provider=None, batch_callback=None,
-             batch_size: int = 0) -> dict:
+             batch_size: int = 0,
+             macro_features: np.ndarray | None = None) -> dict:
     """Universal loop. pending_provider/batch_callback/batch_size enable karpathy mode.
 
     pending_provider: optional list[Strategy] consumed first before random/greedy
