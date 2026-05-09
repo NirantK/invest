@@ -214,6 +214,45 @@ TICKERS = [
     "RKLB",    # Rocket Lab - defense + space
     # === AI Apps / GovTech ===
     "PLTR",    # Palantir - AI + government
+    # === Mega-cap AI semiconductors (Phase 2 universe expansion) ===
+    "NVDA",    # NVIDIA - the index of AI momentum
+    "AVGO",    # Broadcom - networking, custom silicon for hyperscalers
+    "MU",      # Micron - memory (HBM) — pair-trade with SNDK
+    "ANET",    # Arista - AI/data-center networking
+    "MRVL",    # Marvell - custom silicon, optical DSPs
+    "CRDO",    # Credo - AI connectivity (small-cap rocket)
+    "ALAB",    # Astera Labs - AI connectivity (post-IPO 2024)
+    "AMAT",    # Applied Materials - semi cap eq
+    "LRCX",    # Lam Research - semi cap eq
+    "KLAC",    # KLA - semi metrology
+    "TEM",     # Tempus AI - healthcare AI (post-IPO)
+    "POWL",    # Powell Industries - electrical infra for AI power
+    "GEV",     # GE Vernova - grid + nuclear, AI power buildout
+    # === Mega-cap miners (US-listed primary producers) ===
+    "NEM",     # Newmont - largest gold producer
+    "GOLD",    # Barrick - global gold major
+    "KGC",     # Kinross Gold
+    "AU",      # AngloGold Ashanti
+    "AG",      # First Majestic Silver
+    "CDE",     # Coeur Mining - silver/gold US producer
+    "MAG",     # MAG Silver
+    # === Industrial metals additions ===
+    "FCX",     # Freeport-McMoRan - copper/gold (user holds)
+    "SCCO",    # Southern Copper (user holds)
+    "TECK",    # Teck Resources - diversified Canadian miner
+    "ALB",     # Albemarle - lithium
+    "SQM",     # SQM Sociedad - lithium + iodine
+    # === Sector ETFs added (incl. ones the user holds) ===
+    "SMH",     # VanEck Semis ETF (user holds)
+    "VNQ",     # Vanguard Real Estate (user holds)
+    "EWY",     # iShares MSCI Korea (user holds)
+    "GDX",     # VanEck Gold Miners (large-cap)
+    "SIL",     # Global X Silver Miners
+    "LIT",     # Global X Lithium & Battery Tech
+    "REMX",    # VanEck Rare Earth/Strategic Metals
+    "PICK",    # iShares MSCI Global Metals & Mining (broad)
+    "FCG",     # First Trust Natural Gas - gas E&P
+    "AIQ",     # Global X AI & Tech ETF
 ]
 
 BITCOIN_DCA_TARGET_PCT = 0.05
@@ -229,12 +268,12 @@ MAX_POSITIONS = 25
 
 # Category groupings (for reporting only)
 GOLD_STREAMERS = ["WPM", "FNV", "RGLD"]           # Royalty/streaming (no op risk)
-SILVER_MINERS  = ["PAAS", "HL"]                   # Primary silver miners
-GOLD_MINERS    = ["AEM", "GMIN.TO", "BTG"]          # Individual gold producers
-GOLD_ETFs      = ["GOAU", "SGDM", "SGDJ", "GBUG", "GDXJ"] # Gold/silver miner ETF wrappers
-SILVER_ETFs    = ["SILJ"]                          # Silver miner ETFs
+SILVER_MINERS  = ["PAAS", "HL", "AG", "CDE", "MAG"]                   # Primary silver miners
+GOLD_MINERS    = ["AEM", "GMIN.TO", "BTG", "NEM", "GOLD", "KGC", "AU"]          # Individual gold producers
+GOLD_ETFs      = ["GOAU", "SGDM", "SGDJ", "GBUG", "GDXJ", "GDX"] # Gold/silver miner ETF wrappers
+SILVER_ETFs    = ["SILJ", "SIL"]                          # Silver miner ETFs
 PRECIOUS_METALS = GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + GOLD_ETFs + SILVER_ETFs
-INDUSTRIAL_METALS = ["COPX", "COPP", "ARG.TO", "SETM"]  # ARG = Amerigo Resources (copper from tailings)
+INDUSTRIAL_METALS = ["COPX", "COPP", "ARG.TO", "SETM", "FCX", "SCCO", "TECK", "ALB", "SQM", "LIT", "REMX", "PICK"]
 URANIUM = ["URA", "URNM", "URNJ", "CCJ"]
 PLATINUM = ["PPLT"]
 ENERGY = [
@@ -269,6 +308,8 @@ AI_INFRA = [
     "BE", "CRWV", "INTC", "LITE", "CORZ", "IREN", "APLD", "SNDK",
     "CIFR", "EQT", "COHR", "SEI", "TSEM", "RIOT", "KRC", "HUT", "WYFI",
     "SMCI", "DELL", "VRT", "STX", "AMD", "PLTR",
+    "NVDA", "AVGO", "MU", "ANET", "MRVL", "CRDO", "ALAB",
+    "AMAT", "LRCX", "KLAC", "TEM", "SMH", "AIQ",
 ]
 AI_POWER = ["TLN", "VST", "CEG", "OKLO"]  # Nuclear/gas data center power
 BIOTECH = ["ARWR", "IONS", "NTLA", "MRNA", "WVE", "ALNY"]
