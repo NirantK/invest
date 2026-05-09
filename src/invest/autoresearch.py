@@ -345,19 +345,42 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
                 if rebal_count > 0:
                     holds.append(days_since_last)
                 current_picks = list(topk)
-                weights = np.ones(len(current_picks)) / len(current_picks)
+                # Position sizing
+                k = len(current_picks)
+                if strat.weight_mode == "equal" or k == 0:
+                    weights = np.ones(k) / max(k, 1)
+                else:
+                    raw = np.maximum(scores[current_picks], 1e-6)
+                    if strat.weight_mode == "sqrt_score":
+                        raw = np.sqrt(raw)
+                    weights = raw / raw.sum()
+                # Vol targeting: scale gross exposure to hit target portfolio vol
+                if strat.target_vol > 0 and cur_idx > strat.vol_lookback + 5:
+                    vw = prices[cur_idx - strat.vol_lookback:cur_idx, current_picks]
+                    vw = _ffill_2d(vw.copy())
+                    if not np.isnan(vw).any():
+                        vrets = np.diff(vw, axis=0) / vw[:-1, :]
+                        port_rets = vrets @ weights
+                        realised_vol = port_rets.std() * SQRT_252
+                        if realised_vol > 1e-4:
+                            scale = min(1.5, strat.target_vol / realised_vol)
+                            weights = weights * scale
                 days_since_last = 0
                 rebal_count += 1
 
         seg_end = min(cur_idx + check_every, n_days)
         if current_picks:
-            seg = prices[cur_idx:seg_end, current_picks].copy()
+            # Use prior bar so the first segment day produces a return, not a price-jump.
+            anchor = max(0, cur_idx - 1)
+            seg = prices[anchor:seg_end, current_picks].copy()
             seg = _ffill_2d(seg)
-            if not np.isnan(seg[0]).any():
-                normed = seg / seg[0]
-                port = (normed * weights).sum(axis=1)
+            if not np.isnan(seg).any() and seg.shape[0] >= 2:
+                # Weighted daily returns (weights may sum >1 = leverage, <1 = cash drag)
+                drets = np.diff(seg, axis=0) / seg[:-1, :]
+                basket_rets = drets @ weights        # (seg_days,)
                 last = portfolio_values[-1]
-                portfolio_values.extend((last * port).tolist())
+                pv_seg = last * np.cumprod(1.0 + basket_rets)
+                portfolio_values.extend(pv_seg.tolist())
             else:
                 portfolio_values.extend([portfolio_values[-1]] * (seg_end - cur_idx))
         else:
@@ -382,10 +405,39 @@ def walk_forward(prices: np.ndarray, strat: Strategy,
     dn_vol = neg.std() * np.sqrt(252) if len(neg) else 1e-4
     sortino = (rets.mean() * 252) / dn_vol if dn_vol > 0 else 0
     calmar = cagr / abs(max_dd) if max_dd < 0 else 0
+
+    # ── Drawdown DURATION (the pain that matters) ──────────────────────────
+    # Run-length of consecutive days underwater. Convert to months (≈21d).
+    in_dd = dd < -0.005  # >0.5% DD threshold to ignore noise
+    runs = []
+    cur = 0
+    for v in in_dd:
+        if v:
+            cur += 1
+        elif cur > 0:
+            runs.append(cur)
+            cur = 0
+    if cur > 0:  # path ended underwater — open run
+        runs.append(cur)
+    max_dd_dur_days = max(runs) if runs else 0
+    avg_dd_dur_days = float(np.mean(runs)) if runs else 0.0
+    n_dd_episodes = len(runs)
+
+    # Ulcer Index = sqrt(mean(DD²)) — penalises both depth × duration
+    ulcer = float(np.sqrt(np.mean(dd ** 2)))
+    martin = cagr / max(ulcer, 1e-3)  # CAGR per unit pain (Martin Ratio)
+
     return {"sortino": float(sortino), "calmar": float(calmar),
             "max_dd": max_dd, "cagr": float(cagr),
             "rebal_count": rebal_count,
-            "avg_hold": float(np.mean(holds)) if holds else 0.0}
+            "avg_hold": float(np.mean(holds)) if holds else 0.0,
+            "max_dd_dur_days":   int(max_dd_dur_days),
+            "max_dd_dur_months": max_dd_dur_days / 21.0,
+            "avg_dd_dur_days":   avg_dd_dur_days,
+            "avg_dd_dur_months": avg_dd_dur_days / 21.0,
+            "n_dd_episodes":     n_dd_episodes,
+            "ulcer":             ulcer,
+            "martin":            float(martin)}
 
 
 def _should_rebal(strat, current_picks, new_topk, scores, days_since_last, rng):
@@ -514,6 +566,12 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
         new.regime_ma = int(rng.choice(REGIME_MA_CHOICES))
     elif field == "dd_stop_pct":
         new.dd_stop_pct = float(rng.choice(DD_STOP_CHOICES))
+    elif field == "target_vol":
+        new.target_vol = float(rng.choice(TARGET_VOL_CHOICES))
+    elif field == "vol_lookback":
+        new.vol_lookback = int(rng.choice(VOL_LOOKBACK_CHOICES))
+    elif field == "weight_mode":
+        new.weight_mode = str(rng.choice(WEIGHT_MODE_CHOICES))
     elif field == "rebal_trigger":
         new.rebal_trigger = str(rng.choice(REBAL_TRIGGERS))
     elif field == "rebal_min_hold":
@@ -534,16 +592,41 @@ def mutate_strategy(base: Strategy, rng) -> Strategy:
 
 
 # ─── Composite + helpers ─────────────────────────────────────────────────────
-def composite(bt: dict, mc: dict) -> float:
-    """Calmar-weighted composite: sortino × calmar² × (1 - p_dd_30).
+def _duration_penalty(months: float) -> float:
+    """Pain penalty as a function of TIME UNDERWATER (months).
 
-    Squaring calmar pushes the loop hard toward strategies that earn returns
-    cheaply (low MaxDD per unit CAGR). Sortino still matters for path quality.
-    Tail-risk gate via stress MC keeps overfit configs out.
+    Calibrated to user feedback (memory: feedback_dd_duration_not_depth):
+      < 6 months   → 0% penalty (sharp DDs are fine; rebal hill-climbs out)
+      6–18 months  → linear 0%→50% penalty
+      18–24 months → linear 50%→90% penalty
+      > 24 months  → 95%+ penalty (essentially disqualifying)
+    Returns multiplier in [0.05, 1.0] (higher = better).
     """
-    if bt["rebal_count"] < 3 or bt["sortino"] <= 0 or bt["calmar"] <= 0:
+    if months <= 6:
+        return 1.0
+    if months <= 18:
+        return 1.0 - 0.5 * (months - 6) / 12.0       # 1.0 → 0.5
+    if months <= 24:
+        return 0.5 - 0.4 * (months - 18) / 6.0       # 0.5 → 0.1
+    return 0.05
+
+
+def composite(bt: dict, mc: dict) -> float:
+    """Pain-by-duration composite. Depth doesn't matter; time underwater does.
+
+    Returns CAGR × duration_penalty(max_dd_months) × duration_penalty(avg_dd_months).
+
+    Multiple cycles of pain compound: a strategy with avg_dd_dur 12 months and
+    max_dd_dur 30 months gets hit on BOTH terms.
+    """
+    if bt["rebal_count"] < 3 or bt.get("cagr", 0) <= 0:
         return -1.0
-    return bt["sortino"] * (bt["calmar"] ** 2) * (1.0 - mc["p_dd_30"])
+    cagr = bt["cagr"]
+    max_pen = _duration_penalty(bt.get("max_dd_dur_months", 0))
+    avg_pen = _duration_penalty(bt.get("avg_dd_dur_months", 0) * 3)  # avg pain weighed
+    # Tail-risk gate from MC: prob of >50% DD AND staying down (duration-weighted)
+    tail_pen = 1.0 - mc.get("p_dd_50", 0)
+    return cagr * max_pen * avg_pen * tail_pen
 
 
 def current_picks(prices: np.ndarray, fetched: list[str], strat: Strategy) -> list[str]:
