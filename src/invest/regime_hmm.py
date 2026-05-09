@@ -97,7 +97,7 @@ class HMMRegime:
         # Cache key: hyperparams + a cheap fingerprint of training data
         cksum = float(X[-1].sum() + X[0].sum() + len(X))
         cache_key = (self.n_states, self.feature_window, X.shape[1], len(X), cksum)
-        cached = HMMRegime._FIT_CACHE.get(cache_key)
+        cached = _FIT_CACHE.get(cache_key)
         if cached is not None:
             self._model, self._state_order = cached
             return
@@ -114,10 +114,9 @@ class HMMRegime:
             order = np.argsort(mean_vols)[::-1]
             self._model = model
             self._state_order = order
-            # LRU-evict if over budget
-            if len(HMMRegime._FIT_CACHE) >= HMMRegime._FIT_CACHE_MAX:
-                HMMRegime._FIT_CACHE.pop(next(iter(HMMRegime._FIT_CACHE)))
-            HMMRegime._FIT_CACHE[cache_key] = (model, order)
+            if len(_FIT_CACHE) >= _FIT_CACHE_MAX:
+                _FIT_CACHE.pop(next(iter(_FIT_CACHE)))
+            _FIT_CACHE[cache_key] = (model, order)
         except Exception:
             self._model = None
 
