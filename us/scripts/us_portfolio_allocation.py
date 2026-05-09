@@ -18,6 +18,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+from invest.momentum import score_one as _shared_score_one
+
 CACHE_DIR = Path(__file__).parent.parent / "data" / "price_cache"
 
 
