@@ -1057,7 +1057,13 @@ def composite(bt: dict, mc: dict) -> float:
     nerve_pen = _nerve_penalty(abs(bt.get("max_dd", 0)),
                                 bt.get("max_dd_dur_months", 0))
     tail_pen = 1.0 - mc.get("p_dd_50", 0)
-    return pain_ratio * cagr_mult * uw_pen * nerve_pen * tail_pen
+    # Year-by-year Nifty win-rate: 0% → 0.5x, 70% → 1.0x, 90%+ → 1.3x
+    wr = bt.get("nifty_win_rate", 0.7)
+    if wr < 0.5:
+        wr_mult = 0.5 + wr  # 0% → 0.5, 50% → 1.0
+    else:
+        wr_mult = 1.0 + min(0.3, (wr - 0.7) * 1.0)  # 70% → 1.0, 100% → 1.3
+    return pain_ratio * cagr_mult * uw_pen * nerve_pen * tail_pen * wr_mult
 
 
 def _build_exclude_mask(fetched: list[str]) -> np.ndarray:
@@ -1084,8 +1090,37 @@ def evaluate(strat: Strategy, prices: np.ndarray, fetched: list[str],
              macro_features: np.ndarray | None = None) -> tuple:
     cash_idx = fetched.index("LIQUIDBEES") if "LIQUIDBEES" in fetched else -1
     exclude = _build_exclude_mask(fetched)
+    cap_mask = _build_precious_mask(fetched)
     bt = walk_forward(prices, strat, cash_idx=cash_idx, exclude_mask=exclude,
+                      cap_mask=cap_mask, cap_max=PRECIOUS_MAX_PICKS,
                       macro_features=macro_features)
+    # Year-by-year vs benchmark — drives loop toward consistent annual outperformance.
+    # Buckets of 252 trading days = ~1 calendar year. Compares strat vs NIFTYBEES per bucket.
+    if "NIFTYBEES" in fetched and "_pv" in bt and "_dates_idx" in bt:
+        bm_col = fetched.index("NIFTYBEES")
+        bm = prices[:, bm_col]
+        pv = np.asarray(bt["_pv"])
+        date_idx = np.asarray(bt["_dates_idx"])
+        win = lose = 0
+        if len(date_idx) >= 252 and len(pv) == len(date_idx):
+            year_size = 252
+            n_years = len(pv) // year_size
+            for yi in range(n_years):
+                a, b = yi * year_size, (yi + 1) * year_size - 1
+                pv_first, pv_last = pv[a], pv[b]
+                bm_first, bm_last = bm[date_idx[a]], bm[date_idx[b]]
+                if not (np.isfinite(bm_first) and np.isfinite(bm_last) and bm_first > 0 and pv_first > 0):
+                    continue
+                s_ret = pv_last / pv_first - 1
+                b_ret = bm_last / bm_first - 1
+                if s_ret > b_ret:
+                    win += 1
+                else:
+                    lose += 1
+        total = win + lose
+        bt["nifty_win_rate"] = (win / total) if total else 0.0
+        bt["nifty_wins"] = win
+        bt["nifty_losses"] = lose
     picks = current_picks(prices, fetched, strat)
     if not picks or bt["rebal_count"] < 3:
         mc = {"p5": 0, "p25": 0, "p50": 0, "p75": 0, "p95": 0,
