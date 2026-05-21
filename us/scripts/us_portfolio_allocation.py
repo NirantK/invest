@@ -151,7 +151,7 @@ TICKERS = [
     "RIOT",    # Riot Platforms - bitcoin mining
     "KRC",     # Kilroy Realty - data center / office REIT
     "HUT",     # Hut 8 Mining - bitcoin mining / AI
-    "WYFI",    # Wy-Fi - wireless infrastructure
+    "WYFI",    # WhiteFiber - data center fiber infra (Aschenbrenner long)
     # === Agriculture / Fertilizer (Costa thesis: nat gas → fert → agri) ===
     "DBA",     # Invesco DB Agriculture Fund - broad agri commodity basket
     "CF",      # CF Industries - nitrogen/ammonia producer
@@ -183,8 +183,12 @@ TICKERS = [
     "CLSK",    # CleanSpark - bitcoin mining
     "BITF",    # Bitfarms - bitcoin mining
     "LBRT",    # Liberty Energy - oilfield services / data center power
-    "BWC",     # Babcock & Wilcox - small modular reactors / nuclear
+    "BW",      # Babcock & Wilcox - small modular reactors / nuclear
     "PUMP",    # ProPetro - oilfield services
+    # === Aschenbrenner Q1 2026 13F additions (Situational Awareness LP) ===
+    "TE",      # T1 Energy - power infra long
+    "HIVE",    # Hive Digital - bitcoin miner pivoting to AI hosting
+    "SHAZ",    # SharonAI Holdings - AI compute infra
     # === Citrini 2026 watchlist ===
     "ACN",     # Accenture - AI job loss beneficiary
     "IBM",     # IBM - AI job loss beneficiary
@@ -261,6 +265,36 @@ TICKERS = [
     "PICK",    # iShares MSCI Global Metals & Mining (broad)
     "FCG",     # First Trust Natural Gas - gas E&P
     "AIQ",     # Global X AI & Tech ETF
+    # === DBA constituents: commodity ETFs (corn, wheat, soy, sugar, coffee, cotton, livestock) ===
+    "CORN",    # Teucrium Corn Fund
+    "WEAT",    # Teucrium Wheat Fund
+    "SOYB",    # Teucrium Soybean Fund
+    "CANE",    # Teucrium Sugar Fund
+    "JO",      # iPath Series B Bloomberg Coffee
+    "BAL",     # iPath Series B Bloomberg Cotton
+    "COW",     # iPath Series B Bloomberg Livestock
+    # === MOO constituents: agribusiness equities (Deere, Corteva, Nutrien, ADM, Bunge etc.) ===
+    "DE",      # Deere - ag equipment
+    "ZTS",     # Zoetis - animal health
+    "CTVA",    # Corteva - seeds + crop protection
+    "NTR",     # Nutrien - fertilizers (potash + nitrogen)
+    "TSN",     # Tyson Foods - protein
+    "ADM",     # Archer-Daniels-Midland - ag commodities trading
+    "BG",      # Bunge - oilseed processing
+    "MOS",     # Mosaic - phosphate + potash
+    "AGCO",    # AGCO - ag equipment (Massey, Fendt)
+    "BAYRY",   # Bayer - seeds + crop protection (ADR)
+    "KUBTY",   # Kubota - compact ag equipment (ADR)
+    "IDXX",    # IDEXX Labs - vet diagnostics
+    "ANDE",    # The Andersons - ag commodities + ethanol
+    "SMG",     # Scotts Miracle-Gro - lawn + Hawthorne cannabis ag
+    "FMC",     # FMC Corp - crop protection chemicals
+    "CNH",     # CNH Industrial - ag + construction equipment
+    "CALM",    # Cal-Maine Foods - egg producer
+    "LW",      # Lamb Weston - frozen potatoes
+    "HRL",     # Hormel Foods - protein/packaged
+    "PPC",     # Pilgrim's Pride - chicken
+    "ELAN",    # Elanco Animal Health
     # === Regime gate / benchmark (not for allocation; used only for SPY 50/200 DMA) ===
     "SPY",
 ]
@@ -324,9 +358,9 @@ AI_INFRA = [
     "NVDA", "AVGO", "MU", "ANET", "MRVL", "CRDO", "ALAB",
     "AMAT", "LRCX", "KLAC", "TEM", "SMH", "AIQ",
 ]
-AI_POWER = ["TLN", "VST", "CEG", "OKLO", "GEV", "POWL"]  # Nuclear/gas data center power + grid
+AI_POWER = ["TLN", "VST", "CEG", "OKLO", "GEV", "POWL", "BW", "TE"]  # Nuclear/gas data center power + grid
 BIOTECH = ["ARWR", "IONS", "NTLA", "MRNA", "WVE", "ALNY"]
-CRYPTO_AI = ["CIFR", "IREN", "HUT", "APLD", "BTDR", "CLSK", "BITF", "RIOT", "CORZ"]  # overlaps AI_INFRA intentionally
+CRYPTO_AI = ["CIFR", "IREN", "HUT", "APLD", "BTDR", "CLSK", "BITF", "RIOT", "CORZ", "HIVE"]  # overlaps AI_INFRA intentionally
 DEFENSE = ["RKLB"]
 AGRICULTURE = ["DBA", "CF", "IPI", "MOO"]
 
