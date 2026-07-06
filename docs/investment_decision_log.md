@@ -1058,3 +1058,11 @@ Analyzed 25+ BAFs, equity savings funds, multi-asset funds, and conservative hyb
 |------|--------|---------|---------|
 | Instant access | ~3 months expenses | Liquid/overnight fund | Break glass |
 | Core reserve | ₹10,00,000 | HDFC Multi Asset Active FOF Direct Growth | Emergency corpus |
+
+## Jul 6, 2026 — DCA: $5K MSFT + $5K AEM over 4 weeks (IBKR C-Corp)
+
+- User directive: invest $5K each into MSFT and Agnico Eagle (AEM), DCA'd over 4 weeks.
+- Implementation: 4 weekly tranches of $1,250/ticker, market orders via ibkr CLI.
+- Automation: system crontab (survives Claude sessions) — `35 19 * * 1-5` IST runs `us/scripts/dca_msft_aem.sh`; buys only if ≥6 days since last successful tranche (weekday fires are retries if Gateway is down). State: `~/.ibkr_dca_msft_aem_state`, log: `~/.ibkr_dca_msft_aem.log`. Self-removes from crontab after tranche 4.
+- Funding: existing IBKR cash ($45K) — no new capital (consistent with closed-capital regime).
+- Note: whole shares only; per-tranche remainder (~$75 on MSFT at $391) stays in cash.

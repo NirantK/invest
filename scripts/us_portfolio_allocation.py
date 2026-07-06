@@ -57,6 +57,7 @@ TICKERS = [
     "AEM",  # Agnico Eagle - lowest AISC (~$1,275), 87% safe jurisdictions
     "HL",  # Hecla Mining - silver-primary, negative cash costs via byproducts
     "RGLD",  # Royal Gold - royalty/streaming, low-cost exposure to gold
+    "SII",  # Sprott Inc - precious metals + uranium focused asset manager
     # === Energy: Integrated Oil Majors ===
     "XOM",  # Exxon Mobil
     "CVX",  # Chevron
@@ -81,8 +82,15 @@ TICKERS = [
     "OXY",  # Occidental Petroleum
     # === Industrial Metals ===
     "COPX",  # Global X Copper Miners - electrification supercycle
+    # === Agriculture (equities only - no K-1) ===
+    "NTR",  # Nutrien - potash/nitrogen fertilizer
+    "MOS",  # Mosaic - phosphate/potash fertilizer
+    "CF",  # CF Industries - nitrogen fertilizer
+    "ADM",  # Archer-Daniels-Midland - ag processing/trading
+    "CTVA",  # Corteva - seeds + crop protection
     # === Uranium / Nuclear ===
     "URA",  # Global X Uranium - nuclear renaissance, supply deficit
+    "CCJ",  # Cameco - largest listed uranium miner
     # === Platinum Group Metals ===
     "PPLT",  # Aberdeen Platinum ETF - hydrogen fuel cells, autocatalysts
     # === LatAm Equity ===
@@ -125,6 +133,10 @@ TICKERS = [
     "MSTR",
     # === Software compounder (discretionary) ===
     "CSU.TO",  # Constellation Software (TSX)
+    # === Software Infra ===
+    "NET",   # Cloudflare - edge/network software infra
+    "SNOW",  # Snowflake - data cloud / warehouse
+    "NBIS",  # Nebius - AI cloud; ~25% owner of ClickHouse (software-infra bet)
     # === AI Infrastructure / Data Centers ===
     "BE",      # Bloom Energy - fuel cells, data center power
     "CRWV",    # CoreWeave - AI cloud infrastructure
@@ -159,10 +171,12 @@ MAX_POSITIONS = 25
 GOLD_STREAMERS = ["WPM", "FNV", "RGLD"]           # Royalty/streaming (no op risk)
 SILVER_MINERS  = ["PAAS", "HL"]                   # Primary silver miners
 GOLD_MINERS    = ["AEM"]                           # Individual gold producers
+PRECIOUS_MGR   = ["SII"]                            # Precious-metals/uranium asset manager
 GOLD_ETFs      = ["GOAU", "SGDM", "SGDJ", "GBUG"] # Gold/silver miner ETF wrappers
-PRECIOUS_METALS = GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + GOLD_ETFs
+PRECIOUS_METALS = GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + PRECIOUS_MGR + GOLD_ETFs
 INDUSTRIAL_METALS = ["COPX", "COPP"]
-URANIUM = ["URA", "URNM", "URNJ"]
+AGRICULTURE = ["NTR", "MOS", "CF", "ADM", "CTVA"]  # Fertilizer + ag processing (no K-1)
+URANIUM = ["URA", "URNM", "URNJ", "CCJ"]
 PLATINUM = ["PPLT"]
 ENERGY = [
     "XOM",
@@ -189,6 +203,8 @@ FACTOR_INTL = ["IVAL", "IMOM", "IMTM", "DXIV", "AVDV", "DFE", "EWJV", "DFJ"]
 FACTOR_EM = ["FRDM", "AVES", "FLN", "EWZS", "ILF", "NU"]
 BITCOIN = ["MSTR"]
 SOFTWARE = ["CSU.TO"]
+# Software Infra: NET/SNOW/NBIS tradeable; ClickHouse, Render, Databricks, Vercel are private (no ticker)
+SOFTWARE_INFRA = ["NET", "SNOW", "NBIS"]
 AI_INFRA = [
     "BE", "CRWV", "INTC", "LITE", "CORZ", "IREN", "APLD", "SNDK",
     "CIFR", "EQT", "COHR", "SEI", "TSEM", "RIOT", "KRC", "HUT", "WYFI",
@@ -198,8 +214,10 @@ CATEGORIES = [
     ("Gold Streamers", GOLD_STREAMERS),
     ("Silver Miners", SILVER_MINERS),
     ("Gold Miners", GOLD_MINERS),
+    ("Precious Mgr", PRECIOUS_MGR),
     ("Gold/Silver ETFs", GOLD_ETFs),
     ("Industrial Metals", INDUSTRIAL_METALS),
+    ("Agriculture", AGRICULTURE),
     ("Uranium", URANIUM),
     ("Platinum", PLATINUM),
     ("Energy", ENERGY),
@@ -208,6 +226,7 @@ CATEGORIES = [
     ("Factor: EM", FACTOR_EM),
     ("Bitcoin", BITCOIN),
     ("Software", SOFTWARE),
+    ("Software Infra", SOFTWARE_INFRA),
     ("AI Infra", AI_INFRA),
 ]
 
@@ -264,7 +283,7 @@ TICKER_MAX_ALLOC: dict[str, float] = {
 
 # (max_picks, [competing tickers]) — within each group, only top max_picks by score advance
 THESIS_GROUPS: list[tuple[int, list[str]]] = [
-    (1, ["URNM", "URNJ", "URA"]),            # Uranium: best one wins
+    (1, ["URNM", "URNJ", "URA", "CCJ"]),     # Uranium: best one wins
     (1, ["COPP", "COPX"]),                    # Copper miners: best one wins
     (1, ["GOAU", "SGDM", "SGDJ", "GBUG"]),     # Gold miner ETF wrappers: best one wins
     (1, ["IMOM", "IMTM"]),                    # Ex-US momentum: best one wins
