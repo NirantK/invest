@@ -1061,8 +1061,9 @@ Analyzed 25+ BAFs, equity savings funds, multi-asset funds, and conservative hyb
 
 ## Jul 6, 2026 — DCA: $5K MSFT + $5K AEM over 4 weeks (IBKR C-Corp)
 
-- User directive: invest $5K each into MSFT and Agnico Eagle (AEM), DCA'd over 4 weeks.
-- Implementation: 4 weekly tranches of $1,250/ticker, market orders via ibkr CLI.
-- Automation: system crontab (survives Claude sessions) — `35 19 * * 1-5` IST runs `us/scripts/dca_msft_aem.sh`; buys only if ≥6 days since last successful tranche (weekday fires are retries if Gateway is down). State: `~/.ibkr_dca_msft_aem_state`, log: `~/.ibkr_dca_msft_aem.log`. Self-removes from crontab after tranche 4.
+- User directive: invest $5K each into MSFT and Agnico Eagle (AEM), DCA'd over 4 weeks, must survive session/gateway death.
+- Implementation: 8 Good-After-Time GTC market orders resting on IB's servers (no local machine needed). Added `--good-after` option to ibkr.py buy.
+- Schedule: Mondays 09:35 ET — Jul 6, 13, 20, 27. Per tranche: 3 MSFT (~$1,174) + 7 AEM (~$1,236).
+- Totals ≈ $4,696 MSFT + $4,944 AEM (whole shares only; remainder stays cash).
 - Funding: existing IBKR cash ($45K) — no new capital (consistent with closed-capital regime).
-- Note: whole shares only; per-tranche remainder (~$75 on MSFT at $391) stays in cash.
+- Cancel via: `ibkr.py cancel --symbol MSFT` / `--symbol AEM` (needs matching client IDs, see orders list).
