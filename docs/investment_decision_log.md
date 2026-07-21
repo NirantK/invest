@@ -1113,8 +1113,12 @@ FNV $3.2k + WPM $2.5k ≈ $5.7k from free cash. 3-year hold, no stop-loss, annua
   Mon 09:35 ET Jul 27 / Aug 3 / Aug 10) — 3y horizon makes vol an entry-timing problem,
   answered by tranching, not by shrinking the position.
 
-**Orders:** FNV 4 sh × 4 tranches LMT $204.20 (no pre-market quote; +2% over $200.17 close —
-if FNV runs past the limit, later tranches won't fill: review unfilled at Aug rebalance).
-WPM 6 sh × 4 tranches MKT. IDs 608-639. Added --good-after (GAT) support to us/scripts/ibkr.py.
+**Orders (amended same day — owner asked for a longer runway for peace of mind):** original
+4-week ladder cancelled; re-placed as 8 weeks × (2 FNV + 3 WPM), Jul 21 then GAT Mondays
+09:35 ET Jul 27 → Sep 7. Same totals (16 FNV / 24 WPM ≈ $5.7k). FNV tranches are limits
+stepping +~2%/fortnight ($204.20 → $208 → $212 → $216) so a slow grind up doesn't strand
+later tranches; a sharp rally past the step still pauses accumulation (review at monthly
+rebalance). WPM: today limit $105.50, rest MKT. IDs 643-710. Added --good-after (GAT)
+support to us/scripts/ibkr.py.
 
 **Cash after all DCAs complete:** ~$28k free + $10k SGOV (untouched).
