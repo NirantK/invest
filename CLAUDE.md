@@ -102,31 +102,31 @@ Composite momentum score: `(weighted_momentum × smoothness) / downside_volatili
 
 ### IBKR Integration
 
-Managed via skill at `~/.claude/skills/ibkr/ibkr.py` — not in this repo. Requires TWS/Gateway running with API enabled.
+CLI at `us/scripts/ibkr.py` (in this repo). Requires TWS/Gateway running with API enabled.
 
 ```bash
 # Read operations
-uv run ~/.claude/skills/ibkr/ibkr.py positions        # All positions with P&L
-uv run ~/.claude/skills/ibkr/ibkr.py account           # Account summary (cash, equity, margin)
-uv run ~/.claude/skills/ibkr/ibkr.py quote AAPL        # Real-time quote
-uv run ~/.claude/skills/ibkr/ibkr.py quotes AAPL MSFT  # Multiple quotes
-uv run ~/.claude/skills/ibkr/ibkr.py value              # Portfolio value breakdown
-uv run ~/.claude/skills/ibkr/ibkr.py orders             # Open orders
+uv run us/scripts/ibkr.py positions        # All positions with P&L
+uv run us/scripts/ibkr.py account           # Account summary (cash, equity, margin)
+uv run us/scripts/ibkr.py quote AAPL        # Real-time quote
+uv run us/scripts/ibkr.py quotes AAPL MSFT  # Multiple quotes
+uv run us/scripts/ibkr.py value              # Portfolio value breakdown
+uv run us/scripts/ibkr.py orders             # Open orders
 
 # Buy/Sell (dry-run by default, add --execute to place)
-uv run ~/.claude/skills/ibkr/ibkr.py buy VALE 1000              # Buy $1000 of VALE (dry run)
-uv run ~/.claude/skills/ibkr/ibkr.py buy VALE 1000 --execute    # Actually place order
-uv run ~/.claude/skills/ibkr/ibkr.py sell VALE                  # Sell all (dry run)
-uv run ~/.claude/skills/ibkr/ibkr.py sell VALE --shares 50      # Sell 50 shares
-uv run ~/.claude/skills/ibkr/ibkr.py sell VALE --amount 500     # Sell $500 worth
+uv run us/scripts/ibkr.py buy VALE 1000              # Buy $1000 of VALE (dry run)
+uv run us/scripts/ibkr.py buy VALE 1000 --execute    # Actually place order
+uv run us/scripts/ibkr.py sell VALE                  # Sell all (dry run)
+uv run us/scripts/ibkr.py sell VALE --shares 50      # Sell 50 shares
+uv run us/scripts/ibkr.py sell VALE --amount 500     # Sell $500 worth
 
 # Cancel orders
-uv run ~/.claude/skills/ibkr/ibkr.py cancel 12345               # By order ID
-uv run ~/.claude/skills/ibkr/ibkr.py cancel --symbol VALE       # All for symbol
-uv run ~/.claude/skills/ibkr/ibkr.py cancel --all               # Cancel everything
+uv run us/scripts/ibkr.py cancel 12345               # By order ID
+uv run us/scripts/ibkr.py cancel --symbol VALE       # All for symbol
+uv run us/scripts/ibkr.py cancel --all               # Cancel everything
 
 # JSON output (any command)
-uv run ~/.claude/skills/ibkr/ibkr.py positions --format json
+uv run us/scripts/ibkr.py positions --format json
 ```
 
 | Mode | Gateway Port | TWS Port |

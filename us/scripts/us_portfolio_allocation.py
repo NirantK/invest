@@ -322,6 +322,10 @@ SILVER_ETFs    = ["SILJ", "SIL"]                          # Silver miner ETFs
 PRECIOUS_METALS = GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + GOLD_ETFs + SILVER_ETFs
 INDUSTRIAL_METALS = ["COPX", "COPP", "ARG.TO", "SETM", "FCX", "SCCO", "TECK", "ALB", "SQM", "LIT", "REMX", "PICK"]
 URANIUM = ["URA", "URNM", "URNJ", "CCJ"]
+
+# Thesis sleeve: value/cycle positions managed manually, never scored by momentum.
+# Uranium is a supply-deficit value buy — the momentum engine must not touch it.
+THESIS_SLEEVE = set(URANIUM) | {"SRUUF"}
 PLATINUM = ["PPLT"]
 ENERGY = [
     "XOM",
@@ -744,17 +748,16 @@ def main(min_allocation: float, max_allocation: float, capital: int, max_positio
 
     scores = build_scores(prices, closes, dvols)
 
+    thesis_held = scores.filter(pl.col("ticker").is_in(THESIS_SLEEVE))["ticker"].to_list()
+    if thesis_held:
+        scores = scores.filter(~pl.col("ticker").is_in(THESIS_SLEEVE))
+        print(f"[dim]Thesis sleeve (manual, not momentum): {', '.join(thesis_held)}[/]")
+
     # Liquidity gate: drop names below ADV threshold
     illiquid = scores.filter(pl.col("adv60") < min_adv)["ticker"].to_list()
     if illiquid:
         scores = scores.filter(pl.col("adv60") >= min_adv)
         print(f"[dim]ADV filter (<${min_adv/1e6:.1f}M): dropped {', '.join(illiquid)}[/]")
-
-    # In-pain filter: don't enter names already in -25%+ drawdown
-    in_pain = scores.filter(pl.col("current_dd") < -0.25)["ticker"].to_list()
-    if in_pain:
-        scores = scores.filter(pl.col("current_dd") >= -0.25)
-        print(f"[dim]In-pain filter (current_dd <-25%): dropped {', '.join(in_pain)}[/]")
 
     scores_clean, thesis_excl = apply_thesis_groups(scores)
     scores_clean = add_rank_scores(scores_clean)
