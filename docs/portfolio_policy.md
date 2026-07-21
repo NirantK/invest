@@ -11,6 +11,7 @@ screener run.
 |--------|--------|----------|------------|
 | Savings / CORE (Rule "Talmud Real") | ~13% NetLiq, target TBD at Aug rebalance | AEM, FNV, WPM — gold complex IS the anchor of this book, 3y+ hold | Manual. Annual review. No stop-loss. NEVER momentum-scored. Adds capped at $10k lifetime without a new decision-log entry. |
 | Value picks | ≤30% | META, MSFT (FCF compounders), URNM, SRUUF (uranium supply deficit) — each bought on valuation, each needs a written thesis + exit condition | Manual. Quarterly thesis review. NEVER momentum-scored. No stop-loss; exit = thesis broken or target reached. |
+| Equity value core | ~$15.5k target (~18%) | AVUV 16% / AVDV 40% / AVES 44% — risk-budgeted 20/40/40 (US/IntlDev/EM) on 10y proxy vols (DFSVX/DISVX/DFEVX); owner tilt: risk EM over US | Manual. 3y+ hold, annual review, NEVER momentum-scored. Entered via 10-wk GAT ladder ending Sep 21 2026. |
 | Momentum satellite | ~25% | 5–6 positions × ~$2k | Screener, monthly |
 | Cash (SGOV) | $10k floor | SGOV — **untouchable** (owner instruction 2026-07-21) | Never sold to fund trades |
 

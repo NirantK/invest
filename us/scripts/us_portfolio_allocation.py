@@ -323,9 +323,16 @@ PRECIOUS_METALS = GOLD_STREAMERS + SILVER_MINERS + GOLD_MINERS + GOLD_ETFs + SIL
 INDUSTRIAL_METALS = ["COPX", "COPP", "ARG.TO", "SETM", "FCX", "SCCO", "TECK", "ALB", "SQM", "LIT", "REMX", "PICK"]
 URANIUM = ["URA", "URNM", "URNJ", "CCJ"]
 
-# Thesis sleeve: value/cycle positions managed manually, never scored by momentum.
-# Uranium is a supply-deficit value buy — the momentum engine must not touch it.
-THESIS_SLEEVE = set(URANIUM) | {"SRUUF"}
+# Manual sleeves (docs/portfolio_policy.md): savings/core (gold complex + Avantis
+# value core), value picks, uranium thesis. The momentum engine must not touch these —
+# the satellite would double up on holdings already governed by other sleeves.
+THESIS_SLEEVE = (
+    set(URANIUM)
+    | {"SRUUF"}                          # uranium value thesis
+    | {"AEM", "FNV", "WPM"}              # savings: gold complex
+    | {"AVUV", "AVDV", "AVES"}           # equity value core
+    | {"META", "MSFT"}                   # value picks (PEG-based)
+)
 PLATINUM = ["PPLT"]
 ENERGY = [
     "XOM",
