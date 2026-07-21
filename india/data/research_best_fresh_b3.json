@@ -1,0 +1,83 @@
+{
+  "iter": 294,
+  "origin": "greedy",
+  "strategy": {
+    "lookbacks": [
+      21,
+      63,
+      252
+    ],
+    "weights": [
+      0.3,
+      0.3,
+      0.3
+    ],
+    "score_variant": "sortino_pricemom",
+    "n_positions": 15,
+    "rebal_trigger": "score_gap",
+    "rebal_min_hold": 15,
+    "rebal_max_hold": 80,
+    "score_gap_pct": 0.1,
+    "crash_p_mult": 0.5,
+    "regime_ma": 100,
+    "dd_stop_pct": 0.3,
+    "target_vol": 0.25,
+    "vol_lookback": 42,
+    "weight_mode": "score",
+    "vol_state_mode": "moderate",
+    "hmm_states": 2,
+    "hmm_profile": "balanced",
+    "hmm_feature_window": 42,
+    "hmm_refit_days": 252,
+    "hmm_apply": "gross",
+    "skip_days": 21,
+    "rebal_jitter": 5,
+    "max_dd_cap": 0.5
+  },
+  "backtest": {
+    "sortino": 1.6355764013822094,
+    "calmar": 1.007769048419137,
+    "max_dd": -0.3345497842504503,
+    "cagr": 0.3371489177229039,
+    "rebal_count": 237,
+    "avg_hold": 25.868055555555557,
+    "max_dd_dur_days": 328,
+    "max_dd_dur_months": 15.619047619047619,
+    "avg_dd_dur_days": 19.74703557312253,
+    "avg_dd_dur_months": 0.940335027291549,
+    "n_dd_episodes": 253,
+    "ulcer": 0.09050369225636533,
+    "martin": 3.72525042147318,
+    "pain_index": 0.06094472413503121,
+    "pain_ratio": 5.53204436492165
+  },
+  "mc12m": {
+    "p5": -0.2771205187268125,
+    "p25": 0.013753270423819408,
+    "p50": 0.0991669840656163,
+    "p75": 0.17292989915324275,
+    "p95": 0.2865882914673943,
+    "dd_wst": -0.308904543719008,
+    "p_loss": 0.217,
+    "p_dd_30": 0.0545,
+    "p_dd_50": 0.031
+  },
+  "score": 2.9939413858325237,
+  "picks": [
+    "MTARTECH",
+    "STLTECH",
+    "MCX",
+    "POWERINDIA",
+    "SETFGOLD",
+    "GOLDBEES",
+    "KIRLOSENG",
+    "NATIONALUM",
+    "BSE",
+    "APARINDS",
+    "NETWEB",
+    "MONQ50",
+    "SYRMA",
+    "MINDSPACE",
+    "CUMMINSIND"
+  ]
+}

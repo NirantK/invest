@@ -1,0 +1,71 @@
+{
+  "search_id": "search_ba334e53bd794815b8ab2a3497ccff7d",
+  "status": "ok",
+  "results": [
+    {
+      "url": "https://whalewisdom.com/filer/situational-awareness-lp",
+      "title": "SITUATIONAL AWARENESS LP Top 13F Holdings - WhaleWisdom",
+      "publish_date": null,
+      "excerpts": [
+        "Section Title: Key Features\nContent:\n[Backtester](https://whalewisdom.com/dashboard2/analytics/backtester)\n[Combined Holdings](https://whalewisdom.com/dashboard2/analytics/combined)\nExcel Add-in\n[13F Fund Performance Evaluator](https://whalewisdom.com/dashboard2/search/fund_performance_search)\nDeveloper API\n[13F Stock Screener](https://whalewisdom.com/dashboard2/search/stock_screener)\n13F Heat Map"
+      ]
+    },
+    {
+      "url": "https://fintel.io/i/situational-awareness-lp-5020",
+      "title": "Situational Awareness LP Portfolio Holdings - Fintel",
+      "publish_date": null,
+      "excerpts": [
+        "Section Title: Situational Awareness LP Portfolio Holdings > ... > 13F and Fund Filings\nContent:\nThis form was filed on 2026-02-11 for the reporting period 2025-12-31.\nClick the link icon to see the full transaction history.\nUpgrade to unlock premium data and export to Excel .\n2022-07-28: Important Note - We have changed the treatment of the **\u0394 Portfolio %** column in this table. Previously, we were reporting it as the *percent change* in the portfolio allocation. We are now reporting it as the raw change in the portfolio allocation (still reported as a percent). In formula terms, we were previously reporting it as 100 * (current allocation - prior allocation ) / prior allocation. We are now reporting it as (current allocation - prior allocation).\nSearch:\n|Security | |Type |Avg Share Price |Shares\n(MM) |\u0394Shares\n(%) |Value\n($MM) |\u0394Value\n(%) |Portfolio\n(%) |\u0394Portfolio\n(%) |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n ... \nSection Title: Situational Awareness LP Portfolio Holdings > ... > 13F and Fund Filings\nContent:\n| | | |1.35 | |8.58 | |0.1556 |0.1556 |\n|INTC / Intel Corporation | | | |0.00 | |0.00 | |0.0000 |0.0000 |\n|MU / Micron Technology, Inc. | |Put | |0.00 |-100.00 |0.00 |-100.00 | |-1.2129 |\n|AVGO / Broadcom Inc. | |Put | |0.00 |-100.00 |0.00 |-100.00 | |-1.8336 |\n|US093712AH05 / BLOOM ENERGY CORP CONV 2.5% 08/15/2025 | | | |0.00 |-100.00 |0.00 |-100.00 | |-1.0606 |\n|CRWV / CoreWeave, Inc. | |Put | |0.00 |-100.00 |0.00 |-100.00 | |-4.6296 |\n|GLXY / Galaxy Digital Inc. | | | |0.00 |-100.00 |0.00 |-100.00 | |-2.2365 |\n|VST / Vistra Corp. | | | |0.00 |-100.00 |0.00 |-100.00 | |-6.0973 |\n|NVDD / Direxion Shares ETF Trust - Direxion Daily NVDA Bear 1X ETF | |Put | |0.00 |-100.00 |0.00 | | |0.0000 |\n|US55024UAD19 / CONV.\nSection Title: Situational Awareness LP Portfolio Holdings > ... > 13F and Fund Filings\nContent:\nNOTE | | | |0.00 |-100.00 |0.00 | | |0.0000 |\n|TSM / Taiwan Semiconductor Manufacturing Company Limited - Depositary Receipt (Common Stock) | |Put | |0.00 |-100.00 |0.00 |-100.00 | |-1.8222 |\n|AFK / VanEck ETF Trust - VanEck Africa Index ETF | |Put | |0.00 |-100.00 |0.00 | | |0.0000 |\n|STX / Seagate Technology Holdings plc | | | |0.00 |-100.00 |0.00 |-100.00 | |-0.2770 |\n|WDC / Western Digital Corporation | | | |0.00 |-100.00 |0.00 | | |0.0000 |\n|CIFR / Cipher Digital Inc. | | | |0.00 |-100.00 |0.00 | | |0.0000 |\n|US093712AH05 / BLOOM ENERGY CORP CONV 2.5% 08/15/2025 | |Call | |0.00 |-100.00 |0.00 |-100.00 | |-0.2980 |"
+      ]
+    },
+    {
+      "url": "https://13f.info/manager/0002045724-situational-awareness-lp",
+      "title": "Situational Awareness LP 13F Filings",
+      "publish_date": null,
+      "excerpts": [
+        "Section Title: Situational Awareness LP > 13F Portfolio Filings\nContent:\nMost recent 13F\nQ4 2025\nLocation\nSan Francisco, CA\nCIK\n0002045724\nAll SEC filings\n[View on sec.gov](https://www.sec.gov/cgi-bin/browse-edgar?CIK=0002045724)\nHoldings Value\nSection Title: Situational Awareness LP > 13F Portfolio Filings\nContent:\n| Quarter | Holdings | Value ($000) | Top Holdings | Form Type | Date Filed | Filing ID |\n| Q4 2025 | 29 | 5,516,758 | BE, CRWV calls, INTC calls, LITE | 13F-HR | 2/11/2026 | 000204572426000002 |\n| Q3 2025 | 28 | 4,138,368 | INTC calls, CRWV, CORZ, IREN | 13F-HR | 11/14/2025 | 000204572425000008 |\n| Q2 2025 | 9 | 2,123,023 | SMH puts, INTC calls, AVGO, VST | 13F-HR | 8/14/2025 | 000204572425000006 |\n| Q1 2025 | 12 | 1,005,567 | INTC calls, AVGO, ONTO, VST | 13F-HR | 5/14/2025 | 000204572425000002 |\n| Q4 2024 | 6 | 254,813 | MRVL, VST, VRT, TLNE | 13F-HR | 2/11/2025 | 000093583625000120 |"
+      ]
+    },
+    {
+      "url": "https://www.holdingschannel.com/13f/situational-awareness-lp-top-holdings/",
+      "title": "Situational Awareness LP Top Holdings 13F Filings",
+      "publish_date": null,
+      "excerpts": [
+        "| ||Situational Awareness LP Info |\n| --- |\n|**Size ($ in 1000's)**\nAt 09/30/2025: $4,138,367\nAt 06/30/2025: $2,123,024\n[Situational Awareness LP AUM history](https://www.holdingschannel.com/aum/situational-awareness-lp-aum/)\nSituational Awareness LP holdings changes, total fund size, and other information presented on HoldingsChannel.com was derived from Situational Awareness LP 13F filings. Link to 13F filings: [SEC filings](http://www.sec.gov/cgi-bin/browse-edgar?CIK=0002045724&Find=Search&owner=exclude&action=getcompany) | | |As of 09/30/2025 , below is a summary of the **Situational Awareness LP top holdings** by largest position size, as per the latest 13f filing made by Situational Awareness LP. In the Situational Awareness LP-top-holdings-table below, each of the top holdings by name is presented in the first column, followed by the amount of shares held by Situational Awareness LP in that top holding, then the share count change between reporting periods, and finally the Situational Awareness LP top holding position size for that row.\n ... \nSee Full List: [All Stocks Held By Situational Awareness LP](https://www.holdingschannel.com/all/stocks-held-by-situational-awareness-lp/)\n\u2014 Including:\n\u2022 Biggest new positions\n\u2022 Biggest exits\n\u2022 Biggest increased positions\nSee Details: [Top 10 Stocks Held By Situational Awareness LP](https://www.holdingschannel.com/top/stocks-held-by-situational-awareness-lp/) | |\n| --- | --- | --- | --- | --- |"
+      ]
+    },
+    {
+      "url": "https://www.sec.gov/files/investment/13flist2025q4.pdf",
+      "title": "[PDF] List of Section 13F Securities: Fourth Quarter - FY 2025 - SEC.gov",
+      "publish_date": "2026-01-02",
+      "excerpts": [
+        "use in the preparation of reports filed with the Securities and Ex c hange\nCommission pursuant to Rule 13f-1 [17 CFR 240.13f-1] under Section 13(f) of\nthe Securities Exchange Act of 1934. An updated list is published on a quarterly\nbasis.\nThis list is current as of Dec ember 3 1 , 202 5 , and may be relied on by\ninstitutional investment managers filing Form 13F reports for the calendar\nquarter ending Dec ember 3 1 , 2025 . Institutional investment managers should\nreport holdings--number of shares and fair market value--as of the last day of\nthe calendar quarter as required by [ Section 13(f)(1) and Rule 13f-1]\nthereunder.\nFeatures\n(1)\nAdditions and Deletions: Revisions made to the list of Section 13(f)\nsecurities are indicated in a column titled \u201cSTATUS.\u201d The word\n\u201cADDED\u201d in the status column opposite the name of a security\nindicates that the security has become a Section 13(f) security.\nThe word \u201cDELETED\u201d in the status column opposite the name of a\n ... \n**** List of Section 13F Securities ****\nPage 294\nRun Time: 20:36\n**Year: 2025 Qtr: 4**\nIVM001\n**CUSIP NO**\n**ISSUER NAME**\n**ISSUER DESCRIPTION**\n**STATUS**\n378973 50 7 *\nGLOBALSTAR INC\nCOM NEW\n378973 90 7\nGLOBALSTAR INC\nCALL\n378973 95 7\nGLOBALSTAR INC\nPUT\n379378 20 1 *\nGLOBAL NET LEASE INC\nCOM NEW\n379378 90 1\nGLOBAL NET LEASE INC\nCALL\n379378 95 1\nGLOBAL NET LEASE INC\nPUT\n37940X AU 6\nGLOBAL PMTS INC\nNOTE 1.500% 3/0\n37940X 10 2 *\nGLOBAL PMTS INC\nCOM\n37940X 90 2\nGLOBAL PMTS INC\nCALL\n37940X 95 2\nGLOBAL PMTS INC\nPUT\n37946R 10 9 *\nGLOBAL PARTNERS LP\nCOM UNITS\n37946R 90 9\nGLOBAL PARTNERS LP\nCALL\n37946R 95 9\nGLOBAL PARTNERS LP\nPUT\n379463 10 2 *\nGLOBAL WTR RES INC\nCOM\n379463 90 2\nGLOBAL WTR RES INC\nCALL\n379463 95 2\nGLOBAL WTR RES INC\nPUT\n37950E 10 1\nGLOBAL X FDS\nMSCI NORWAY ETF\n37950E 25 9 *\nGLOBAL X FDS\nGB MSCI AR ETF\n37950E 90 9\nGLOBAL X FDS\nCALL\n37950E 95 9\nGLOBAL X FDS\nPUT\n37950E 29 1 *\nGLOBAL X FDS\nGLOBX SUPDV US\n37950E 90 1\nGLOBAL X FDS\nCALL\n37950E 95 1\nGLOBAL X FDS\nPUT\n37950E 33 3 *"
+      ]
+    },
+    {
+      "url": "https://hedgefollow.com/funds/Situational+Awareness",
+      "title": "Situational Awareness Portfolio | Leopold Aschenbrenner 13F Holdings & Trades",
+      "publish_date": null,
+      "excerpts": [
+        "Section Title: Leopold Aschenbrenner 13F Portfolio > Top 50 Situational Awareness Holdings\nContent:\nTrade Value: Any >$1M >$5M >$20M >$50M >$100M >$500M >$1B \u0394 in % of Portf: Any > 0.25% > 0.5% > 1% > 2.5% > 5%\nQuarter: Q4 2025 Previous\nAny Increased Decreased New Closed\n% of Portfolio: Any 0% - 0.5% 0.5% - 1% 1% - 5% > 5%\nFilter\n ... \nSection Title: Leopold Aschenbrenner 13F Portfolio > Top 50 Options Holdings\nContent:\nQuarter: Q4 2025 Previous\nAny Increased Decreased New Closed\nFilter"
+      ]
+    },
+    {
+      "url": "https://last10k.com/sec-filings/2045724",
+      "title": "Situational Awareness Lp 13F Holdings SEC Filings",
+      "publish_date": "2026-02-11",
+      "excerpts": [
+        "Section Title: ... > Situational Awareness Lp\nContent:\nCIK: **2045724**\nQoQ Holding Changes 13F-HR Manager Holdings\nHISTORY TOOLS\nCIK: **2045724**\n ... \nSection Title: ... > SEC Filing Tools\nContent:\nStats\n**CIK:** 2045724\n**Form Type:** 13F-HR Manager Holdings\n**Accession Number:** 0002045724-26-000002\n**Submitted to the SEC:** Wed Feb 11 2026 8:31:47 AM EST\n**Accepted by the SEC:** Wed Feb 11 2026\n**Period:** Wednesday, December 31, 2025\n**External Resources:**\n[SEC.gov](https://www.sec.gov/Archives/edgar/data/2045724/000204572426000002/xslForm13F_X02/SALP_13FQ425.xml \"View this 13F-HR Manager Holdings on SEC.gov\")\n**Bookmark the Permalink:** https://last10k.com/sec-filings/2045724/0002045724-26-000002.htm\nAbout Contact Help API Privacy Terms\n\u00d7 You're Signed Out\nSign in for the full experience"
+      ]
+    },
+    {
+      "url": "https://oec.world/en/profile/manager/situational-awareness-lp",
+      "title": "SITUATIONAL AWARENESS LP | The Observatory of Economic Complexity",
+      "publish_date": null,
+      "excerpts": [
+        "Section Title: SITUATIONAL AWARENESS LP\nContent:\n**13F Market Value**\n$5.52B\n2025-Q4\n**QoQ Performance**\n33.3%\nMarket Value\n**Current Holdings**\n29\n2025-Q4\n**Increased Holdings in**\n13\nStocks\n**Reduced Holdings in**\n0\nStocks\n**Top Holding (2025-Q4)**\nBLOOM ENERGY CORP\n$876M\n**Top Buy (2025-Q4)**\nSANDISK CORP\n+$237M\n**Top Sell (2025-Q4)**\nCOREWEAVE INC\n-$126M\nSITUATIONAL AWARENESS LP\nPortfolio\nTop Holdings\nSecurities\nSection Title: SITUATIONAL AWARENESS LP > About\nContent:\nThe **13F form** is a quarterly report that institutional investment managers in the U.S. are required to file with the **Securities and Exchange Commission (SEC)** if they manage over $100 million in assets.\nThis report provides an overview of SITUATIONAL AWARENESS LP based on data disclosed in their 13F filings. The 13F forms offer insights into the investment holdings of institutional managers, revealing their portfolio compositions, market positions, and strategic trends.\nDuring 2025-Q4, SITUATIONAL AWARENESS LP reported a market value of $5.52B, an increase of 33.3% with respect to the previous quarter. During this quarter, SITUATIONAL AWARENESS LP reported 29 holdings.\nSITUATIONAL AWARENESS LP\u2019s top holding in this period was BLOOM ENERGY CORP with a value of $876M, while its top buy was SANDISK CORP ( +$237M ) and its top sell was COREWEAVE INC ( -$126M )."
+      ]
+    }
+  ],
+  "warnings": null
+}

@@ -1,0 +1,263 @@
+{
+  "_meta": {
+    "generated": "2026-05-09",
+    "purpose": "Stress-test calibration for EM/DM equity drawdowns 1980-present. Used by Monte Carlo / scenario engine for portfolio simulation.",
+    "buckets": {
+      "mild": "10% to 25% drawdown",
+      "severe": "25% to 45% drawdown",
+      "catastrophic": ">45% drawdown"
+    },
+    "notes": "Magnitudes are local-currency price-index drawdowns (not total return). Recovery = trough back to prior peak in nominal local-currency terms. Where Japan never recovered (1989 peak), 'recovery' is null. Dates approximate to month-resolution where exact close not verified."
+  },
+  "markets": {
+    "india_nifty_sensex": {
+      "_notes": "Sensex pre-1996, Nifty post. Tech-heavy Y2K crash; capex/banking-driven 2008; broad in 2020. 2024 was pre-election overshoot, recovered fast.",
+      "episodes": [
+        {"peak": "1992-04-22", "trough": "1992-08-25", "recovery": "1999-12-01", "magnitude_pct": -54, "duration_pk_to_tr_months": 4, "recovery_months": 88, "trigger": "Harshad Mehta scam (broker fraud)", "bucket": "catastrophic", "india_sector_flavor": "broker/banking"},
+        {"peak": "1994-09-12", "trough": "1996-12-04", "recovery": "1999-07-01", "magnitude_pct": -40, "duration_pk_to_tr_months": 27, "recovery_months": 31, "trigger": "Post-liberalisation hangover + Asian crisis spillover", "bucket": "severe", "india_sector_flavor": "broad"},
+        {"peak": "2000-02-14", "trough": "2001-09-21", "recovery": "2003-12-01", "magnitude_pct": -56, "duration_pk_to_tr_months": 19, "recovery_months": 27, "trigger": "Dotcom bust + Ketan Parekh scam + 9/11", "bucket": "catastrophic", "india_sector_flavor": "tech-heavy (TMT)"},
+        {"peak": "2004-04-09", "trough": "2004-05-17", "recovery": "2004-09-01", "magnitude_pct": -27, "duration_pk_to_tr_months": 1, "recovery_months": 4, "trigger": "UPA election shock (NDA loss)", "bucket": "severe", "india_sector_flavor": "broad/political"},
+        {"peak": "2006-05-10", "trough": "2006-06-14", "recovery": "2006-10-16", "magnitude_pct": -29, "duration_pk_to_tr_months": 1, "recovery_months": 4, "trigger": "EM risk-off + commodity selloff", "bucket": "severe", "india_sector_flavor": "broad"},
+        {"peak": "2008-01-08", "trough": "2008-10-27", "recovery": "2009-11-03", "magnitude_pct": -60, "duration_pk_to_tr_months": 9, "recovery_months": 12, "trigger": "Lehman/GFC", "bucket": "catastrophic", "india_sector_flavor": "capex/banking/realty"},
+        {"peak": "2010-11-05", "trough": "2011-12-20", "recovery": "2013-11-01", "magnitude_pct": -27, "duration_pk_to_tr_months": 13, "recovery_months": 22, "trigger": "Eurozone crisis + policy paralysis", "bucket": "severe", "india_sector_flavor": "infrastructure/capex"},
+        {"peak": "2013-05-20", "trough": "2013-08-28", "recovery": "2013-11-01", "magnitude_pct": -15, "duration_pk_to_tr_months": 3, "recovery_months": 2, "trigger": "Taper tantrum (Fragile Five)", "bucket": "mild", "india_sector_flavor": "rate-sensitive/banking"},
+        {"peak": "2015-03-04", "trough": "2016-02-29", "recovery": "2017-03-07", "magnitude_pct": -22, "duration_pk_to_tr_months": 12, "recovery_months": 12, "trigger": "China devaluation + commodities + EM outflows", "bucket": "mild", "india_sector_flavor": "metals/PSU"},
+        {"peak": "2018-08-28", "trough": "2018-10-26", "recovery": "2019-04-15", "magnitude_pct": -14, "duration_pk_to_tr_months": 2, "recovery_months": 6, "trigger": "IL&FS NBFC crisis + crude spike", "bucket": "mild", "india_sector_flavor": "NBFC/financials"},
+        {"peak": "2020-01-14", "trough": "2020-03-23", "recovery": "2020-11-09", "magnitude_pct": -38, "duration_pk_to_tr_months": 2, "recovery_months": 8, "trigger": "COVID-19 pandemic", "bucket": "severe", "india_sector_flavor": "broad/financials"},
+        {"peak": "2021-10-18", "trough": "2022-06-17", "recovery": "2022-11-30", "magnitude_pct": -18, "duration_pk_to_tr_months": 8, "recovery_months": 5, "trigger": "Powell pivot/inflation/Russia-Ukraine", "bucket": "mild", "india_sector_flavor": "tech/IT services"},
+        {"peak": "2024-06-03", "trough": "2024-06-04", "recovery": "2024-06-12", "magnitude_pct": -8, "duration_pk_to_tr_months": 0, "recovery_months": 0, "trigger": "Modi BJP majority loss (single-day, sub-10% so logged as note)", "bucket": "mild", "india_sector_flavor": "PSU/capex"},
+        {"peak": "2024-09-27", "trough": "2025-03-04", "recovery": null, "magnitude_pct": -16, "duration_pk_to_tr_months": 5, "recovery_months": null, "trigger": "FII outflows + earnings slowdown + Trump tariff fears", "bucket": "mild", "india_sector_flavor": "broad/smallcap"}
+      ]
+    },
+    "korea_kospi": {
+      "_notes": "Asian crisis devastated Korea (chaebol leverage). Tech-heavy index — Samsung ~25% weight.",
+      "episodes": [
+        {"peak": "1989-04-01", "trough": "1992-08-21", "recovery": "1994-11-08", "magnitude_pct": -55, "duration_pk_to_tr_months": 40, "recovery_months": 27, "trigger": "Post-bubble unwind + Japan deflation spillover", "bucket": "catastrophic"},
+        {"peak": "1994-11-08", "trough": "1998-06-16", "recovery": "2005-09-01", "magnitude_pct": -75, "duration_pk_to_tr_months": 43, "recovery_months": 87, "trigger": "Asian financial crisis (chaebol/IMF bailout)", "bucket": "catastrophic"},
+        {"peak": "1999-12-31", "trough": "2001-09-17", "recovery": "2005-04-01", "magnitude_pct": -57, "duration_pk_to_tr_months": 21, "recovery_months": 42, "trigger": "Dotcom/9-11/credit-card bubble", "bucket": "catastrophic"},
+        {"peak": "2007-10-31", "trough": "2008-10-24", "recovery": "2010-12-14", "magnitude_pct": -54, "duration_pk_to_tr_months": 12, "recovery_months": 26, "trigger": "Lehman/GFC", "bucket": "catastrophic"},
+        {"peak": "2011-05-02", "trough": "2011-09-26", "recovery": "2013-04-01", "magnitude_pct": -25, "duration_pk_to_tr_months": 5, "recovery_months": 18, "trigger": "Eurozone crisis", "bucket": "mild"},
+        {"peak": "2015-04-23", "trough": "2016-02-12", "recovery": "2017-04-25", "magnitude_pct": -16, "duration_pk_to_tr_months": 10, "recovery_months": 14, "trigger": "China devaluation + EM selloff", "bucket": "mild"},
+        {"peak": "2018-01-29", "trough": "2019-01-03", "recovery": "2020-12-21", "magnitude_pct": -25, "duration_pk_to_tr_months": 11, "recovery_months": 24, "trigger": "Trade war + memory-chip downturn", "bucket": "severe"},
+        {"peak": "2020-01-22", "trough": "2020-03-19", "recovery": "2020-08-13", "magnitude_pct": -36, "duration_pk_to_tr_months": 2, "recovery_months": 5, "trigger": "COVID-19 pandemic", "bucket": "severe"},
+        {"peak": "2021-06-25", "trough": "2022-09-30", "recovery": "2024-07-11", "magnitude_pct": -36, "duration_pk_to_tr_months": 15, "recovery_months": 21, "trigger": "Inflation/Powell pivot + memory-chip cycle", "bucket": "severe"},
+        {"peak": "2024-07-11", "trough": "2024-08-05", "recovery": "2024-12-01", "magnitude_pct": -18, "duration_pk_to_tr_months": 1, "recovery_months": 4, "trigger": "Yen-carry unwind + recession scare", "bucket": "mild"},
+        {"peak": "2026-02-25", "trough": "2026-03-04", "recovery": null, "magnitude_pct": -18, "duration_pk_to_tr_months": 0, "recovery_months": null, "trigger": "Iran-war risk-off (intra-week 18% crash)", "bucket": "mild"}
+      ]
+    },
+    "japan_nikkei225": {
+      "_notes": "1989 peak 38,915 not reclaimed until 2024 — 35-year recovery, the prototypical lost-decades drawdown.",
+      "episodes": [
+        {"peak": "1989-12-29", "trough": "2003-04-28", "recovery": "2024-02-22", "magnitude_pct": -82, "duration_pk_to_tr_months": 160, "recovery_months": 250, "trigger": "Japan asset bubble collapse (lost decades)", "bucket": "catastrophic"},
+        {"peak": "1990-01-04", "trough": "1990-10-01", "recovery": null, "magnitude_pct": -48, "duration_pk_to_tr_months": 9, "recovery_months": null, "trigger": "Initial bubble pop (sub-episode of above)", "bucket": "catastrophic"},
+        {"peak": "1996-06-26", "trough": "1998-10-09", "recovery": null, "magnitude_pct": -44, "duration_pk_to_tr_months": 28, "recovery_months": null, "trigger": "Asian crisis + Japan banking", "bucket": "severe"},
+        {"peak": "2000-04-12", "trough": "2003-04-28", "recovery": "2007-02-26", "magnitude_pct": -64, "duration_pk_to_tr_months": 36, "recovery_months": 46, "trigger": "Dotcom bust + deflation", "bucket": "catastrophic"},
+        {"peak": "2007-02-26", "trough": "2009-03-10", "recovery": "2014-12-08", "magnitude_pct": -61, "duration_pk_to_tr_months": 24, "recovery_months": 69, "trigger": "GFC/Lehman", "bucket": "catastrophic"},
+        {"peak": "2010-04-05", "trough": "2011-03-15", "recovery": "2013-04-05", "magnitude_pct": -27, "duration_pk_to_tr_months": 11, "recovery_months": 25, "trigger": "Fukushima earthquake/tsunami + Eurozone", "bucket": "severe"},
+        {"peak": "2015-06-24", "trough": "2016-06-24", "recovery": "2017-09-22", "magnitude_pct": -28, "duration_pk_to_tr_months": 12, "recovery_months": 15, "trigger": "China devaluation + Brexit + yen surge", "bucket": "severe"},
+        {"peak": "2018-10-02", "trough": "2018-12-25", "recovery": "2019-12-17", "magnitude_pct": -21, "duration_pk_to_tr_months": 3, "recovery_months": 12, "trigger": "Powell pivot/Q4-2018 selloff", "bucket": "mild"},
+        {"peak": "2020-01-20", "trough": "2020-03-19", "recovery": "2020-11-17", "magnitude_pct": -32, "duration_pk_to_tr_months": 2, "recovery_months": 8, "trigger": "COVID-19 pandemic", "bucket": "severe"},
+        {"peak": "2024-07-11", "trough": "2024-08-05", "recovery": "2024-10-15", "magnitude_pct": -25, "duration_pk_to_tr_months": 1, "recovery_months": 2, "trigger": "Yen-carry unwind (BOJ hike + recession scare)", "bucket": "severe"}
+      ]
+    },
+    "brazil_ibovespa": {
+      "_notes": "USD-volatility dominates. 2002 Lula-fear and 2015 Dilma/Petrobras combo are signature crashes.",
+      "episodes": [
+        {"peak": "1986-07-01", "trough": "1987-12-01", "recovery": "1988-08-01", "magnitude_pct": -55, "duration_pk_to_tr_months": 17, "recovery_months": 8, "trigger": "Cruzado plan failure + hyperinflation", "bucket": "catastrophic"},
+        {"peak": "1989-08-01", "trough": "1990-04-01", "recovery": "1991-09-01", "magnitude_pct": -68, "duration_pk_to_tr_months": 8, "recovery_months": 17, "trigger": "Collor plan asset freeze", "bucket": "catastrophic"},
+        {"peak": "1997-07-08", "trough": "1998-09-10", "recovery": "1999-12-01", "magnitude_pct": -60, "duration_pk_to_tr_months": 14, "recovery_months": 15, "trigger": "Asian crisis + Russia/LTCM + Real devaluation", "bucket": "catastrophic"},
+        {"peak": "2000-03-06", "trough": "2002-10-16", "recovery": "2003-11-01", "magnitude_pct": -67, "duration_pk_to_tr_months": 31, "recovery_months": 13, "trigger": "Dotcom + Lula election fear", "bucket": "catastrophic"},
+        {"peak": "2008-05-20", "trough": "2008-10-27", "recovery": "2010-04-08", "magnitude_pct": -62, "duration_pk_to_tr_months": 5, "recovery_months": 18, "trigger": "GFC/Lehman + commodity collapse", "bucket": "catastrophic"},
+        {"peak": "2010-11-04", "trough": "2011-08-08", "recovery": "2014-10-22", "magnitude_pct": -29, "duration_pk_to_tr_months": 9, "recovery_months": 38, "trigger": "Eurozone + China commodity slowdown", "bucket": "severe"},
+        {"peak": "2014-09-03", "trough": "2016-01-26", "recovery": "2016-12-01", "magnitude_pct": -42, "duration_pk_to_tr_months": 17, "recovery_months": 10, "trigger": "Petrobras/Lava Jato + Dilma impeachment + commodity bust", "bucket": "severe"},
+        {"peak": "2018-02-22", "trough": "2018-06-18", "recovery": "2018-10-15", "magnitude_pct": -16, "duration_pk_to_tr_months": 4, "recovery_months": 4, "trigger": "Truckers strike + EM rout (Lira/Argentina)", "bucket": "mild"},
+        {"peak": "2020-01-23", "trough": "2020-03-23", "recovery": "2020-12-30", "magnitude_pct": -47, "duration_pk_to_tr_months": 2, "recovery_months": 9, "trigger": "COVID-19 (worst single-day -15%)", "bucket": "catastrophic"},
+        {"peak": "2021-06-07", "trough": "2022-07-14", "recovery": "2024-01-01", "magnitude_pct": -27, "duration_pk_to_tr_months": 13, "recovery_months": 18, "trigger": "Inflation + Lula return uncertainty", "bucket": "severe"}
+      ]
+    },
+    "indonesia_jci": {
+      "_notes": "Tom Yum crisis 1997 was the deepest in % terms (rupiah collapse). Heavy commodity/banking exposure.",
+      "episodes": [
+        {"peak": "1990-04-04", "trough": "1992-12-31", "recovery": "1993-09-01", "magnitude_pct": -50, "duration_pk_to_tr_months": 32, "recovery_months": 9, "trigger": "Post-listing speculative bust", "bucket": "catastrophic"},
+        {"peak": "1997-07-08", "trough": "1998-09-21", "recovery": "2004-04-07", "magnitude_pct": -65, "duration_pk_to_tr_months": 14, "recovery_months": 67, "trigger": "Asian financial crisis (rupiah/Suharto fall)", "bucket": "catastrophic"},
+        {"peak": "2000-02-04", "trough": "2001-04-04", "recovery": "2003-12-01", "magnitude_pct": -55, "duration_pk_to_tr_months": 14, "recovery_months": 32, "trigger": "Dotcom + Wahid impeachment", "bucket": "catastrophic"},
+        {"peak": "2008-01-09", "trough": "2008-10-28", "recovery": "2010-04-21", "magnitude_pct": -60, "duration_pk_to_tr_months": 9, "recovery_months": 18, "trigger": "GFC/Lehman", "bucket": "catastrophic"},
+        {"peak": "2011-08-01", "trough": "2011-10-04", "recovery": "2012-01-05", "magnitude_pct": -20, "duration_pk_to_tr_months": 2, "recovery_months": 3, "trigger": "Eurozone crisis", "bucket": "mild"},
+        {"peak": "2013-05-20", "trough": "2013-08-27", "recovery": "2014-09-08", "magnitude_pct": -23, "duration_pk_to_tr_months": 3, "recovery_months": 12, "trigger": "Taper tantrum (Fragile Five)", "bucket": "mild"},
+        {"peak": "2015-04-07", "trough": "2015-09-29", "recovery": "2016-09-19", "magnitude_pct": -25, "duration_pk_to_tr_months": 6, "recovery_months": 12, "trigger": "China devaluation + commodity bust", "bucket": "severe"},
+        {"peak": "2018-02-19", "trough": "2018-07-04", "recovery": "2019-02-21", "magnitude_pct": -14, "duration_pk_to_tr_months": 4, "recovery_months": 8, "trigger": "EM rout + rupiah weakness", "bucket": "mild"},
+        {"peak": "2020-01-17", "trough": "2020-03-24", "recovery": "2021-12-01", "magnitude_pct": -39, "duration_pk_to_tr_months": 2, "recovery_months": 21, "trigger": "COVID-19 pandemic", "bucket": "severe"},
+        {"peak": "2024-09-23", "trough": "2025-04-08", "recovery": null, "magnitude_pct": -25, "duration_pk_to_tr_months": 7, "recovery_months": null, "trigger": "Prabowo policy fears + trading halt + tariff war", "bucket": "severe"}
+      ]
+    },
+    "taiwan_taiex": {
+      "_notes": "1990 collapse is one of history's largest equity bubbles (12,495 to 2,560 in 8 months, -80%). TSMC dominates index post-2010.",
+      "episodes": [
+        {"peak": "1990-02-12", "trough": "1990-10-12", "recovery": "1997-08-26", "magnitude_pct": -80, "duration_pk_to_tr_months": 8, "recovery_months": 82, "trigger": "Taiwan stock bubble pop", "bucket": "catastrophic"},
+        {"peak": "1997-08-26", "trough": "1999-02-05", "recovery": "1999-12-30", "magnitude_pct": -45, "duration_pk_to_tr_months": 18, "recovery_months": 11, "trigger": "Asian financial crisis", "bucket": "severe"},
+        {"peak": "2000-02-17", "trough": "2001-09-26", "recovery": "2007-07-26", "magnitude_pct": -66, "duration_pk_to_tr_months": 19, "recovery_months": 70, "trigger": "Dotcom bust + tech-cycle (semis)", "bucket": "catastrophic"},
+        {"peak": "2008-05-19", "trough": "2008-11-20", "recovery": "2010-12-31", "magnitude_pct": -56, "duration_pk_to_tr_months": 6, "recovery_months": 25, "trigger": "Lehman/GFC", "bucket": "catastrophic"},
+        {"peak": "2011-02-08", "trough": "2011-12-19", "recovery": "2013-12-01", "magnitude_pct": -28, "duration_pk_to_tr_months": 10, "recovery_months": 24, "trigger": "Eurozone crisis", "bucket": "severe"},
+        {"peak": "2015-04-27", "trough": "2015-08-24", "recovery": "2017-04-01", "magnitude_pct": -29, "duration_pk_to_tr_months": 4, "recovery_months": 19, "trigger": "China devaluation + EM rout", "bucket": "severe"},
+        {"peak": "2018-01-23", "trough": "2019-01-04", "recovery": "2019-04-12", "magnitude_pct": -17, "duration_pk_to_tr_months": 11, "recovery_months": 3, "trigger": "Trade war + memory cycle", "bucket": "mild"},
+        {"peak": "2020-01-14", "trough": "2020-03-19", "recovery": "2020-07-28", "magnitude_pct": -30, "duration_pk_to_tr_months": 2, "recovery_months": 4, "trigger": "COVID-19 pandemic", "bucket": "severe"},
+        {"peak": "2022-01-05", "trough": "2022-10-25", "recovery": "2023-07-31", "magnitude_pct": -28, "duration_pk_to_tr_months": 9, "recovery_months": 9, "trigger": "Inflation/Powell pivot + semi cycle + Taiwan-China tension", "bucket": "severe"},
+        {"peak": "2024-07-11", "trough": "2024-08-05", "recovery": "2024-09-30", "magnitude_pct": -19, "duration_pk_to_tr_months": 1, "recovery_months": 2, "trigger": "Yen-carry unwind + AI semi pullback", "bucket": "mild"}
+      ]
+    },
+    "mexico_ipc": {
+      "_notes": "Tequila 1994/95 is signature. Less volatile than Brazil but high USD-correlation.",
+      "episodes": [
+        {"peak": "1994-09-19", "trough": "1995-02-27", "recovery": "1997-09-08", "magnitude_pct": -45, "duration_pk_to_tr_months": 5, "recovery_months": 31, "trigger": "Tequila/peso devaluation", "bucket": "catastrophic"},
+        {"peak": "1997-10-07", "trough": "1998-09-10", "recovery": "1999-11-01", "magnitude_pct": -45, "duration_pk_to_tr_months": 11, "recovery_months": 14, "trigger": "Asian crisis + Russia/LTCM", "bucket": "severe"},
+        {"peak": "2000-03-29", "trough": "2002-09-30", "recovery": "2003-11-01", "magnitude_pct": -34, "duration_pk_to_tr_months": 30, "recovery_months": 14, "trigger": "Dotcom bust", "bucket": "severe"},
+        {"peak": "2007-10-09", "trough": "2008-10-27", "recovery": "2010-04-15", "magnitude_pct": -53, "duration_pk_to_tr_months": 12, "recovery_months": 18, "trigger": "GFC/Lehman", "bucket": "catastrophic"},
+        {"peak": "2011-04-04", "trough": "2011-09-22", "recovery": "2012-02-01", "magnitude_pct": -19, "duration_pk_to_tr_months": 6, "recovery_months": 4, "trigger": "Eurozone crisis", "bucket": "mild"},
+        {"peak": "2013-01-28", "trough": "2014-01-30", "recovery": "2014-09-08", "magnitude_pct": -16, "duration_pk_to_tr_months": 12, "recovery_months": 7, "trigger": "Taper tantrum", "bucket": "mild"},
+        {"peak": "2014-09-08", "trough": "2016-01-20", "recovery": "2017-07-25", "magnitude_pct": -19, "duration_pk_to_tr_months": 16, "recovery_months": 18, "trigger": "Oil collapse + Trump/peso", "bucket": "mild"},
+        {"peak": "2017-07-25", "trough": "2018-12-24", "recovery": "2024-01-12", "magnitude_pct": -22, "duration_pk_to_tr_months": 17, "recovery_months": 60, "trigger": "AMLO election + NAFTA renegotiation", "bucket": "mild"},
+        {"peak": "2020-01-17", "trough": "2020-03-24", "recovery": "2021-04-29", "magnitude_pct": -29, "duration_pk_to_tr_months": 2, "recovery_months": 13, "trigger": "COVID-19 pandemic", "bucket": "severe"},
+        {"peak": "2024-04-01", "trough": "2024-08-05", "recovery": "2025-01-20", "magnitude_pct": -16, "duration_pk_to_tr_months": 4, "recovery_months": 5, "trigger": "Sheinbaum election + judicial reform", "bucket": "mild"}
+      ]
+    },
+    "thailand_set": {
+      "_notes": "Tom Yum crisis 1997 originated here. SET still below 2018 peak as of 2026 — secular under-performance.",
+      "episodes": [
+        {"peak": "1994-01-04", "trough": "1995-07-18", "recovery": "1996-02-01", "magnitude_pct": -28, "duration_pk_to_tr_months": 18, "recovery_months": 7, "trigger": "Property/banking peak", "bucket": "severe"},
+        {"peak": "1996-02-01", "trough": "1998-09-04", "recovery": "2003-12-01", "magnitude_pct": -88, "duration_pk_to_tr_months": 31, "recovery_months": 63, "trigger": "Asian financial crisis (Tom Yum, baht devaluation)", "bucket": "catastrophic"},
+        {"peak": "2000-01-04", "trough": "2001-09-21", "recovery": "2003-09-01", "magnitude_pct": -56, "duration_pk_to_tr_months": 21, "recovery_months": 24, "trigger": "Dotcom + 9/11", "bucket": "catastrophic"},
+        {"peak": "2007-10-29", "trough": "2008-10-28", "recovery": "2010-09-22", "magnitude_pct": -58, "duration_pk_to_tr_months": 12, "recovery_months": 23, "trigger": "GFC + political turmoil (Bangkok airport closure)", "bucket": "catastrophic"},
+        {"peak": "2011-08-01", "trough": "2011-10-04", "recovery": "2012-02-01", "magnitude_pct": -25, "duration_pk_to_tr_months": 2, "recovery_months": 4, "trigger": "Eurozone + Bangkok floods", "bucket": "mild"},
+        {"peak": "2013-05-21", "trough": "2014-01-07", "recovery": "2015-02-25", "magnitude_pct": -24, "duration_pk_to_tr_months": 8, "recovery_months": 13, "trigger": "Taper tantrum + Bangkok shutdown protests", "bucket": "mild"},
+        {"peak": "2015-02-25", "trough": "2016-01-12", "recovery": "2017-07-01", "magnitude_pct": -25, "duration_pk_to_tr_months": 11, "recovery_months": 18, "trigger": "China devaluation + commodity bust", "bucket": "severe"},
+        {"peak": "2018-02-27", "trough": "2018-10-29", "recovery": null, "magnitude_pct": -14, "duration_pk_to_tr_months": 8, "recovery_months": null, "trigger": "EM rout (1852 peak never reclaimed)", "bucket": "mild"},
+        {"peak": "2020-01-17", "trough": "2020-03-23", "recovery": null, "magnitude_pct": -42, "duration_pk_to_tr_months": 2, "recovery_months": null, "trigger": "COVID-19 pandemic", "bucket": "severe"},
+        {"peak": "2023-01-13", "trough": "2025-06-23", "recovery": null, "magnitude_pct": -43, "duration_pk_to_tr_months": 29, "recovery_months": null, "trigger": "Secular slump (tourism, China weakness, scandals)", "bucket": "severe"}
+      ]
+    },
+    "russia_rts": {
+      "_notes": "RTS dollar-denominated; trading halted Feb 2022 post-invasion. 1998 default was -91% peak-to-trough.",
+      "episodes": [
+        {"peak": "1997-10-07", "trough": "1998-10-05", "recovery": "2003-09-01", "magnitude_pct": -91, "duration_pk_to_tr_months": 12, "recovery_months": 59, "trigger": "Russia ruble default + LTCM", "bucket": "catastrophic"},
+        {"peak": "2003-10-20", "trough": "2004-07-28", "recovery": "2005-04-01", "magnitude_pct": -34, "duration_pk_to_tr_months": 9, "recovery_months": 8, "trigger": "Yukos affair / Khodorkovsky arrest", "bucket": "severe"},
+        {"peak": "2008-05-19", "trough": "2009-01-23", "recovery": null, "magnitude_pct": -80, "duration_pk_to_tr_months": 8, "recovery_months": null, "trigger": "GFC + Georgia war + oil collapse (peak never recovered)", "bucket": "catastrophic"},
+        {"peak": "2011-04-08", "trough": "2011-10-04", "recovery": "2012-03-15", "magnitude_pct": -39, "duration_pk_to_tr_months": 6, "recovery_months": 5, "trigger": "Eurozone + oil dip", "bucket": "severe"},
+        {"peak": "2013-02-01", "trough": "2014-12-16", "recovery": null, "magnitude_pct": -65, "duration_pk_to_tr_months": 22, "recovery_months": null, "trigger": "Crimea annexation + sanctions + oil collapse", "bucket": "catastrophic"},
+        {"peak": "2018-02-26", "trough": "2018-04-09", "recovery": "2019-04-15", "magnitude_pct": -16, "duration_pk_to_tr_months": 1, "recovery_months": 12, "trigger": "Skripal sanctions / Rusal", "bucket": "mild"},
+        {"peak": "2020-01-20", "trough": "2020-03-18", "recovery": "2021-02-01", "magnitude_pct": -45, "duration_pk_to_tr_months": 2, "recovery_months": 11, "trigger": "COVID-19 + oil price war", "bucket": "catastrophic"},
+        {"peak": "2021-10-25", "trough": "2022-02-24", "recovery": null, "magnitude_pct": -77, "duration_pk_to_tr_months": 4, "recovery_months": null, "trigger": "Ukraine invasion + sanctions (trading halted)", "bucket": "catastrophic"}
+      ]
+    },
+    "south_africa_jse": {
+      "_notes": "Resource-heavy index (Anglo, BHP, Sasol). High correlation with EM commodity cycle. Rand depreciation amplifies dollar drawdowns.",
+      "episodes": [
+        {"peak": "1987-08-31", "trough": "1987-11-30", "recovery": "1989-09-01", "magnitude_pct": -38, "duration_pk_to_tr_months": 3, "recovery_months": 22, "trigger": "Black Monday (1987 global crash)", "bucket": "severe"},
+        {"peak": "1998-04-21", "trough": "1998-09-01", "recovery": "1999-08-01", "magnitude_pct": -40, "duration_pk_to_tr_months": 4, "recovery_months": 11, "trigger": "Asian crisis spillover + Russia/LTCM", "bucket": "severe"},
+        {"peak": "2002-05-22", "trough": "2003-04-25", "recovery": "2004-04-01", "magnitude_pct": -32, "duration_pk_to_tr_months": 11, "recovery_months": 12, "trigger": "Dotcom aftermath + rand recovery", "bucket": "severe"},
+        {"peak": "2008-05-22", "trough": "2008-11-20", "recovery": "2010-11-04", "magnitude_pct": -45, "duration_pk_to_tr_months": 6, "recovery_months": 24, "trigger": "GFC/Lehman + commodity collapse", "bucket": "severe"},
+        {"peak": "2011-04-29", "trough": "2011-09-23", "recovery": "2012-01-12", "magnitude_pct": -16, "duration_pk_to_tr_months": 5, "recovery_months": 4, "trigger": "Eurozone crisis", "bucket": "mild"},
+        {"peak": "2015-04-24", "trough": "2016-01-21", "recovery": "2017-04-26", "magnitude_pct": -19, "duration_pk_to_tr_months": 9, "recovery_months": 15, "trigger": "Nenegate (Zuma fires Nene) + China + commodity bust", "bucket": "mild"},
+        {"peak": "2018-01-25", "trough": "2018-10-26", "recovery": "2019-04-23", "magnitude_pct": -17, "duration_pk_to_tr_months": 9, "recovery_months": 6, "trigger": "EM rout + Steinhoff scandal", "bucket": "mild"},
+        {"peak": "2020-01-17", "trough": "2020-03-19", "recovery": "2021-01-08", "magnitude_pct": -36, "duration_pk_to_tr_months": 2, "recovery_months": 10, "trigger": "COVID-19 pandemic", "bucket": "severe"},
+        {"peak": "2022-04-01", "trough": "2022-07-01", "recovery": "2023-01-26", "magnitude_pct": -16, "duration_pk_to_tr_months": 3, "recovery_months": 7, "trigger": "Inflation/Powell + commodity dip", "bucket": "mild"},
+        {"peak": "2024-04-01", "trough": "2024-04-05", "recovery": "2024-05-15", "magnitude_pct": -10, "duration_pk_to_tr_months": 0, "recovery_months": 1, "trigger": "Election uncertainty + GNU formation", "bucket": "mild"}
+      ]
+    }
+  },
+  "calibration": {
+    "_method": "Aggregated across all 10 markets, 1980-2026 (~46 years). Recovery durations exclude unrecovered episodes (null). Annual frequency = total events of bucket / (10 markets × 46 years). Use as base rates for Monte Carlo scenario sampling.",
+    "mild": {
+      "n_episodes": 31,
+      "avg_magnitude_pct": -17.7,
+      "median_magnitude_pct": -17,
+      "avg_duration_pk_to_tr_months": 5.6,
+      "avg_recovery_months": 9.3,
+      "annual_freq_per_market": 0.067,
+      "notes": "10-25% drawdowns. Most common type; usually external shock (Eurozone, taper, China devaluation). Recovery typically <12mo."
+    },
+    "severe": {
+      "n_episodes": 38,
+      "avg_magnitude_pct": -33.4,
+      "median_magnitude_pct": -32,
+      "avg_duration_pk_to_tr_months": 9.7,
+      "avg_recovery_months": 14.5,
+      "annual_freq_per_market": 0.083,
+      "notes": "25-45% drawdowns. Usually domestic crisis or coordinated EM rout. Recovery 12-24mo. COVID-2020 was severe in most markets."
+    },
+    "catastrophic": {
+      "n_episodes": 34,
+      "avg_magnitude_pct": -62.2,
+      "median_magnitude_pct": -60,
+      "avg_duration_pk_to_tr_months": 20.1,
+      "avg_recovery_months": 42.9,
+      "annual_freq_per_market": 0.074,
+      "notes": ">45% drawdowns. Systemic crisis (banking collapse, currency default, hyperinflation, war). Recovery 18-60mo, sometimes never (Japan 1989, Russia 2008/2022). Recovery avg excludes Japan-1989, Russia-2008/2022 etc which never recovered."
+    },
+    "any_drawdown": {
+      "n_episodes": 103,
+      "annual_freq_per_market": 0.224,
+      "interpretation": "Each EM/DM market experiences a 10%+ drawdown roughly every 4.5 years. Severe (-25%) every ~12yr. Catastrophic (-45%) every ~13yr."
+    },
+    "global_co_movement": {
+      "_notes": "Episodes where 6+ of 10 markets crashed in same year (correlation regime)",
+      "events": [
+        {"year": 1997, "trigger": "Asian crisis", "markets_affected": 8},
+        {"year": 1998, "trigger": "Russia/LTCM", "markets_affected": 7},
+        {"year": 2000, "trigger": "Dotcom", "markets_affected": 7},
+        {"year": 2008, "trigger": "GFC/Lehman", "markets_affected": 10},
+        {"year": 2011, "trigger": "Eurozone crisis", "markets_affected": 8},
+        {"year": 2015, "trigger": "China devaluation", "markets_affected": 7},
+        {"year": 2018, "trigger": "Powell pivot/EM rout", "markets_affected": 7},
+        {"year": 2020, "trigger": "COVID-19", "markets_affected": 10},
+        {"year": 2022, "trigger": "Inflation/Powell pivot", "markets_affected": 6}
+      ],
+      "implication": "EM correlation spikes to 0.7-0.9 in stress; diversification across these 10 markets fails when most needed. Plan for synchronised drawdowns."
+    },
+    "india_specific": {
+      "tech_heavy_episodes": ["2000-2001 dotcom (-56%)", "2022 Powell pivot IT crash (-18%)"],
+      "capex_heavy_episodes": ["2008 GFC (-60%)", "2010-2011 policy paralysis (-27%)", "2024 PSU crash (-16%)"],
+      "election_episodes": ["2004 UPA shock (-27%, recovered 4mo)", "2024 Modi loss (-8% intraday)"],
+      "ai_infra_basket_implication": "AI/datacenter/capex-heavy bets in India have suffered -25% to -60% in past capex cycle bottoms. Plan for at least one -30% event per 5yr horizon."
+    }
+  },
+  "_sources": [
+    "https://en.wikipedia.org/wiki/Stock_market_crashes_in_India",
+    "https://moneyvesta.com/nifty-50-drawdowns-and-recoveries/",
+    "https://medium.com/iamclearmind/weathering-the-storm-lessons-from-nifty-50s-historical-crashes-b25a851a31f1",
+    "https://en.wikipedia.org/wiki/1992_Indian_stock_market_scam",
+    "https://www.cnbc.com/2024/06/05/india-stocks-erase-over-371-billion-after-bjp-disappoints-in-elections.html",
+    "https://en.wikipedia.org/wiki/KOSPI",
+    "https://en.wikipedia.org/wiki/1997_Asian_financial_crisis",
+    "https://www.bloomberg.com/news/articles/2026-03-04/korean-stock-gauge-poised-for-correction-on-iran-war-selloff",
+    "https://en.wikipedia.org/wiki/Nikkei_225",
+    "https://en.wikipedia.org/wiki/Japanese_asset_price_bubble",
+    "https://en.wikipedia.org/wiki/Lost_Decades",
+    "https://www.macrotrends.net/2593/nikkei-225-index-historical-chart-data",
+    "https://periodicos.fgv.br/rbfin/article/download/80028/77112/170990",
+    "https://www.institutoliberal.org.br/blog/das-oito-datas-em-que-o-ibovespa-caiu-mais-de-10-desde-1995-tres-foram-em-2020/",
+    "https://exame.com/invest/mercados/os-dias-de-maior-panico-na-historia-da-bolsa-brasileira/",
+    "https://jakartaglobe.id/business/how-trading-halts-work-and-indonesias-worst-market-crashes",
+    "https://www.indonesia-investments.com/culture/economy/asian-financial-crisis/item246",
+    "https://en.wikipedia.org/wiki/IDX_Composite",
+    "https://en.wikipedia.org/wiki/TAIEX",
+    "https://www.taipeitimes.com/News/biz/archives/2022/07/02/2003780962",
+    "https://www.formosafiles.com/s5-e8-taiwans-stock-market-bubble-and-the-crash-of-1990/",
+    "https://en.wikipedia.org/wiki/Mexican_peso_crisis",
+    "https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=12206&context=ypfs-documents",
+    "https://www.imf.org/external/pubs/ft/history/2012/pdf/c10.pdf",
+    "https://en.wikipedia.org/wiki/Stock_Exchange_of_Thailand",
+    "https://www.columbia.edu/cu/thai/html/financial97_98.html",
+    "https://www.bangkokpost.com/business/general/2827163/why-is-the-set-in-a-protracted-slump-",
+    "https://www.intellinews.com/datacrunch-the-anatomy-of-the-1998-2008-and-2022-stock-market-crashes-238607/",
+    "https://en.wikipedia.org/wiki/Russian_financial_crisis_(2014%E2%80%932016)",
+    "https://en.wikipedia.org/wiki/Russian_Trading_System",
+    "https://en.wikipedia.org/wiki/Great_Recession_in_Russia",
+    "https://www.accountancysa.org.za/covid-19-crash-what-south-africa-can-learn-from-previous-market-crashes/",
+    "https://en.wikipedia.org/wiki/FTSE/JSE_All-Share_Index",
+    "http://www.powerstocks.co.za/history-of-bears.php",
+    "https://www.moneyweb.co.za/news/markets/jse-stocks-plunge-the-most-since-1997-in-panic-sell-off/",
+    "https://en.wikipedia.org/wiki/List_of_stock_market_crashes_and_bear_markets",
+    "https://en.wikipedia.org/wiki/2020_stock_market_crash",
+    "https://en.wikipedia.org/wiki/2022_stock_market_decline"
+  ]
+}

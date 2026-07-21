@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "genka": {
+      "type": "http",
+      "url": "https://genka.dev/mcp",
+      "headers": {
+        "x-api-key": "imk_live_ibm5GwMMUb0t7QtQEKPLQx9t7YIWPHRh"
+      }
+    }
+  }
+}

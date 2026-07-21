@@ -1,0 +1,440 @@
+date,desc,amount,txn_type,category,ref,source_file
+2026-07-19,AMAZON Mumbai,229.68,spend,General Purchases-Clothing Stores,AT262000003000010000126,2026_cardspend.csv
+2026-07-16,Card Charges paid with Points,-637.32,points_adjustment,,S0002619710199483430155,2026_cardspend.csv
+2026-07-14,PAYMENT RECEIVED. THANK YOU,-75000.0,card_payment,,S0002619505126089730156,2026_cardspend.csv
+2026-07-12,PAYMENT RECEIVED. THANK YOU,-75000.0,card_payment,,S0002619311463861230156,2026_cardspend.csv
+2026-07-12,Amazon Mumbai,637.32,spend,General Purchases-Clothing Stores,AT261930001000010005361,2026_cardspend.csv
+2026-07-11,PAYMENT RECEIVED. THANK YOU,-99000.0,card_payment,,S0002619208352513030155,2026_cardspend.csv
+2026-07-11,FUTURE GENERALI BAS THANE,252020.0,spend,Business Services-Insurance Services,AT261930001000010002400,2026_cardspend.csv
+2026-07-08,Amazon Mumbai,1518.0,spend,General Purchases-Clothing Stores,AT261900001000010002872,2026_cardspend.csv
+2026-07-08,Amazon Mumbai,499.0,spend,General Purchases-Clothing Stores,AT261900001000010002865,2026_cardspend.csv
+2026-07-06,PayU*FirstClub Bangalore,1756.0,spend,General Purchases-Groceries,AT261870001000010004453,2026_cardspend.csv
+2026-07-03,AMAZON Mumbai,156.41,spend,General Purchases-Clothing Stores,AT261840002000010002542,2026_cardspend.csv
+2026-06-29,RAZORPAY*Swiggy Bangalore,231.0,spend,Entertainment-Restaurants,AT261800002000010005054,2026_cardspend.csv
+2026-06-28,RAZORPAY*Swiggy Bangalore,542.0,spend,Entertainment-Restaurants,AT261800002000010001658,2026_cardspend.csv
+2026-06-27,PayU*FirstClub Bangalore,1035.0,spend,General Purchases-Groceries,AT261780004000010000172,2026_cardspend.csv
+2026-06-26,PAYMENT RECEIVED. THANK YOU,-41075.0,card_payment,,S0002617709575911530156,2026_cardspend.csv
+2026-06-24,Amazon Mumbai,590.48,spend,General Purchases-Clothing Stores,AT261750001000010001849,2026_cardspend.csv
+2026-06-23,Amazon Mumbai,2195.0,spend,General Purchases-Clothing Stores,AT261740002000010001948,2026_cardspend.csv
+2026-06-22,PayU*ORCHARD HEALTHCARE Gurgaon,1200.0,spend,Business Services-Health Care Services,AT261730001000010004850,2026_cardspend.csv
+2026-06-22,Amazon Mumbai,499.0,spend,General Purchases-Clothing Stores,AT261740002000010003951,2026_cardspend.csv
+2026-06-21,Razorpay*Furlenco Bengaluru,1046.28,spend,General Purchases-Clothing Stores,AT261720001000010003965,2026_cardspend.csv
+2026-06-21,PayU*FirstClub Bangalore,2780.0,spend,General Purchases-Groceries,AT261720001000010003853,2026_cardspend.csv
+2026-06-21,Amazon Mumbai,478.0,spend,General Purchases-Clothing Stores,AT261720001000010004160,2026_cardspend.csv
+2026-06-20,Amazon Mumbai,550.0,spend,General Purchases-Clothing Stores,AT261720001000010001915,2026_cardspend.csv
+2026-06-20,AMAZON Mumbai,4427.0,spend,General Purchases-Clothing Stores,AT261710001000010004091,2026_cardspend.csv
+2026-06-19,Cashfree*Swiggy Bangalore,242.0,spend,Entertainment-Restaurants,AT261700001000010003726,2026_cardspend.csv
+2026-06-14,AMAZON Mumbai,2089.0,spend,General Purchases-Clothing Stores,AT261650001000010002711,2026_cardspend.csv
+2026-06-14,AMAZON Mumbai,2048.0,spend,General Purchases-Clothing Stores,AT261660001000010004818,2026_cardspend.csv
+2026-06-12,Amazon Mumbai,629.0,spend,General Purchases-Clothing Stores,AT261630002000010002810,2026_cardspend.csv
+2026-06-11,RAZORPAY*Swiggy Bangalore,236.0,spend,Entertainment-Restaurants,AT261620004000010000139,2026_cardspend.csv
+2026-06-08,X CORP. PAID FEATURES BASTROP,4272.0,spend,General Purchases-Online Purchases,AT261600001000010002206,2026_cardspend.csv
+2026-06-05,Razorpay*LICIOUS Bengaluru,936.0,spend,General Purchases-Groceries,AT261570001000010004203,2026_cardspend.csv
+2026-06-01,RAZORPAY*Swiggy Bangalore,402.0,spend,Entertainment-Restaurants,AT261520001000010001664,2026_cardspend.csv
+2026-05-31,PAYU*Swiggy Limited Bangalore,327.0,spend,Entertainment-Restaurants,AT261510002000010003649,2026_cardspend.csv
+2026-05-27,PAYMENT RECEIVED. THANK YOU,-24248.1,card_payment,,S0002614714091169230156,2026_cardspend.csv
+2026-05-22,Amazon Mumbai,-995.0,refund,General Purchases-Clothing Stores,AT261430002000010002573,2026_cardspend.csv
+2026-05-21,AMAZON Mumbai,8183.89,spend,General Purchases-Clothing Stores,AT261410001000010003026,2026_cardspend.csv
+2026-05-21,AMAZON Mumbai,1416.0,spend,General Purchases-Clothing Stores,AT261410001000010002992,2026_cardspend.csv
+2026-05-21,AMAZON Mumbai,475.0,spend,General Purchases-Clothing Stores,AT261410001000010002969,2026_cardspend.csv
+2026-05-19,Amazon Mumbai,995.0,spend,General Purchases-Clothing Stores,AT261390001000010004154,2026_cardspend.csv
+2026-05-18,PAYU*Swiggy Limited Bangalore,669.0,spend,Entertainment-Restaurants,AT261380004000010000171,2026_cardspend.csv
+2026-05-17,AMAZON Mumbai,4943.0,spend,General Purchases-Clothing Stores,AT261370001000010002631,2026_cardspend.csv
+2026-05-16,MUHAVRA ENTERPRISES PRI BANGALORE,441.0,spend,Entertainment-Bars & Cafés,AT261370001000010004289,2026_cardspend.csv
+2026-05-10,Amazon Mumbai,645.0,spend,General Purchases-Clothing Stores,AT261300001000010005154,2026_cardspend.csv
+2026-05-09,PAYU*Swiggy Limited Bangalore,358.0,spend,Entertainment-Restaurants,AT261290004000010000259,2026_cardspend.csv
+2026-05-09,Amazon Mumbai,2058.0,spend,General Purchases-Clothing Stores,AT261290001000010003297,2026_cardspend.csv
+2026-05-08,PAYU*Swiggy Limited Bangalore,281.0,spend,Entertainment-Restaurants,AT261280001000010001512,2026_cardspend.csv
+2026-05-07,Razorpay*LICIOUS Bengaluru,828.0,spend,General Purchases-Groceries,AT261280001000010003374,2026_cardspend.csv
+2026-05-07,PAYU*Swiggy Limited Bangalore,321.0,spend,Entertainment-Restaurants,AT261270001000010002465,2026_cardspend.csv
+2026-05-06,RAZORPAY*Swiggy Bangalore,437.0,spend,Entertainment-Restaurants,AT261260003000010000270,2026_cardspend.csv
+2026-05-06,Orange Health ORANGE HE BENGALURU,4999.0,spend,Business Services-Health Care Services,AT261270001000010002364,2026_cardspend.csv
+2026-05-06,Amazon Mumbai,1149.0,spend,General Purchases-Clothing Stores,AT261260001000010003903,2026_cardspend.csv
+2026-04-26,PAYU*Swiggy Limited Bangalore,586.0,spend,Entertainment-Restaurants,AT261170001000010004618,2026_cardspend.csv
+2026-04-26,PAYU*Swiggy Limited Bangalore,359.0,spend,Entertainment-Restaurants,AT261160004000010000145,2026_cardspend.csv
+2026-04-25,URU BREW BANGALORE,1688.0,spend,Entertainment-Bars & Cafés,AT261160001000010002481,2026_cardspend.csv
+2026-04-23,RAZORPAY*Swiggy Bangalore,258.0,spend,Entertainment-Restaurants,AT261130004000010000416,2026_cardspend.csv
+2026-04-23,AMAZON Mumbai,2805.1,spend,General Purchases-Clothing Stores,AT261130001000010001908,2026_cardspend.csv
+2026-04-22,AMAZON Mumbai,739.0,spend,General Purchases-Clothing Stores,AT261120003000010000279,2026_cardspend.csv
+2026-04-19,PAYU*Swiggy Limited Bangalore,612.0,spend,Entertainment-Restaurants,AT261090001000010003943,2026_cardspend.csv
+2026-04-19,PAYU*Swiggy Limited Bangalore,528.0,spend,Entertainment-Restaurants,AT261100001000010003780,2026_cardspend.csv
+2026-04-18,PAYU*Swiggy Limited Bangalore,233.0,spend,Entertainment-Restaurants,AT261090001000010002696,2026_cardspend.csv
+2026-04-18,PAYMENT RECEIVED. THANK YOU,-15311.0,card_payment,,S0002610808137425530152,2026_cardspend.csv
+2026-04-18,AMAZON Mumbai,199.0,spend,General Purchases-Clothing Stores,AT261080001000010003885,2026_cardspend.csv
+2026-04-17,Amazon Mumbai,2645.0,spend,General Purchases-Clothing Stores,AT261070004000010000305,2026_cardspend.csv
+2026-04-17,Amazon Mumbai,856.0,spend,General Purchases-Clothing Stores,AT261070002000010004167,2026_cardspend.csv
+2026-04-15,PAYU*Swiggy Limited Bangalore,293.0,spend,Entertainment-Restaurants,AT261050001000010001537,2026_cardspend.csv
+2026-04-15,PAYU*Swiggy Limited Bangalore,215.0,spend,Entertainment-Restaurants,AT261060001000010001564,2026_cardspend.csv
+2026-04-14,Razorpay*LICIOUS Bengaluru,763.0,spend,General Purchases-Groceries,AT261050001000010004120,2026_cardspend.csv
+2026-04-14,RAZORPAY*Swiggy Bangalore,393.0,spend,Entertainment-Restaurants,AT261050001000010002188,2026_cardspend.csv
+2026-04-13,AMAZON Mumbai,298.0,spend,General Purchases-Clothing Stores,AT261030002000010003204,2026_cardspend.csv
+2026-04-12,PAYU*Swiggy Limited Bangalore,646.0,spend,Entertainment-Restaurants,AT261030002000010002490,2026_cardspend.csv
+2026-04-11,PAYU*Swiggy Limited Bangalore,454.0,spend,Entertainment-Restaurants,AT261020001000010002150,2026_cardspend.csv
+2026-04-11,PAYU*Swiggy Limited Bangalore,381.0,spend,Entertainment-Restaurants,AT261010002000010003873,2026_cardspend.csv
+2026-04-10,PAYU*Swiggy Limited Bangalore,414.0,spend,Entertainment-Restaurants,AT261010002000010001722,2026_cardspend.csv
+2026-04-09,PAYU*Swiggy Limited Bangalore,667.0,spend,Entertainment-Restaurants,AT261000001000010003028,2026_cardspend.csv
+2026-04-09,PAYU*Swiggy Limited Bangalore,-137.0,refund,Entertainment-Restaurants,AT261000001000010001747,2026_cardspend.csv
+2026-04-08,Cashfree*Swiggy Bangalore,909.0,spend,Entertainment-Restaurants,AT260980001000010002958,2026_cardspend.csv
+2026-04-05,PAYU*Swiggy Limited Bangalore,296.0,spend,Entertainment-Restaurants,AT260950004000010000263,2026_cardspend.csv
+2026-04-05,PAYU*Swiggy Limited Bangalore,269.0,spend,Entertainment-Restaurants,AT260950004000010000142,2026_cardspend.csv
+2026-04-04,PAYU*Swiggy Limited Bangalore,406.0,spend,Entertainment-Restaurants,AT260940001000010004142,2026_cardspend.csv
+2026-04-03,Razorpay*LICIOUS Bengaluru,500.0,spend,General Purchases-Groceries,AT260930002000010003003,2026_cardspend.csv
+2026-04-03,Amazon Mumbai,1030.0,spend,General Purchases-Clothing Stores,AT260930002000010003618,2026_cardspend.csv
+2026-04-02,RAZORPAY*Swiggy Bangalore,335.0,spend,Entertainment-Restaurants,AT260920001000010003668,2026_cardspend.csv
+2026-03-31,PayU*FirstClub Bangalore,1624.0,spend,General Purchases-Groceries,AT260900001000010003720,2026_cardspend.csv
+2026-03-28,RAZORPAY*Swiggy Bangalore,453.0,spend,Entertainment-Restaurants,AT260870004000010000222,2026_cardspend.csv
+2026-03-28,PAYU*Swiggy Limited Bangalore,469.0,spend,Entertainment-Restaurants,AT260870001000010004698,2026_cardspend.csv
+2026-03-28,Amazon Mumbai,284.05,spend,General Purchases-Clothing Stores,AT260870001000010004328,2026_cardspend.csv
+2026-03-27,PAYU*Swiggy Limited Bangalore,389.0,spend,Entertainment-Restaurants,AT260870001000010001810,2026_cardspend.csv
+2026-03-26,Amazon Mumbai,1026.95,spend,General Purchases-Clothing Stores,AT260850001000010003130,2026_cardspend.csv
+2026-03-26,Amazon Mumbai,328.0,spend,General Purchases-Clothing Stores,AT260850001000010004002,2026_cardspend.csv
+2026-03-26,AMAZON Mumbai,1010.0,spend,General Purchases-Clothing Stores,AT260850001000010003767,2026_cardspend.csv
+2026-03-24,PAYU*Swiggy Limited Bangalore,343.0,spend,Entertainment-Restaurants,AT260840001000010003175,2026_cardspend.csv
+2026-03-23,PAYU*Swiggy Limited Bangalore,292.0,spend,Entertainment-Restaurants,AT260830001000010003766,2026_cardspend.csv
+2026-03-23,PAYU*Swiggy Limited Bangalore,229.0,spend,Entertainment-Restaurants,AT260830001000010003774,2026_cardspend.csv
+2026-03-22,Razorpay*LICIOUS Bengaluru,1126.0,spend,General Purchases-Groceries,AT260810001000010003438,2026_cardspend.csv
+2026-03-22,PAYMENT RECEIVED. THANK YOU,-17523.95,card_payment,,S0002608101560983230154,2026_cardspend.csv
+2026-03-21,PayU*FirstClub Bangalore,1269.0,spend,General Purchases-Groceries,AT260810001000010004156,2026_cardspend.csv
+2026-03-11,Razorpay*LICIOUS Bengaluru,1372.0,spend,General Purchases-Groceries,AT260700001000010002350,2026_cardspend.csv
+2026-03-08,PayU*FirstClub Bangalore,3067.0,spend,General Purchases-Groceries,AT260670001000010003615,2026_cardspend.csv
+2026-02-27,Amazon Mumbai,495.0,spend,General Purchases-Clothing Stores,AT260580002000010003742,2026_cardspend.csv
+2026-02-26,Amazon Mumbai,1455.0,spend,General Purchases-Clothing Stores,AT260580002000010001633,2026_cardspend.csv
+2026-02-26,Amazon Mumbai,579.0,spend,General Purchases-Clothing Stores,AT260570001000010002089,2026_cardspend.csv
+2026-02-25,Amazon Mumbai,5663.05,spend,General Purchases-Clothing Stores,AT260560002000010003527,2026_cardspend.csv
+2026-02-24,Amazon Mumbai,-359.1,refund,General Purchases-Clothing Stores,AT260560002000010004028,2026_cardspend.csv
+2026-02-24,AMAZON Mumbai,4380.0,spend,General Purchases-Clothing Stores,AT260550001000010002964,2026_cardspend.csv
+2026-02-23,Amazon Mumbai,566.0,spend,General Purchases-Clothing Stores,AT260540003000010001788,2026_cardspend.csv
+2026-02-23,Amazon Mumbai,323.0,spend,General Purchases-Clothing Stores,AT260540003000010001752,2026_cardspend.csv
+2026-02-23,Amazon Mumbai,-17.0,refund,General Purchases-Clothing Stores,AT260540003000010001800,2026_cardspend.csv
+2026-02-23,Amazon Mumbai,-279.0,refund,General Purchases-Clothing Stores,AT260540003000010001761,2026_cardspend.csv
+2026-02-20,Amazon Mumbai,294.5,spend,General Purchases-Clothing Stores,AT260510001000010003857,2026_cardspend.csv
+2026-02-20,Amazon Mumbai,-15.5,refund,General Purchases-Clothing Stores,AT260510001000010003858,2026_cardspend.csv
+2026-02-16,PAYMENT RECEIVED. THANK YOU,-17440.05,card_payment,,S0002604701453130130156,2026_cardspend.csv
+2026-02-13,Amazon Mumbai,569.05,spend,General Purchases-Clothing Stores,AT260440001000010004603,2026_cardspend.csv
+2026-02-13,Amazon Mumbai,440.0,spend,General Purchases-Clothing Stores,AT260440001000010004476,2026_cardspend.csv
+2026-02-13,Amazon Mumbai,379.05,spend,General Purchases-Clothing Stores,AT260440001000010004618,2026_cardspend.csv
+2026-02-13,Amazon Mumbai,-19.95,refund,General Purchases-Clothing Stores,AT260440001000010004623,2026_cardspend.csv
+2026-02-13,Amazon Mumbai,-29.95,refund,General Purchases-Clothing Stores,AT260440001000010004624,2026_cardspend.csv
+2026-02-11,Amazon Mumbai,2213.05,spend,General Purchases-Clothing Stores,AT260420001000010003068,2026_cardspend.csv
+2026-02-03,Amazon Mumbai,236.0,spend,General Purchases-Clothing Stores,AT260340003000010000195,2026_cardspend.csv
+2026-01-30,Amazon Mumbai,1030.0,spend,General Purchases-Clothing Stores,AT260300002000010003155,2026_cardspend.csv
+2026-01-26,Razorpay*AMINTIRI RETAI Bengaluru,2270.0,spend,Entertainment-Restaurants,AT260260001000010002426,2026_cardspend.csv
+2026-01-23,Razorpay*Airbnb Payment Gurgaon,3653.58,spend,Travel-Lodging,AT260230003000010000324,2026_cardspend.csv
+2026-01-23,Amazon Mumbai,1703.0,spend,General Purchases-Clothing Stores,AT260230002000010003521,2026_cardspend.csv
+2026-01-23,AMAZON Mumbai,1186.38,spend,General Purchases-Clothing Stores,AT260230002000010004308,2026_cardspend.csv
+2026-01-23,AMAZON Mumbai,-323.0,refund,General Purchases-Clothing Stores,AT260230002000010004032,2026_cardspend.csv
+2026-01-15,PAYMENT RECEIVED. THANK YOU,-21484.0,card_payment,,S0002601504133485930151,2026_cardspend.csv
+2026-01-15,MITUL ENTERPRISES PRIVA MUMBAI,4133.0,spend,General Purchases-Clothing Stores,AT260160002000010002765,2026_cardspend.csv
+2026-01-14,INSTALLMENT PRINCIPAL AMOUNT,9441.2,emi_bookkeeping,,10000000010114999996090,2026_cardspend.csv
+2026-01-14,FINANCE CHARGES,223.81,spend,,10000000010114999996060,2026_cardspend.csv
+2026-01-11,Billdesk*AMAZON MUM,2057.0,spend,General Purchases-Clothing Stores,AT260110001000010003822,2026_cardspend.csv
+2025-12-30,Amazon Mumbai,1030.0,spend,General Purchases-Clothing Stores,AT253640001000010002726,2025_cardspend.csv
+2025-12-30,Amazon Mumbai,-1030.0,refund,General Purchases-Clothing Stores,AT253640003000010000363,2025_cardspend.csv
+2025-12-27,Amazon Mumbai,1938.95,spend,General Purchases-Clothing Stores,AT253620001000010001746,2025_cardspend.csv
+2025-12-27,Amazon Mumbai,1030.0,spend,General Purchases-Clothing Stores,AT253620001000010001742,2025_cardspend.csv
+2025-12-22,AMAZON Mumbai,650.0,spend,General Purchases-Clothing Stores,AT253560002000010003932,2025_cardspend.csv
+2025-12-22,AMAZON Mumbai,650.0,spend,General Purchases-Clothing Stores,AT253560002000010003907,2025_cardspend.csv
+2025-12-20,Razorpay*bigbasket Bengaluru,371.11,spend,General Purchases-Groceries,AT253540001000010004745,2025_cardspend.csv
+2025-12-20,Amazon Mumbai,220.0,spend,General Purchases-Clothing Stores,AT253540001000010002884,2025_cardspend.csv
+2025-12-20,AMAZON Mumbai,1149.0,spend,General Purchases-Clothing Stores,AT253540001000010003159,2025_cardspend.csv
+2025-12-20,AMAZON Mumbai,-1149.0,refund,General Purchases-Clothing Stores,AT253550001000010004181,2025_cardspend.csv
+2025-12-18,Amazon Mumbai,259.0,spend,General Purchases-Clothing Stores,AT253520001000010001424,2025_cardspend.csv
+2025-12-18,AMAZON Mumbai,289.0,spend,General Purchases-Clothing Stores,AT253530001000010002170,2025_cardspend.csv
+2025-12-17,PAYMENT RECEIVED. THANK YOU,-78602.2,card_payment,,S0002535101462984730154,2025_cardspend.csv
+2025-12-17,Amazon Mumbai,1832.0,spend,General Purchases-Clothing Stores,AT253520001000010004043,2025_cardspend.csv
+2025-12-16,AMAZON Mumbai,501.6,spend,General Purchases-Clothing Stores,AT253500001000010002508,2025_cardspend.csv
+2025-12-15,Razorpay*LICIOUS Bengaluru,353.0,spend,General Purchases-Groceries,AT253490001000010004855,2025_cardspend.csv
+2025-12-15,AMAZON Mumbai,831.88,spend,General Purchases-Clothing Stores,AT253490003000010000305,2025_cardspend.csv
+2025-12-14,PayU*LG ELECTRONICS IND New Delhi,22819.0,spend,General Purchases-General Retail,AT253480001000010003365,2025_cardspend.csv
+2025-12-14,PayU*BOROSIL LIMITED Mumbai,795.0,spend,General Purchases-General Retail,AT253490001000010002438,2025_cardspend.csv
+2025-12-14,INSTALLMENT PRINCIPAL AMOUNT,9445.77,emi_bookkeeping,,10000000011214999997010,2025_cardspend.csv
+2025-12-14,FINANCE CHARGES,221.23,spend,,10000000011214999996980,2025_cardspend.csv
+2025-12-13,Amazon Mumbai,522.34,spend,General Purchases-Clothing Stores,AT253470001000010003690,2025_cardspend.csv
+2025-12-09,Razorpay*bigbasket Bengaluru,443.04,spend,General Purchases-Groceries,AT253430001000010002284,2025_cardspend.csv
+2025-12-09,AMAZON Mumbai,2070.22,spend,General Purchases-Clothing Stores,AT253430001000010002357,2025_cardspend.csv
+2025-12-09,AMAZON Mumbai,999.0,spend,General Purchases-Clothing Stores,AT253430001000010002673,2025_cardspend.csv
+2025-12-08,Amazon Mumbai,117.81,spend,General Purchases-Clothing Stores,AT253420001000010003543,2025_cardspend.csv
+2025-12-07,Amazon Mumbai,1355.0,spend,General Purchases-Clothing Stores,AT253410001000010005127,2025_cardspend.csv
+2025-12-04,AMAZON Mumbai,3999.0,spend,General Purchases-Clothing Stores,AT253380001000010003483,2025_cardspend.csv
+2025-12-04,AMAZON Mumbai,479.0,spend,General Purchases-Clothing Stores,AT253380003000010000120,2025_cardspend.csv
+2025-12-04,AMAZON Mumbai,-1017.53,refund,General Purchases-Clothing Stores,AT253380001000010001544,2025_cardspend.csv
+2025-12-03,Amazon Mumbai,179.55,spend,General Purchases-Clothing Stores,AT253370002000010002284,2025_cardspend.csv
+2025-12-02,Amazon Mumbai,186.15,spend,General Purchases-Clothing Stores,AT253360001000010001831,2025_cardspend.csv
+2025-12-02,AMAZON Mumbai,1017.53,spend,General Purchases-Clothing Stores,AT253360001000010001882,2025_cardspend.csv
+2025-11-30,Amazon Mumbai,496.0,spend,General Purchases-Clothing Stores,AT253340003000010000239,2025_cardspend.csv
+2025-11-30,AMAZON Mumbai,5999.0,spend,General Purchases-Clothing Stores,AT253350002000010001751,2025_cardspend.csv
+2025-11-29,PayU*Urban Company Limi Gurgaon,1178.0,spend,General Purchases-General Retail,AT253330003000010000149,2025_cardspend.csv
+2025-11-25,Amazon Mumbai,2200.0,spend,General Purchases-Clothing Stores,AT253290002000010003183,2025_cardspend.csv
+2025-11-25,Amazon Mumbai,-27.0,refund,General Purchases-Clothing Stores,AT253290002000010003700,2025_cardspend.csv
+2025-11-24,Razorpay*bigbasket Bengaluru,884.82,spend,General Purchases-Groceries,AT253290002000010003224,2025_cardspend.csv
+2025-11-23,Amazon Mumbai,701.0,spend,General Purchases-Clothing Stores,AT253270001000010002873,2025_cardspend.csv
+2025-11-23,Amazon Mumbai,249.0,spend,General Purchases-Clothing Stores,AT253270001000010003876,2025_cardspend.csv
+2025-11-22,AMAZON Mumbai,999.0,spend,General Purchases-Clothing Stores,AT253270001000010004625,2025_cardspend.csv
+2025-11-20,Amazon Mumbai,399.0,spend,General Purchases-Clothing Stores,AT253240001000010004178,2025_cardspend.csv
+2025-11-19,Razorpay*bigbasket Bengaluru,750.21,spend,General Purchases-Groceries,AT253240001000010003457,2025_cardspend.csv
+2025-11-18,Razorpay*Furlenco Bengaluru,17906.47,spend,General Purchases-Clothing Stores,AT253220001000010003412,2025_cardspend.csv
+2025-11-18,Amazon Mumbai,536.0,spend,General Purchases-Clothing Stores,AT253220003000010000350,2025_cardspend.csv
+2025-11-17,Amazon Mumbai,379.05,spend,General Purchases-Clothing Stores,AT253210002000010002673,2025_cardspend.csv
+2025-11-17,Amazon Mumbai,312.55,spend,General Purchases-Clothing Stores,AT253210002000010002669,2025_cardspend.csv
+2025-11-17,Amazon Mumbai,295.0,spend,General Purchases-Clothing Stores,AT253210002000010002447,2025_cardspend.csv
+2025-11-17,Amazon Mumbai,-16.45,refund,General Purchases-Clothing Stores,AT253210002000010002676,2025_cardspend.csv
+2025-11-17,Amazon Mumbai,-19.95,refund,General Purchases-Clothing Stores,AT253210002000010002675,2025_cardspend.csv
+2025-11-16,PayU*FirstClub Bangalore,2261.0,spend,General Purchases-Groceries,AT253200001000010003833,2025_cardspend.csv
+2025-11-16,PAYMENT RECEIVED. THANK YOU,-11970.87,card_payment,,S0002532005074369330151,2025_cardspend.csv
+2025-11-16,AMAZON Mumbai,-961.0,refund,General Purchases-Clothing Stores,AT253200003000010000193,2025_cardspend.csv
+2025-11-15,Amazon Mumbai,909.05,spend,General Purchases-Clothing Stores,AT253190001000010002914,2025_cardspend.csv
+2025-11-15,Amazon Mumbai,294.52,spend,General Purchases-Clothing Stores,AT253190001000010002158,2025_cardspend.csv
+2025-11-14,INSTALLMENT PRINCIPAL AMOUNT,9448.32,emi_bookkeeping,,10000000011114999997150,2025_cardspend.csv
+2025-11-14,FINANCE CHARGES,218.68,spend,,10000000011114999997120,2025_cardspend.csv
+2025-11-14,AMAZON Mumbai,2002.0,spend,General Purchases-Clothing Stores,AT253180001000010002518,2025_cardspend.csv
+2025-11-13,Razorpay*bigbasket Bengaluru,519.1,spend,General Purchases-Groceries,AT253180001000010003440,2025_cardspend.csv
+2025-11-13,Razorpay*LICIOUS Bengaluru,1157.0,spend,General Purchases-Groceries,AT253180001000010003428,2025_cardspend.csv
+2025-11-12,TENET DIAGNOSTICS 03734 BANGALORE,6730.0,spend,Business Services-Health Care Services,AT253170001000010002629,2025_cardspend.csv
+2025-11-10,Razorpay*bigbasket Bengaluru,420.47,spend,General Purchases-Groceries,AT253140002000010002060,2025_cardspend.csv
+2025-11-10,AMAZON Mumbai,1080.0,spend,General Purchases-Clothing Stores,AT253140002000010001959,2025_cardspend.csv
+2025-11-06,Amazon Mumbai,2111.0,spend,General Purchases-Clothing Stores,AT253100001000010003204,2025_cardspend.csv
+2025-11-04,Amazon Mumbai,261.0,spend,General Purchases-Clothing Stores,AT253080001000010003879,2025_cardspend.csv
+2025-11-02,Razorpay*bigbasket Bengaluru,694.46,spend,General Purchases-Groceries,AT253060003000010000189,2025_cardspend.csv
+2025-11-02,PayU*UrbanClap Technolo Gurgaon,696.0,spend,General Purchases-General Retail,AT253060002000010004965,2025_cardspend.csv
+2025-11-01,Amazon Mumbai,1030.0,spend,General Purchases-Clothing Stores,AT253050002000010002633,2025_cardspend.csv
+2025-10-31,Razorpay*bigbasket Bengaluru,227.72,spend,General Purchases-Groceries,AT253040001000010004058,2025_cardspend.csv
+2025-10-30,EMI PROCESSING FEE,199.0,spend,,10000000011030999990390,2025_cardspend.csv
+2025-10-29,TRANSFERRED TO INSTALLMENT PLAN,-28335.29,emi_bookkeeping,,00000000011030001091309,2025_cardspend.csv
+2025-10-29,INSTALLMENT PRINCIPAL AMOUNT,28335.29,emi_bookkeeping,,S0002530311314565930104,2025_cardspend.csv
+2025-10-29,AMAZON Mumbai,2691.0,spend,General Purchases-Clothing Stores,AT253020001000010003983,2025_cardspend.csv
+2025-10-27,easebuzz*ORANGEHEALTH BANGALORE,3799.0,spend,Business Services-Health Care Services,AT253010001000010003531,2025_cardspend.csv
+2025-10-27,AMAZON Mumbai,2750.0,spend,General Purchases-Clothing Stores,AT253000001000010002268,2025_cardspend.csv
+2025-10-26,Razorpay*bigbasket Bengaluru,1383.65,spend,General Purchases-Groceries,AT252990001000010002391,2025_cardspend.csv
+2025-10-26,Razorpay*LICIOUS Bengaluru,657.0,spend,General Purchases-Groceries,AT252990001000010002332,2025_cardspend.csv
+2025-10-25,Amazon Mumbai,749.0,spend,General Purchases-Clothing Stores,AT252980001000010002839,2025_cardspend.csv
+2025-10-25,Amazon Mumbai,205.0,spend,General Purchases-Clothing Stores,AT252980001000010002750,2025_cardspend.csv
+2025-10-24,Amazon Mumbai,797.0,spend,General Purchases-Clothing Stores,AT252970004000010000192,2025_cardspend.csv
+2025-10-23,PayU*UrbanClap Technolo Gurgaon,733.0,spend,General Purchases-General Retail,AT252960001000010003862,2025_cardspend.csv
+2025-10-23,PAYMENT RECEIVED. THANK YOU,-49570.11,card_payment,,S0002529605516754830154,2025_cardspend.csv
+2025-10-21,Razorpay*bigbasket Bengaluru,447.07,spend,General Purchases-Groceries,AT252940001000010003885,2025_cardspend.csv
+2025-10-18,AMAZON Mumbai,317.01,spend,General Purchases-Clothing Stores,AT252920002000010002289,2025_cardspend.csv
+2025-10-16,Amazon Mumbai,-1092.5,refund,General Purchases-Clothing Stores,AT252900002000010002945,2025_cardspend.csv
+2025-10-14,Amazon Mumbai,1767.5,spend,General Purchases-Clothing Stores,AT252870001000010002286,2025_cardspend.csv
+2025-10-13,Amazon Mumbai,419.0,spend,General Purchases-Clothing Stores,AT252860001000010002624,2025_cardspend.csv
+2025-10-13,AMAZON Mumbai,2099.0,spend,General Purchases-Clothing Stores,AT252860001000010002729,2025_cardspend.csv
+2025-10-12,PayU*UrbanClap Technolo Gurgaon,887.0,spend,General Purchases-General Retail,AT252860001000010005702,2025_cardspend.csv
+2025-10-12,Amazon Mumbai,28335.29,spend,General Purchases-Clothing Stores,AT252850004000010000656,2025_cardspend.csv
+2025-10-10,Paytm*URBANCLAPTECHNOLO Noida,2037.0,spend,General Purchases-General Retail,AT252830001000010004504,2025_cardspend.csv
+2025-10-06,PayU*UrbanClap Technolo Gurgaon,197.0,spend,General Purchases-General Retail,AT252790001000010002949,2025_cardspend.csv
+2025-10-05,Paytm*SHOFFRMOBILITYPRI Noida,1720.0,spend,Travel-Rail Services,AT252780004000010000323,2025_cardspend.csv
+2025-10-03,Amazon Mumbai,499.0,spend,General Purchases-Clothing Stores,AT252770001000010002657,2025_cardspend.csv
+2025-10-02,PADDLE.NET* COLDTURKEY LONDON,2499.0,spend,General Purchases-Computer Supplies,AT252750001000010005394,2025_cardspend.csv
+2025-09-28,Razorpay*LICIOUS Bengaluru,1416.0,spend,General Purchases-Groceries,AT252710001000010003274,2025_cardspend.csv
+2025-09-27,Razorpay*bigbasket Bengaluru,679.28,spend,General Purchases-Groceries,AT252710001000010003151,2025_cardspend.csv
+2025-09-19,Razorpay*bigbasket Bengaluru,877.73,spend,General Purchases-Groceries,AT252620003000010000341,2025_cardspend.csv
+2025-09-17,Amazon Mumbai,1030.0,spend,General Purchases-Clothing Stores,AT252600002000010001502,2025_cardspend.csv
+2025-09-16,Razorpay*bigbasket Bengaluru,1637.31,spend,General Purchases-Groceries,AT252600002000010003175,2025_cardspend.csv
+2025-09-16,PAYMENT RECEIVED. THANK YOU,-7593.77,card_payment,,S0002525903346867030153,2025_cardspend.csv
+2025-09-15,Amazon Mumbai,983.0,spend,General Purchases-Clothing Stores,AT252580001000010004806,2025_cardspend.csv
+2025-09-14,PayU*UrbanClap Technolo Gurgaon,2487.0,spend,General Purchases-General Retail,AT252580001000010005972,2025_cardspend.csv
+2025-09-13,Razorpay*bigbasket Bengaluru,741.1,spend,General Purchases-Groceries,AT252570002000010003592,2025_cardspend.csv
+2025-09-09,PayU*Innovative Retail Bangalore,320.26,spend,General Purchases-General Retail,AT252530002000010002452,2025_cardspend.csv
+2025-09-05,Razorpay*bigbasket Bengaluru,914.25,spend,General Purchases-Groceries,AT252490001000010002192,2025_cardspend.csv
+2025-09-03,RBL*MaRa Coffee Roaste BANGALORE,520.0,spend,Entertainment-Restaurants,AT252470001000010002150,2025_cardspend.csv
+2025-09-02,PayU*Innovative Retail Bangalore,172.5,spend,General Purchases-General Retail,AT252460001000010003334,2025_cardspend.csv
+2025-09-02,PayU*Innovative Retail Bangalore,-99.0,refund,General Purchases-General Retail,AT252460001000010002755,2025_cardspend.csv
+2025-09-01,PayU*Innovative Retail Bangalore,225.0,spend,General Purchases-General Retail,AT252450002000010002248,2025_cardspend.csv
+2025-09-01,PayU*Innovative Retail Bangalore,-94.0,refund,General Purchases-General Retail,AT252450002000010002137,2025_cardspend.csv
+2025-08-31,PayU*Innovative Retail Bangalore,157.0,spend,General Purchases-General Retail,AT252440001000010004682,2025_cardspend.csv
+2025-08-31,PayU*Innovative Retail Bangalore,132.0,spend,General Purchases-General Retail,AT252430002000010002357,2025_cardspend.csv
+2025-08-30,PayU*Innovative Retail Bangalore,660.06,spend,General Purchases-General Retail,AT252420001000010003787,2025_cardspend.csv
+2025-08-29,AMAZON Mumbai,620.0,spend,General Purchases-Clothing Stores,AT252410002000010002797,2025_cardspend.csv
+2025-08-27,OPENAI *CHATGPT SUBSCR SAN FRANCISCO,399.0,spend,General Purchases-Online Purchases,AT252390001000010002324,2025_cardspend.csv
+2025-08-24,Razorpay*LICIOUS Bengaluru,1261.0,spend,General Purchases-Groceries,AT252360002000010002130,2025_cardspend.csv
+2025-08-23,Razorpay*bigbasket Bengaluru,573.6,spend,General Purchases-Groceries,AT252350001000010004053,2025_cardspend.csv
+2025-08-21,Razorpay*bigbasket Bengaluru,239.0,spend,General Purchases-Groceries,AT252340002000010004815,2025_cardspend.csv
+2025-08-19,PAYMENT RECEIVED. THANK YOU,-13820.1,card_payment,,S0002523112210962130155,2025_cardspend.csv
+2025-08-17,PAYMENT RECEIVED. THANK YOU,-95000.0,card_payment,,S0002522906541221030153,2025_cardspend.csv
+2025-08-16,Razorpay*LICIOUS Bengaluru,852.0,spend,General Purchases-Groceries,AT252290002000010002068,2025_cardspend.csv
+2025-08-16,PAYMENT RECEIVED. THANK YOU,-95000.0,card_payment,,S0002522804081977130153,2025_cardspend.csv
+2025-08-14,PayU*Innovative Retail Bangalore,305.31,spend,General Purchases-General Retail,AT252260001000010002946,2025_cardspend.csv
+2025-08-09,Razorpay*bigbasket Bengaluru,316.76,spend,General Purchases-Groceries,AT252220002000010004676,2025_cardspend.csv
+2025-08-05,Razorpay*LICIOUS Bengaluru,860.0,spend,General Purchases-Groceries,AT252170002000010002788,2025_cardspend.csv
+2025-08-03,PayU*FRESHTOHOME FOODS Bangalore,-267.0,refund,General Purchases-Groceries,AT252150002000010006815,2025_cardspend.csv
+2025-08-02,Razorpay*bigbasket Bengaluru,975.03,spend,General Purchases-Groceries,AT252140003000010000295,2025_cardspend.csv
+2025-08-02,PayU*FRESHTOHOME FOODS Bangalore,869.0,spend,General Purchases-Groceries,AT252140001000010002771,2025_cardspend.csv
+2025-08-01,PAYMENT RECEIVED. THANK YOU,-55000.0,card_payment,,S0002521302335331230151,2025_cardspend.csv
+2025-07-31,Amazon Mumbai,546.0,spend,General Purchases-Clothing Stores,AT252120003000010000173,2025_cardspend.csv
+2025-07-30,PAYMENT RECEIVED. THANK YOU,-50000.0,card_payment,,S0002521105347599630153,2025_cardspend.csv
+2025-07-29,PayU*Innovative Retail Bangalore,375.03,spend,General Purchases-General Retail,AT252100002000010005052,2025_cardspend.csv
+2025-07-26,Amazon Mumbai,431.0,spend,General Purchases-Clothing Stores,AT252070001000010003162,2025_cardspend.csv
+2025-07-25,Razorpay*bigbasket Bengaluru,703.31,spend,General Purchases-Groceries,AT252060002000010003016,2025_cardspend.csv
+2025-07-25,Razorpay*LICIOUS Bengaluru,946.0,spend,General Purchases-Groceries,AT252060003000010000108,2025_cardspend.csv
+2025-07-23,Easebozz*BIGBASKET BANGALORE,798.3,spend,General Purchases-General Retail,AT252050001000010003181,2025_cardspend.csv
+2025-07-22,Amazon Mumbai,285.0,spend,General Purchases-Clothing Stores,AT252040002000010001822,2025_cardspend.csv
+2025-07-20,Razorpay*bigbasket Bengaluru,444.93,spend,General Purchases-Groceries,AT252020001000010005316,2025_cardspend.csv
+2025-07-19,Razorpay*Decathlon Bangalore Rural,2964.0,spend,General Purchases-Sporting Goods Stores,AT252010002000010002091,2025_cardspend.csv
+2025-07-18,PayU*Innovative Retail Bangalore,883.43,spend,General Purchases-General Retail,AT251990001000010003367,2025_cardspend.csv
+2025-07-16,PAYMENT RECEIVED. THANK YOU,-19375.89,card_payment,,S0002519702500777530152,2025_cardspend.csv
+2025-07-15,FUTURE GENERALI BAS THANE,297384.0,spend,Business Services-Insurance Services,AT251970002000010003732,2025_cardspend.csv
+2025-07-13,Razorpay*LICIOUS Bengaluru,693.0,spend,General Purchases-Groceries,AT251950002000010003761,2025_cardspend.csv
+2025-07-12,Amazon Mumbai,3383.0,spend,General Purchases-Clothing Stores,AT251940001000010004526,2025_cardspend.csv
+2025-07-11,PayU*Innovative Retail Bangalore,1499.48,spend,General Purchases-General Retail,AT251920002000010002689,2025_cardspend.csv
+2025-07-05,Razorpay*LICIOUS Bengaluru,1405.0,spend,General Purchases-Groceries,AT251860001000010004809,2025_cardspend.csv
+2025-07-02,Razorpay*bigbasket Bengaluru,867.07,spend,General Purchases-Groceries,AT251830002000010003176,2025_cardspend.csv
+2025-07-02,Razorpay*bigbasket Bengaluru,686.72,spend,General Purchases-Groceries,AT251840001000010002919,2025_cardspend.csv
+2025-06-28,cashfree*INNOVATIVE RET Bangalore,309.6,spend,General Purchases-Groceries,AT251790004000010000471,2025_cardspend.csv
+2025-06-28,cashfree*INNOVATIVE RET Bangalore,212.31,spend,General Purchases-Groceries,AT251800002000010006469,2025_cardspend.csv
+2025-06-28,Amazon Mumbai,879.12,spend,General Purchases-Clothing Stores,AT251790002000010003961,2025_cardspend.csv
+2025-06-26,cashfree*INNOVATIVE RET Bangalore,247.0,spend,General Purchases-Groceries,AT251780002000010003511,2025_cardspend.csv
+2025-06-25,cashfree*INNOVATIVE RET Bangalore,465.5,spend,General Purchases-Groceries,AT251770001000010001648,2025_cardspend.csv
+2025-06-25,WESTSIDE W319 560011,2498.0,spend,General Purchases-Department Stores,AT251770001000010003428,2025_cardspend.csv
+2025-06-25,NAME-CHEAP.COM* KBNUDL PHOENIX,1539.65,spend,Business Services-Professional Services,AT251770003000010000137,2025_cardspend.csv
+2025-06-25,APOLLO PHARMACY BANGALORE,422.23,spend,General Purchases-Pharmacies,AT251770001000010002498,2025_cardspend.csv
+2025-06-24,Amazon Mumbai,413.0,spend,General Purchases-Clothing Stores,AT251750002000010002607,2025_cardspend.csv
+2025-06-22,Razorpay*LICIOUS Bengaluru,376.0,spend,General Purchases-Groceries,AT251740001000010002548,2025_cardspend.csv
+2025-06-22,PayU*Innovative Retail Bangalore,491.89,spend,General Purchases-General Retail,AT251730002000010001984,2025_cardspend.csv
+2025-06-22,AMAZON Mumbai,-309.0,refund,General Purchases-Clothing Stores,AT251740001000010003967,2025_cardspend.csv
+2025-06-21,Razorpay*bigbasket Bengaluru,514.87,spend,General Purchases-Groceries,AT251720001000010002575,2025_cardspend.csv
+2025-06-21,Razorpay*bigbasket Bengaluru,351.75,spend,General Purchases-Groceries,AT251720003000010000497,2025_cardspend.csv
+2025-06-20,AMAZON Mumbai,309.0,spend,General Purchases-Clothing Stores,AT251710001000010003408,2025_cardspend.csv
+2025-06-19,Razorpay*LICIOUS Bengaluru,842.0,spend,General Purchases-Groceries,AT251710001000010004102,2025_cardspend.csv
+2025-06-19,Cashfree*Swiggy Bangalore,301.0,spend,Entertainment-Restaurants,AT251700002000010002315,2025_cardspend.csv
+2025-06-16,PAYMENT RECEIVED. THANK YOU,-25775.13,card_payment,,S0002516701585824830155,2025_cardspend.csv
+2025-06-15,Amazon Mumbai,757.1,spend,General Purchases-Clothing Stores,AT251660003000010000328,2025_cardspend.csv
+2025-06-14,cashfree*INNOVATIVE RET Bangalore,220.6,spend,General Purchases-Groceries,AT251660002000010005189,2025_cardspend.csv
+2025-06-14,Amazon Mumbai,949.0,spend,General Purchases-Clothing Stores,AT251650001000010002471,2025_cardspend.csv
+2025-06-11,AMAZON Mumbai,10000.0,spend,General Purchases-Clothing Stores,AT251620002000010004160,2025_cardspend.csv
+2025-06-09,PayU*Innovative Retail Bangalore,277.0,spend,General Purchases-General Retail,AT251600001000010003222,2025_cardspend.csv
+2025-06-09,AMAZON Mumbai,1168.0,spend,General Purchases-Clothing Stores,AT251600001000010002647,2025_cardspend.csv
+2025-06-09,AMAZON Mumbai,-589.0,refund,General Purchases-Clothing Stores,AT251600001000010002735,2025_cardspend.csv
+2025-06-08,Razorpay*LICIOUS Bengaluru,569.0,spend,General Purchases-Groceries,AT251600001000010003244,2025_cardspend.csv
+2025-06-08,PayU*Innovative Retail Bangalore,1664.01,spend,General Purchases-General Retail,AT251590002000010002557,2025_cardspend.csv
+2025-06-06,Razorpay*LICIOUS Bengaluru,250.0,spend,General Purchases-Groceries,AT251570004000010003882,2025_cardspend.csv
+2025-06-05,AMAZON Mumbai,209.0,spend,General Purchases-Clothing Stores,AT251560001000010004102,2025_cardspend.csv
+2025-06-03,Razorpay*LICIOUS Bengaluru,1027.0,spend,General Purchases-Groceries,AT251550002000010002429,2025_cardspend.csv
+2025-06-02,Razorpay*bigbasket Bengaluru,557.35,spend,General Purchases-Groceries,AT251540002000010002778,2025_cardspend.csv
+2025-05-28,Razorpay*LICIOUS Bengaluru,289.0,spend,General Purchases-Groceries,AT251490001000010004689,2025_cardspend.csv
+2025-05-27,Razorpay*Orange Health Bengaluru,4099.0,spend,Business Services-Health Care Services,AT251480002000010005323,2025_cardspend.csv
+2025-05-25,Razorpay*LICIOUS Bengaluru,274.0,spend,General Purchases-Groceries,AT251460001000010005418,2025_cardspend.csv
+2025-05-18,AXIS BANK*RADHA RAMAN H BANGALORE,3920.0,spend,Entertainment-Restaurants,AT251390001000010004439,2025_cardspend.csv
+2025-05-17,Paytm*SHOFFRMOBILITYPRI Noida,-1450.0,refund,Travel-Rail Services,AT251380002000010002436,2025_cardspend.csv
+2025-05-17,PayU*Innovative Retail Bangalore,368.0,spend,General Purchases-General Retail,AT251370001000010002253,2025_cardspend.csv
+2025-05-16,cashfree*INNOVATIVE RET Bangalore,324.77,spend,General Purchases-Groceries,AT251370001000010001946,2025_cardspend.csv
+2025-05-16,PAYMENT RECEIVED. THANK YOU,-27850.37,card_payment,,S0002513601208436630156,2025_cardspend.csv
+2025-05-15,Paytm*SHOFFRMOBILITYPRI Noida,1450.0,spend,Travel-Rail Services,AT251360002000010002057,2025_cardspend.csv
+2025-05-15,Amazon Mumbai,419.0,spend,General Purchases-Clothing Stores,AT251360002000010002030,2025_cardspend.csv
+2025-05-12,PayU*Innovative Retail Bangalore,427.61,spend,General Purchases-General Retail,AT251320002000010005439,2025_cardspend.csv
+2025-05-11,Razorpay*LICIOUS Bengaluru,567.0,spend,General Purchases-Groceries,AT251320002000010005449,2025_cardspend.csv
+2025-05-10,DECATHLON BRIGADE ROAD BANGALORE,2597.0,spend,General Purchases-Sporting Goods Stores,AT251310002000010004417,2025_cardspend.csv
+2025-05-04,Razorpay*LICIOUS Bengaluru,708.0,spend,General Purchases-Groceries,AT251250001000010006617,2025_cardspend.csv
+2025-05-02,Razorpay*bigbasket Bengaluru,329.52,spend,General Purchases-Groceries,AT251230001000010002044,2025_cardspend.csv
+2025-05-02,Amazon Mumbai,294.0,spend,General Purchases-Clothing Stores,AT251220003000010000287,2025_cardspend.csv
+2025-05-01,Razorpay*LICIOUS Bengaluru,484.0,spend,General Purchases-Groceries,AT251210004000010000522,2025_cardspend.csv
+2025-05-01,NAME-CHEAP.COM* 5TQHXX PHOENIX,985.13,spend,Business Services-Professional Services,AT251220003000010000420,2025_cardspend.csv
+2025-04-29,Razorpay*LICIOUS Bengaluru,356.0,spend,General Purchases-Groceries,AT251200002000010004583,2025_cardspend.csv
+2025-04-27,Razorpay*Orange Health Bengaluru,1500.0,spend,Business Services-Health Care Services,AT251180001000010007078,2025_cardspend.csv
+2025-04-23,AMAZON Mumbai,2768.0,spend,General Purchases-Clothing Stores,AT251130002000010003888,2025_cardspend.csv
+2025-04-22,TP*IKEA ECOM K.V.Rangareddy,9832.0,spend,General Purchases-Furnishing,AT251120002000010005224,2025_cardspend.csv
+2025-04-22,AMAZON Mumbai,1684.0,spend,General Purchases-Clothing Stores,AT251120002000010002321,2025_cardspend.csv
+2025-04-20,PAYU*Swiggy Limited Bangalore,1377.0,spend,Entertainment-Restaurants,AT251100002000010005102,2025_cardspend.csv
+2025-04-20,PAYU*Swiggy Limited Bangalore,986.0,spend,Entertainment-Restaurants,AT251100002000010005019,2025_cardspend.csv
+2025-04-19,AMAZON Mumbai,1752.05,spend,General Purchases-Clothing Stores,AT251100002000010003946,2025_cardspend.csv
+2025-04-16,Razorpay*LICIOUS Bengaluru,737.0,spend,General Purchases-Groceries,AT251060003000010000360,2025_cardspend.csv
+2025-04-16,PAYMENT RECEIVED. THANK YOU,-48650.03,card_payment,,S0002510602030133430153,2025_cardspend.csv
+2025-04-14,PayU*Innovative Retail Bangalore,466.06,spend,General Purchases-General Retail,AT251050002000010002900,2025_cardspend.csv
+2025-04-14,Amazon Mumbai,999.0,spend,General Purchases-Clothing Stores,AT251040001000010007120,2025_cardspend.csv
+2025-04-13,Razorpay*Orange Health Bengaluru,8458.0,spend,Business Services-Health Care Services,AT251030002000010002983,2025_cardspend.csv
+2025-04-13,Amazon Mumbai,138.0,spend,General Purchases-Clothing Stores,AT251030002000010004767,2025_cardspend.csv
+2025-04-12,AMAZON Mumbai,1149.0,spend,General Purchases-Clothing Stores,AT251020001000010007270,2025_cardspend.csv
+2025-04-11,Razorpay*LICIOUS Bengaluru,257.0,spend,General Purchases-Groceries,AT251010002000010003561,2025_cardspend.csv
+2025-04-11,AMAZON Mumbai,18469.0,spend,General Purchases-Clothing Stores,AT251010003000010000467,2025_cardspend.csv
+2025-04-09,PayU*Innovative Retail Bangalore,670.5,spend,General Purchases-General Retail,AT251000001000010005272,2025_cardspend.csv
+2025-04-08,Razorpay*bigbasket Bengaluru,371.26,spend,General Purchases-Groceries,AT250990002000010004334,2025_cardspend.csv
+2025-04-08,Razorpay*LICIOUS Bengaluru,882.0,spend,General Purchases-Groceries,AT250990002000010003566,2025_cardspend.csv
+2025-04-08,Razorpay*Decathlon Bangalore Rural,1898.0,spend,General Purchases-Sporting Goods Stores,AT250980004000010000333,2025_cardspend.csv
+2025-04-07,AMAZON Mumbai,349.0,spend,General Purchases-Clothing Stores,AT250970001000010002063,2025_cardspend.csv
+2025-04-06,Razorpay*bigbasket Bengaluru,423.04,spend,General Purchases-Groceries,AT250970001000010004553,2025_cardspend.csv
+2025-04-05,Razorpay*bigbasket Bengaluru,407.41,spend,General Purchases-Groceries,AT250950003000010000566,2025_cardspend.csv
+2025-04-04,Razorpay*bigbasket Bengaluru,1334.2,spend,General Purchases-Groceries,AT250940002000010003560,2025_cardspend.csv
+2025-03-29,AMAZON Mumbai,1486.0,spend,General Purchases-Clothing Stores,AT250880001000010005297,2025_cardspend.csv
+2025-03-27,Razorpay*bigbasket Bengaluru,497.13,spend,General Purchases-Groceries,AT250870002000010004902,2025_cardspend.csv
+2025-03-26,Razorpay*SimpliNamdhari Bengaluru,1309.75,spend,General Purchases-Groceries,AT250850002000010002410,2025_cardspend.csv
+2025-03-26,Razorpay*LICIOUS Bengaluru,1384.0,spend,General Purchases-Groceries,AT250850002000010003707,2025_cardspend.csv
+2025-03-24,AMAZON Mumbai,4868.0,spend,General Purchases-Clothing Stores,AT250830004000010000325,2025_cardspend.csv
+2025-03-24,AMAZON Mumbai,1054.0,spend,General Purchases-Clothing Stores,AT250830004000010000329,2025_cardspend.csv
+2025-03-22,Razorpay*bigbasket Bengaluru,386.74,spend,General Purchases-Groceries,AT250810001000010003889,2025_cardspend.csv
+2025-03-21,Razorpay*bigbasket Bengaluru,1383.33,spend,General Purchases-Groceries,AT250810001000010002696,2025_cardspend.csv
+2025-03-18,Razorpay*bigbasket Bengaluru,398.77,spend,General Purchases-Groceries,AT250770003000010000454,2025_cardspend.csv
+2025-03-17,Razorpay*bigbasket Bengaluru,595.9,spend,General Purchases-Groceries,AT250770002000010002396,2025_cardspend.csv
+2025-03-17,Amazon Mumbai,225.0,spend,General Purchases-Clothing Stores,AT250770002000010004997,2025_cardspend.csv
+2025-03-16,PayU*Myntra Bangalore,-744.0,refund,General Purchases-General Retail,AT250750002000010005370,2025_cardspend.csv
+2025-03-16,PAYMENT RECEIVED. THANK YOU,-46162.28,card_payment,,S0002507501546809730156,2025_cardspend.csv
+2025-03-14,AMAZON Mumbai,6398.0,spend,General Purchases-Clothing Stores,AT250730002000010003664,2025_cardspend.csv
+2025-03-12,MUHAVRA ENTERPRISES PVT BANGALORE,295.0,spend,Entertainment-Bars & Cafés,AT250720001000010002481,2025_cardspend.csv
+2025-03-11,AMAZON Mumbai,15912.0,spend,General Purchases-Clothing Stores,AT250700002000010003715,2025_cardspend.csv
+2025-03-09,Amazon Mumbai,289.0,spend,General Purchases-Clothing Stores,AT250690001000010005429,2025_cardspend.csv
+2025-03-09,APOLLO PHARMACY BANGALORE,582.28,spend,General Purchases-Pharmacies,AT250690001000010003092,2025_cardspend.csv
+2025-03-08,PayU*Myntra Bangalore,1447.0,spend,General Purchases-General Retail,AT250670001000010004320,2025_cardspend.csv
+2025-03-08,Amazon Mumbai,1700.0,spend,General Purchases-Clothing Stores,AT250670001000010004636,2025_cardspend.csv
+2025-03-06,Amazon 8 Mumbai,21.83,spend,General Purchases-Computer Supplies,AT250650001000010001767,2025_cardspend.csv
+2025-03-06,Amazon 8 Mumbai,21.66,spend,General Purchases-Computer Supplies,AT250650001000010001810,2025_cardspend.csv
+2025-03-04,NAME-CHEAP.COM* IKFBGV PHOENIX,16922.87,spend,Business Services-Professional Services,AT250650001000010005777,2025_cardspend.csv
+2025-03-04,AMAZON Mumbai,439.0,spend,General Purchases-Clothing Stores,AT250630004000010000419,2025_cardspend.csv
+2025-03-03,Razorpay*bigbasket Bengaluru,333.96,spend,General Purchases-Groceries,AT250630001000010004351,2025_cardspend.csv
+2025-02-28,MUHAVRA ENTERPRISES PVT BANGALORE,660.0,spend,Entertainment-Bars & Cafés,AT250600001000010003846,2025_cardspend.csv
+2025-02-20,Razorpay*bigbasket Bengaluru,947.87,spend,General Purchases-Groceries,AT250510001000010002678,2025_cardspend.csv
+2025-02-20,PAYMENT RECEIVED. THANK YOU,-75000.0,card_payment,,S0002505109364203630156,2025_cardspend.csv
+2025-02-20,AMAZON Mumbai,2799.0,spend,General Purchases-Clothing Stores,AT250510001000010005113,2025_cardspend.csv
+2025-02-16,VIETJETAIR CYBER - VND HANOI,34695.93,spend,Travel-Airline,AT250490002000010004043,2025_cardspend.csv
+2025-02-12,Razorpay*Airbnb Bengaluru,-7716.91,refund,Travel-Lodging,AT250430002000010003468,2025_cardspend.csv
+2025-02-11,KLOOK TRAVEL TECHNOLOGY CENTRAL,1625.0,spend,General Purchases-Online Purchases,AT250430002000010001694,2025_cardspend.csv
+2025-02-10,Razorpay*Airbnb Bengaluru,7716.91,spend,Travel-Lodging,AT250420002000010002206,2025_cardspend.csv
+2025-02-10,KLOOK TRAVEL TECHNOLOGY CENTRAL,1645.0,spend,General Purchases-Online Purchases,AT250420002000010004126,2025_cardspend.csv
+2025-02-06,Wendys T2 Int Forecourt BANGALORE,260.0,spend,Entertainment-Bars & Cafés,AT250380002000010002104,2025_cardspend.csv
+2025-02-06,Wendys T2 Int Forecourt BANGALORE,260.0,spend,Entertainment-Bars & Cafés,AT250380002000010002096,2025_cardspend.csv
+2025-02-06,Travel Retail Relay 706 BANGALORE,259.0,spend,General Purchases-General Retail,AT250390002000010006556,2025_cardspend.csv
+2025-02-06,Third wave coffee 80050 BANGALORE,254.45,spend,Entertainment-Bars & Cafés,AT250380002000010002100,2025_cardspend.csv
+2025-02-06,Sakkare & Smoor 7065633 BANGALORE,280.0,spend,Entertainment-Bars & Cafés,AT250380002000010002102,2025_cardspend.csv
+2025-02-06,Paytm*SHOFFRMOBILITYPRI Noida,-1565.0,refund,Travel-Rail Services,AT250370002000010003013,2025_cardspend.csv
+2025-02-05,Razorpay*bigbasket Bengaluru,377.53,spend,General Purchases-Groceries,AT250370002000010005654,2025_cardspend.csv
+2025-02-05,Razorpay*BLU-SMARTMOBIL Gurgaon,1225.0,spend,Travel-Rail Services,AT250360002000010004718,2025_cardspend.csv
+2025-02-05,Paytm*SHOFFRMOBILITYPRI Noida,1565.0,spend,Travel-Rail Services,AT250360002000010004790,2025_cardspend.csv
+2025-02-05,KLOOK TRAVEL TECHNOLOGY CENTRAL,987.0,spend,General Purchases-Online Purchases,AT250370002000010002962,2025_cardspend.csv
+2025-02-02,AMAZON Mumbai,5499.0,spend,General Purchases-Clothing Stores,AT250330001000010002705,2025_cardspend.csv
+2025-02-01,GOOGLE*GSUITE SCALEDFOC CC GOOGLE.COM,3802.35,spend,Business Services-Advertising Services,AT250340001000010005268,2025_cardspend.csv
+2025-02-01,AMAZON Mumbai,301.0,spend,General Purchases-Clothing Stores,AT250320001000010001991,2025_cardspend.csv
+2025-01-30,AMAZON Mumbai,-3512.0,refund,General Purchases-Clothing Stores,AT250300001000010002623,2025_cardspend.csv
+2025-01-29,Amazon Mumbai,-400.0,refund,General Purchases-Clothing Stores,AT250290002000010005354,2025_cardspend.csv
+2025-01-29,AMAZON Mumbai,299.0,spend,General Purchases-Clothing Stores,AT250290002000010003790,2025_cardspend.csv
+2025-01-29,AMAZON Mumbai,-330.0,refund,General Purchases-Clothing Stores,AT250290002000010005326,2025_cardspend.csv
+2025-01-28,Razorpay*bigbasket Bengaluru,1213.32,spend,General Purchases-Groceries,AT250280002000010003334,2025_cardspend.csv
+2025-01-28,Amazon Mumbai,393.0,spend,General Purchases-Clothing Stores,AT250280002000010003207,2025_cardspend.csv
+2025-01-28,Amazon Mumbai,-450.0,refund,General Purchases-Clothing Stores,AT250280002000010001639,2025_cardspend.csv
+2025-01-28,AMAZON Mumbai,8890.0,spend,General Purchases-Clothing Stores,AT250280004000010000196,2025_cardspend.csv
+2025-01-27,tp*Phonepe Merchant South Delhi,1264.0,spend,General Purchases-General Retail,AT250280002000010004175,2025_cardspend.csv
+2025-01-27,Amazon Mumbai,850.0,spend,General Purchases-Clothing Stores,AT250270001000010007136,2025_cardspend.csv
+2025-01-26,AMAZON Mumbai,3842.0,spend,General Purchases-Clothing Stores,AT250260003000010000456,2025_cardspend.csv
+2025-01-23,AMAZON Mumbai,999.0,spend,General Purchases-Clothing Stores,AT250230001000010004993,2025_cardspend.csv
+2025-01-21,Razorpay*bigbasket Bengaluru,1180.23,spend,General Purchases-Groceries,AT250220002000010004401,2025_cardspend.csv
+2025-01-19,AMAZON Mumbai,917.0,spend,General Purchases-Clothing Stores,AT250190003000010000389,2025_cardspend.csv
+2025-01-19,AMAZON Mumbai,189.0,spend,General Purchases-Clothing Stores,AT250190003000010000295,2025_cardspend.csv
+2025-01-18,Amazon 8 Mumbai,21.45,spend,General Purchases-Computer Supplies,AT250180001000010005902,2025_cardspend.csv
+2025-01-18,AMAZON Mumbai,892.0,spend,General Purchases-Clothing Stores,AT250180001000010001864,2025_cardspend.csv
+2025-01-17,CANVA* I04400-15666513 CAMDEN,4000.0,spend,General Purchases-Online Purchases,AT250180001000010004235,2025_cardspend.csv
+2025-01-17,AMAZON Mumbai,664.0,spend,General Purchases-Clothing Stores,AT250180001000010005566,2025_cardspend.csv
+2025-01-16,Amazon Mumbai,-354.0,refund,General Purchases-Clothing Stores,AT250160001000010004559,2025_cardspend.csv
+2025-01-15,PAYMENT RECEIVED. THANK YOU,-154863.0,card_payment,,S0002501503498087730154,2025_cardspend.csv
+2025-01-15,Amazon Mumbai,354.0,spend,General Purchases-Clothing Stores,AT250160001000010003794,2025_cardspend.csv
+2025-01-13,Amazon Mumbai,829.0,spend,General Purchases-Clothing Stores,AT250130001000010006816,2025_cardspend.csv
+2025-01-12,AMAZON Mumbai,84900.0,spend,General Purchases-Clothing Stores,AT250120002000010004962,2025_cardspend.csv
+2025-01-12,AMAZON Mumbai,1099.0,spend,General Purchases-Clothing Stores,AT250120002000010006746,2025_cardspend.csv
+2025-01-09,E-VISA VIETNAM HA NOI,2305.77,spend,General Purchases-Government Services,AT250110001000010005888,2025_cardspend.csv
+2025-01-09,E-VISA VIETNAM HA NOI,2305.77,spend,General Purchases-Government Services,AT250110001000010005887,2025_cardspend.csv
+2025-01-08,Razorpay*bigbasket Bengaluru,542.56,spend,General Purchases-Groceries,AT250090002000010005003,2025_cardspend.csv
+2025-01-08,AMAZON Mumbai,3600.0,spend,General Purchases-Clothing Stores,AT250080002000010003755,2025_cardspend.csv
+2025-01-07,Razorpay*bigbasket Bengaluru,1041.12,spend,General Purchases-Groceries,AT250070004000010000426,2025_cardspend.csv
+2025-01-06,AMAZON Mumbai,783.02,spend,General Purchases-Clothing Stores,AT250060003000010000160,2025_cardspend.csv
+2025-01-05,Razorpay*bigbasket Bengaluru,454.35,spend,General Purchases-Groceries,AT250060001000010004545,2025_cardspend.csv
+2025-01-04,Razorpay*bigbasket Bengaluru,825.89,spend,General Purchases-Groceries,AT250050002000010005561,2025_cardspend.csv
+2025-01-03,Razorpay*bigbasket Bengaluru,1702.44,spend,General Purchases-Groceries,AT250030003000010000160,2025_cardspend.csv
+2025-01-02,PayU*House of Kieraya P Bangalore,7548.84,spend,General Purchases-General Retail,AT250020001000010006150,2025_cardspend.csv
+2025-01-01,Razorpay*bigbasket Bengaluru,1108.62,spend,General Purchases-Groceries,AT250010002000010005288,2025_cardspend.csv
+2025-01-01,Razorpay*bigbasket Bengaluru,1015.66,spend,General Purchases-Groceries,AT250010004000010000698,2025_cardspend.csv
+2025-01-01,Razorpay*bigbasket Bengaluru,405.25,spend,General Purchases-Groceries,AT250020001000010004963,2025_cardspend.csv
+2025-01-01,GOOGLE*GSUITE SCALEDFOC CC GOOGLE.COM,3427.35,spend,Business Services-Advertising Services,AT250020001000010003663,2025_cardspend.csv

@@ -1,0 +1,48 @@
+{
+  "universe_size": 117,
+  "tickers_attempted": [
+    "RELIANCE",
+    "POLYCAB",
+    "ULTRACEMCO",
+    "NETWEB",
+    "E2E",
+    "NCC",
+    "KPIL",
+    "SKIPPER",
+    "HONAUT",
+    "BBOX",
+    "RAILTEL",
+    "BLUESTARCO",
+    "AMBER",
+    "TCS",
+    "ADANIENT"
+  ],
+  "tickers_with_data": [
+    "RELIANCE",
+    "POLYCAB",
+    "ULTRACEMCO",
+    "NETWEB",
+    "NCC",
+    "RAILTEL",
+    "BLUESTARCO",
+    "AMBER",
+    "TCS",
+    "ADANIENT"
+  ],
+  "tickers_skipped": {
+    "E2E": "no_concalls",
+    "KPIL": "no_concalls",
+    "SKIPPER": "no_concalls",
+    "HONAUT": "no_concalls",
+    "BBOX": "no_concalls"
+  },
+  "total_transcripts": 63,
+  "date_range": {
+    "min_quarter": "2022-06-30",
+    "max_quarter": "2026-06-30",
+    "n_quarters": 14,
+    "n_days": 1410
+  },
+  "query": "guidance outlook growth demand margin",
+  "scoring": "keyword_polarity_squashed_0.7"
+}

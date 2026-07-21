@@ -170,3 +170,4 @@ us/data/sweep_results_us.pkl
 us/data/price_cache/
 us/data/sweep_results*
 us/data/mf_nav_cache/
+.gstack/

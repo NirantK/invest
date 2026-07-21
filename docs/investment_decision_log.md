@@ -1067,3 +1067,32 @@ Analyzed 25+ BAFs, equity savings funds, multi-asset funds, and conservative hyb
 - Totals ≈ $4,696 MSFT + $4,944 AEM (whole shares only; remainder stays cash).
 - Funding: existing IBKR cash ($45K) — no new capital (consistent with closed-capital regime).
 - Cancel via: `ibkr.py cancel --symbol MSFT` / `--symbol AEM` (needs matching client IDs, see orders list).
+
+## Jul 21, 2026 — Sleeve restructure: policy adoption + one-shot transition (IBKR C-Corp)
+
+**Why:** Book was -7.4% (-$3.4k) with ~50% of invested capital in one macro theme via
+12 sub-$800 positions, no exit rule, and ad-hoc trades off weekly screener re-runs.
+Adopted `docs/portfolio_policy.md` (sleeve budgets, rank+equal sizing, monthly diff
+rebalance, max 3 trades/month, -20% stop / median-rank exit, SPY-200dma regime overlay).
+
+**Constraints from owner:** uranium (URNM+SRUUF) is a value/thesis buy — carved out of
+the momentum engine entirely (THESIS_SLEEVE in us_portfolio_allocation.py). SGOV $10k
+untouchable; buys funded from exits + free brokerage cash.
+
+**Transition trades (23 orders queued for 09:30 ET open):**
+- SELL 16 (full positions, ~$7.2k, ~$1.6k realized losses harvested): TSEM, IREN,
+  MSTR, INTC, HUT, LITE, NBIS, SII, APLD, CIFR, BE, COHR, CVE, SU, AVDV, FRDM.
+- BUY satellite 6 × ~$2k (score_rank + equal, sleeve caps on): SMH, STX, EWY, PICK,
+  ANDE (LMT $79.10), ADM.
+- BUY 20 URNM (~$965, thesis sleeve top-up, ordered pre-restructure).
+- Semis exposure moves from 5 broken single names into SMH; EWY re-enters at $2k on
+  rank signal after prior-day exit.
+
+**Also active:** MSFT+AEM GAT DCA tranches still resting (Jul 20 fired?, Jul 27 last)
+per Jul 6 entry — MSFT accrues to Core, AEM to Thesis.
+
+**Target book (~$84k NetLiq):** Thesis ~$12k (URNM/SRUUF/AEM) · Core ~$9.4k+DCA
+(MSFT/META) · Satellite ~$12k (6 names) · GRID $4.4k (review at Aug rebalance) ·
+SGOV $10k · free cash ~$36k.
+
+**Benchmark from here:** log every rebalance vs SPY.

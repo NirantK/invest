@@ -1,0 +1,73 @@
+{
+  "iter": 406,
+  "origin": "greedy",
+  "strategy": {
+    "lookbacks": [
+      63,
+      126,
+      252
+    ],
+    "weights": [
+      0.4,
+      0.4,
+      0.2
+    ],
+    "score_variant": "sortino_pricemom",
+    "n_positions": 5,
+    "rebal_trigger": "fixed",
+    "rebal_min_hold": 25,
+    "rebal_max_hold": 80,
+    "score_gap_pct": 0.25,
+    "crash_p_mult": 0.5,
+    "regime_ma": 150,
+    "dd_stop_pct": 0.3,
+    "target_vol": 0.15,
+    "vol_lookback": 21,
+    "weight_mode": "score",
+    "vol_state_mode": "defensive",
+    "hmm_states": 3,
+    "hmm_profile": "ultra_def",
+    "hmm_feature_window": 42,
+    "hmm_refit_days": 252,
+    "hmm_apply": "gross",
+    "skip_days": 21,
+    "rebal_jitter": 5,
+    "max_dd_cap": 0.5
+  },
+  "backtest": {
+    "sortino": 1.4620802146442673,
+    "calmar": 0.8265608364314169,
+    "max_dd": -0.13816745317874815,
+    "cagr": 0.1142038056670247,
+    "rebal_count": 77,
+    "avg_hold": 64.22413793103448,
+    "max_dd_dur_days": 329,
+    "max_dd_dur_months": 15.666666666666666,
+    "avg_dd_dur_days": 20.75598086124402,
+    "avg_dd_dur_months": 0.9883800410116199,
+    "n_dd_episodes": 209,
+    "ulcer": 0.03961788808269606,
+    "martin": 2.8826323459908405,
+    "pain_index": 0.024433161796343326,
+    "pain_ratio": 4.674131273673982
+  },
+  "mc12m": {
+    "p5": -0.3181063054769673,
+    "p25": -0.02095517248213441,
+    "p50": 0.059148896883112534,
+    "p75": 0.13507915980998586,
+    "p95": 0.26025970554720357,
+    "dd_wst": -0.34469025194958375,
+    "p_loss": 0.312,
+    "p_dd_30": 0.0655,
+    "p_dd_50": 0.0355
+  },
+  "score": 3.3117535828818854,
+  "picks": [
+    "MTARTECH",
+    "STLTECH",
+    "SETFGOLD",
+    "KIRLOSENG",
+    "GOLDBEES"
+  ]
+}

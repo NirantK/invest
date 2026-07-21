@@ -1,0 +1,11 @@
+{
+  "_doc": "Cached concall transcript metadata for sentiment scoring. We have full text for ids in '_in_session_text' (fetched and used inline). For unfetched ids, sentiment is derived from concall_search snippets (cached in transcript_ids.json with 'snippet' fields). Re-run macro_pipeline.py rebuild_concall to refresh.",
+  "_in_session_full_text_ids": [3384, 3382, 3383, 3378, 3380, 3381, 4156, 4159, 4155, 4153],
+  "_persisted_files": {
+    "3380": "MCX 2025-01-27 (saved to tool-results)",
+    "4159": "POWERINDIA 2025-11-13 (saved to tool-results)",
+    "4155": "POWERINDIA 2025-08-06 (saved to tool-results)",
+    "4153": "POWERINDIA 2025-05-21 (saved to tool-results)"
+  },
+  "_note": "macro_pipeline.py uses a deterministic keyword-based sentiment over the snippet text from the search index when full text is unavailable. Snippets are sufficient for directional signal: count of confidence words (record, strong, growth, beat, robust, healthy, momentum, demand, double-digit, expansion, pleased, exceptional, up, increased, high) minus count of caution words (decline, weak, concern, headwind, slow, soft, challenge, drop, lower, miss, pressure, downturn, cautious, uncertain, delay) normalized to [-1, +1]."
+}

@@ -1,0 +1,75 @@
+{
+  "iter": 126,
+  "origin": "greedy",
+  "strategy": {
+    "lookbacks": [
+      126,
+      252,
+      504
+    ],
+    "weights": [
+      0.1,
+      0.3,
+      0.6
+    ],
+    "score_variant": "sortino_vnorm",
+    "n_positions": 7,
+    "rebal_trigger": "score_gap",
+    "rebal_min_hold": 15,
+    "rebal_max_hold": 35,
+    "score_gap_pct": 0.25,
+    "crash_p_mult": 0.5,
+    "regime_ma": 100,
+    "dd_stop_pct": 0.0,
+    "target_vol": 0.15,
+    "vol_lookback": 42,
+    "weight_mode": "sqrt_score",
+    "vol_state_mode": "defensive",
+    "hmm_states": 0,
+    "hmm_profile": "off",
+    "hmm_feature_window": 21,
+    "hmm_refit_days": 756,
+    "hmm_apply": "target_vol",
+    "skip_days": 21,
+    "rebal_jitter": 5,
+    "max_dd_cap": 0.5
+  },
+  "backtest": {
+    "sortino": 1.9125710588680351,
+    "calmar": 1.248063989487939,
+    "max_dd": -0.11791579164422217,
+    "cagr": 0.1471664533431165,
+    "rebal_count": 180,
+    "avg_hold": 31.441048034934497,
+    "max_dd_dur_days": 461,
+    "max_dd_dur_months": 21.952380952380953,
+    "avg_dd_dur_days": 19.680555555555557,
+    "avg_dd_dur_months": 0.9371693121693122,
+    "n_dd_episodes": 216,
+    "ulcer": 0.03923727557214709,
+    "martin": 3.7506797094644324,
+    "pain_index": 0.025486903938160346,
+    "pain_ratio": 5.774198925855842
+  },
+  "mc12m": {
+    "p5": -0.3038872497141887,
+    "p25": 0.0042562185927176865,
+    "p50": 0.07302717225904043,
+    "p75": 0.1361451159742375,
+    "p95": 0.23799471467021602,
+    "dd_wst": -0.3326583334058808,
+    "p_loss": 0.24,
+    "p_dd_30": 0.0615,
+    "p_dd_50": 0.036
+  },
+  "score": 2.3919466676932215,
+  "picks": [
+    "SETFGOLD",
+    "GOLDBEES",
+    "MINDSPACE",
+    "BSE",
+    "GOLDIETF",
+    "MCX",
+    "POWERINDIA"
+  ]
+}

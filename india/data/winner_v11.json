@@ -1,0 +1,153 @@
+{
+  "period": "1996-03-12 to 2026-05-08",
+  "cagr_lifetime_pct": 29.58,
+  "pain_ratio": 4.99,
+  "max_dd_pct": -28.83,
+  "max_dd_months": 16.5,
+  "nifty_record": "15W 2L",
+  "win_rate_pct": 88.2,
+  "strategy": {
+    "lookbacks": [
+      63,
+      126,
+      252
+    ],
+    "weights": [
+      0.1,
+      0.3,
+      0.6
+    ],
+    "score_variant": "baltas",
+    "n_positions": 5,
+    "rebal_trigger": "fixed",
+    "rebal_min_hold": 20,
+    "rebal_max_hold": 35,
+    "score_gap_pct": 0.05,
+    "crash_p_mult": 0.5,
+    "regime_ma": 200,
+    "dd_stop_pct": 0.3,
+    "target_vol": 0.25,
+    "vol_lookback": 42,
+    "weight_mode": "equal",
+    "vol_state_mode": "moderate",
+    "hmm_states": 0,
+    "hmm_profile": "off",
+    "hmm_feature_window": 21,
+    "hmm_refit_days": 504,
+    "hmm_apply": "off",
+    "skip_days": 21,
+    "rebal_jitter": 5,
+    "max_dd_cap": 0.5
+  },
+  "picks_now": [
+    "POWERINDIA",
+    "PHARMABEES",
+    "E2E",
+    "AUTOBEES",
+    "CONSUMBEES"
+  ],
+  "year_by_year": [
+    {
+      "year": 2010,
+      "strat": 20.79,
+      "nifty": 18.11,
+      "excess": 2.69
+    },
+    {
+      "year": 2011,
+      "strat": -7.32,
+      "nifty": -24.39,
+      "excess": 17.07
+    },
+    {
+      "year": 2012,
+      "strat": 49.99,
+      "nifty": 26.03,
+      "excess": 23.96
+    },
+    {
+      "year": 2013,
+      "strat": 9.66,
+      "nifty": 5.88,
+      "excess": 3.78
+    },
+    {
+      "year": 2014,
+      "strat": 102.16,
+      "nifty": 31.64,
+      "excess": 70.52
+    },
+    {
+      "year": 2015,
+      "strat": 6.61,
+      "nifty": -4.19,
+      "excess": 10.8
+    },
+    {
+      "year": 2016,
+      "strat": 9.42,
+      "nifty": 3.71,
+      "excess": 5.71
+    },
+    {
+      "year": 2017,
+      "strat": 90.65,
+      "nifty": 29.86,
+      "excess": 60.79
+    },
+    {
+      "year": 2018,
+      "strat": -12.22,
+      "nifty": 5.44,
+      "excess": -17.66
+    },
+    {
+      "year": 2019,
+      "strat": 23.76,
+      "nifty": 13.31,
+      "excess": 10.45
+    },
+    {
+      "year": 2020,
+      "strat": 50.68,
+      "nifty": 15.18,
+      "excess": 35.5
+    },
+    {
+      "year": 2021,
+      "strat": 64.81,
+      "nifty": 25.55,
+      "excess": 39.25
+    },
+    {
+      "year": 2022,
+      "strat": -0.23,
+      "nifty": 3.84,
+      "excess": -4.07
+    },
+    {
+      "year": 2023,
+      "strat": 132.03,
+      "nifty": 20.22,
+      "excess": 111.81
+    },
+    {
+      "year": 2024,
+      "strat": 91.31,
+      "nifty": 10.04,
+      "excess": 81.27
+    },
+    {
+      "year": 2025,
+      "strat": 24.01,
+      "nifty": 11.19,
+      "excess": 12.82
+    },
+    {
+      "year": 2026,
+      "strat": 5.12,
+      "nifty": -6.83,
+      "excess": 11.95
+    }
+  ]
+}

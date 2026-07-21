@@ -1,0 +1,87 @@
+{
+  "search_id": "search_84a612b8f21c4dd082b7ca193984ccb1",
+  "status": "ok",
+  "results": [
+    {
+      "url": "https://www.investopedia.com/terms/m/maximum-drawdown-mdd.asp",
+      "title": "Understanding Maximum Drawdown (MDD): Key Insights and Formula",
+      "publish_date": "2025-09-20",
+      "excerpts": [
+        "# Understanding Maximum Drawdown (MDD): Key Insights and Formula\n## What Is a Maximum Drawdown (MDD)?\nMaximum drawdown is the worst dip an investment takes from a high to a low. Maximum drawdown indicates downside risk over a given time and shows potential stock volatility. It can be used alone or as part of other measures like \" [Return over Maximum Drawdown](https://www.investopedia.com/terms/r/return-over-maximum-drawdown-romad.asp) \" and the [Calmar Ratio](https://www.investopedia.com/terms/c/calmarratio.asp) ."
+      ]
+    },
+    {
+      "url": "https://www.investopedia.com/terms/u/ulcerindex.asp",
+      "title": "Understanding the Ulcer Index: A Guide to Measuring Downside Risk",
+      "publish_date": "2025-12-26",
+      "excerpts": [
+        "# Understanding the Ulcer Index: A Guide to Measuring Downside Risk\nBy\n[Lucas Downey](https://www.investopedia.com/contributors/82553/)\n[Full Bio](https://www.investopedia.com/contributors/82553/)\nLucas Downey is the co-founder of MoneyFlows, and an Investopedia Academy instructor.\nLearn about our editorial policies\nUpdated December 26, 2025\nReviewed by [Akhilesh Ganti](https://www.investopedia.com/akhilesh-ganti-4590113)\nClose\nDefinition\nThe Ulcer Index (UI) is a technical indicator that quantifies downside risk by measuring the depth and duration of price declines\u2014higher values indicate greater potential drawdowns from recent highs.\n\n...\n\n## How to Calculate the Ulcer Index: A Step-by-Step Guide\n1. Calculate the Percentage Drawdown: [(Close - 14-period High Close)/14-period High Close] x 100\n2. Find the Squared Average: (14-period Sum of Percentage Drawdown Squared)/14\n3. Compute the Ulcer Index: Take the Square Root of the Squared Average\n\n...\n\n## The Bottom Line\nCreated in 1987, the Ulcer Index (UI) measures downside risk by focusing on drawdown depth and duration, not overall volatility. It's calculated from percentage drawdowns, their squared average, and the square root of that average, helping investors compare downside volatility versus standard deviation and spot periods when long risk may be too high.\nTake the Next Step to Invest\nAdvertiser Disclosure\n\u00d7\nThe offers that appear in this table are from partnerships from which Investopedia receives compensation. This compensation may impact how and where listings appear. Investopedia does not include all offers available in the marketplace.\nRead more\n* [Trading](https://www.investopedia.com/trading-4427765)\n* [Technical Analysis](https://www.investopedia.com/technical-analysis-4689657)\nPartner Links\nTake the Next Step to Invest\nAdvertiser Disclosure\n\u00d7\n\n...\n\n## Related Articles\nInvestopedia\nNewsletter Sign Up\nFollow Us\n\n...\n\n* [Z](https://www.investopedia.com/terms-beginning-with-z-4769376)"
+      ]
+    },
+    {
+      "url": "https://investexcel.net/zephyr-pain-index/",
+      "title": "Zephyr Pain Index - Invest Excel",
+      "publish_date": null,
+      "excerpts": [
+        "# Zephyr Pain Index\n[<img src='https://investexcel.net/wp-content/uploads/2014/07/Drawdown-of-AAPL.png' alt='Chart of historical drawdown for Apple' width='593' height='367' />](https://investexcel.net/wp-content/uploads/2014/07/Drawdown-of-AAPL.png)\nThe Pain Index would simply be the pink shaded area divided between any two dates by the time between the two dates.\nFor discrete set of drawdowns, the Pain Index is defined by\n[<img src='https://investexcel.net/wp-content/uploads/2014/07/Discrete-Pain-Index.png' alt='Formula that describes the Pain Index for discrete returns' width='178' height='48' />](https://investexcel.net/wp-content/uploads/2014/07/Discrete-Pain-Index.png) From this formula, it\u2019s clear that the the Pain Index is simply the average drawdown. It doesn\u2019t matter if the drawdown is calculated on a day-by-day or month- by-month basis, as long as you average all the calculated drawdowns."
+      ]
+    },
+    {
+      "url": "https://www.swanglobalinvestments.com/pain-index-better-measure-of-risk/",
+      "title": "Pain Index: A Better Measure of Risk - Swan Global Investments",
+      "publish_date": "2021-06-16",
+      "excerpts": [
+        "# Welcome to the Swan site for\n## Pain Index: A Better Measure of Risk\n### Redefining the Conversation About Risk\nHistorically, investors quantified risk in terms of standard deviation, more commonly referred to as volatility. Standard deviation is the most widely used measure of risk in the investing world. The omnipresent Sharpe ratio, which quantifies the risk-vs.-return trade-off, uses standard deviation as its measure of risk.\nUsing volatility as the sole definition of risk, however, holds a number of flaws and can often be misleading and at odds with investors\u2019 understanding of risk. If capital preservation is the primary concern of an investor, other metrics, like the pain index, provide a better measure of risk than standard deviation.\n\n...\n\n#### Standard Deviation - Limited or Flawed Perspective\n##### Standard Deviation has Three Main Flaws:\nLogically, this makes sense. In the midst of a crisis, the markets don\u2019t hit a \u201creset button\u201d and start afresh just because everyone flips the calendar ahead to a new month. A crisis will play out independent of a calendar, taking however long it will take. In the case of the S&P 500, compounding month after month of epic losses resulted in a maximum drawdown of over 50% between August 2007 and February 2009. And yet standard deviation treats those months as independent observations, each one distinct from the next.\n_Standard deviation is a classroom concept; capital preservation is a real-world issue._\nThis is where the pain index comes in.\n\n...\n\n#### Measuring Risk in Dollars\nIn the graph below, we look at a 20-year period with two full-market cycles (both a bull and bear market), from July 1997 to July 2018. The red line represents the peak-to-trough losses associated with the S&P 500. If one were to fill in the entire area between the drawdown line and the break-even line, it would encapsulate three things: the depth of losses, the duration of losses, and the frequency of losses. These three results are exactly what the pain index measures.\nSource: Zephyr StyleADVISOR\nThe pain index essentially measures the \u201cvolume\u201d between the break-even line and the drawdown line.  If the above lines are thought of as measuring cups, the pain index is the volume of liquid required to fill the drawdown space. The deeper the losses, the longer the losses and the more frequent the losses, the larger the volume of \u201cpain.\u201d\n\n...\n\n#### Using the Pain Index Metric\n##### Measuring Risk how Most Investors Think about Risk\nThe pain index measures risk in terms most investors think about risk: how much money they might lose.\nPutting risk in terms investors understand is important for helping them decide on funds and managers that suit their objectives and needs. Empathizing with their concerns and doing so with proper measurements can help you gain your clients\u2019 trust and bolster your client relationship.\nThe pain index is great for investors who are more concerned with [capital preservation](https://www.swanglobalinvestments.com/the-40-dont-protect/) above all else. But since investing is all about optimizing returns against risks, we ideally want a metric that measures the balance of the pain index against a measure of return. This is the purpose of the pain ratio, which I\u2019ve discussed in a [different post](https://www.swanglobalinvestments.com/pain-ratio-better-risk-return-measure/) ."
+      ]
+    },
+    {
+      "url": "https://www.wallstreetprep.com/knowledge/maximum-drawdown-mdd/",
+      "title": "Maximum Drawdown (MDD) | Formula + Calculator - Wall Street Prep",
+      "publish_date": "2024-02-20",
+      "excerpts": [
+        "# Maximum Drawdown (MDD)\nInvestment Return Metrics\n[Alpha (\u03b1)](https://www.wallstreetprep.com/knowledge/alpha/) [Jensen\u2019s Measure](https://www.wallstreetprep.com/knowledge/jensens-measure-alpha/) [Information Ratio](https://www.wallstreetprep.com/knowledge/information-ratio/) [Gross Pay vs. Net Pay](https://www.wallstreetprep.com/knowledge/gross-pay/) [Capital Gain](https://www.wallstreetprep.com/knowledge/capital-gain/) [Capital Gains Yield (CGY)](https://www.wallstreetprep.com/knowledge/capital-gains-yield/) Maximum Drawdown (MDD) [Holding Period Return (HPR)](https://www.wallstreetprep.com/knowledge/holding-period-return-hpr/) [Expected Return: How to Calculate and Use It in Portfolio Management](https://www.wallstreetprep.com/knowledge/expected-return-formula-calculation-wall-street-prep/)\nRisk-Adjusted Return Metrics"
+      ]
+    },
+    {
+      "url": "https://www.earn2trade.com/blog/ulcer-index/",
+      "title": "The Ulcer Index - A Measure of Downward Volatility - Earn2Trade Blog",
+      "publish_date": "2023-07-19",
+      "excerpts": [
+        "[Home](https://www.earn2trade.com/blog/) \u203a [Trader Survival Guides](https://www.earn2trade.com/blog/category/trader-survival-guides/) \u203a The Ulcer Index \u2013 A Measure of Downward Volatility\n[Trader Survival Guides](https://www.earn2trade.com/blog/category/trader-survival-guides/)\n\n...\n\n# The Ulcer Index \u2013 A Measure of Downward Volatility\n## **What is the Ulcer Index or Martin Ratio?**\n**The Ulcer Index is a [technical indicator](https://www.earn2trade.com/blog/technical-analysis/) that gauges downside risk** . The index\u2019s value appreciates when the security price tumbles and depreciates when the price hits new highs.\n**The UI is usually measured over a 14-day period** , with the indicator suggesting the percentage drawdown investors can expect relative to the security\u2019s high.\nPeter Martin and Byron McCann originally developed the Ulcer Index in 1987 to focus on mutual funds. As stated in Marin\u2019s and McCann\u2019s book \u2018The Investor\u2019s Guide to Fidelity Funds\u2019, the UI mainly evaluates downside risks and focuses less on overall volatility.\nMoney managers aim to generate profits by increasing the value of the assets under management. The main risk in such activities is a drawdown. The Ulcer Index helps measure the drawdown investors can expect for a particular security. This makes it different from other risk-measuring indicators like standard deviation (SD), which puts equal weight on up and down price movements.\nAs such, [managing risk](https://www.earn2trade.com/blog/trading-risk-management/) using the UI can lead to very different results, particularly when reviewing investment strategies that aim to prevent declines in portfolio value.\nMartin also developed the Ulcer Performance Index (UPI), also known as the **Martin Ratio, which focuses on downside volatility, causing price drawdowns** . UPI is similar to the Sharpe Ratio but uses the Ulcer Index instead of standard deviation as a risk measure. Securities with the highest UPI are those with the highest risk-adjusted returns.\n\n### Calculating the Ulcer Index\nAs noted above, the Ulcer Index gauges volatility based on how much the security\u2019s price declined from its high over a specific timeframe. Below is the [formula to calculate the Ulcer Index](https://www.investopedia.com/terms/u/ulcerindex.asp#:~:text=What%20Does%20Ulcer%20Index%20Mean,price%20rises%20to%20new%20highs.) using a typical setting of a 14-day period.\n**Percentage Drawdown = [(Close \u2013 14-period High Close)/14-period High Close] x 100**\n**Squared Average = (14-period Sum of Percentage Drawdown Squared)/14**\n**Ulcer Index = Square Root of Squared Average**\n\n...\n\nAs opposed to standard deviation, UI\u2019s calculated value remains the same over a broad range of time intervals between data points. Investors look at both daily and weekly price data, though intervals longer than a week can lead to missing notable intra-period drawdown-and-recovery developments. Therefore, many advise against assessing price data in long intervals such as quarters."
+      ]
+    },
+    {
+      "url": "https://www.robeco.com/en-int/insights/2024/10/the-formula-maximum-drawdown",
+      "title": "Maximum drawdown: the formula | Robeco Global",
+      "publish_date": "2025-09-01",
+      "excerpts": [
+        "# Maximum drawdown: the formula\n## Let's keep the conversation going\nKeep track of fast-moving events in sustainable and quantitative investing, trends and credits with our newsletters.\nDon\u2019t miss out\nRobeco aims to enable its clients to achieve their financial and sustainability goals by providing superior investment returns and solutions.\n* [](https://www.linkedin.com/company/robeco)\n* [](https://www.youtube.com/c/RobecoAssetManagement)\n* [](https://www.instagram.com/robeco_am/)\n* [](https://www.facebook.com/robecointernational)\n* Disclaimer\n* Privacy and Cookie Statement\n* Policies\n* Security\nThe information contained in the Website is solely intended for professional investors within the meaning of the Dutch Act on the Financial Supervision (Wet op het financi\u00eble toezicht) or persons which are authorized to receive such information under any other applicable laws. [More information about Robeco Institutional Asset Management B.V](https://www.robeco.com/en/riam) ."
+      ]
+    },
+    {
+      "url": "https://www.rdocumentation.org/packages/PerformanceAnalytics/versions/2.0.8/topics/PainIndex",
+      "title": "PainIndex: Pain index of the return distribution - RDocumentation",
+      "publish_date": null,
+      "excerpts": [
+        "The pain index is the mean value of the drawdowns over the entire analysis period. The measure is similar to the Ulcer index except that the drawdowns are\u00a0..."
+      ]
+    },
+    {
+      "url": "https://www.wallible.com/en/blog/2025-09-22-calmar-ratio-ulcer-index/",
+      "title": "Calmar Ratio and Ulcer Index",
+      "publish_date": null,
+      "excerpts": [
+        "Sep 22, 2025 \u2014 The Calmar Ratio links compounded growth to the worst historical drawdown; the Ulcer Index shows how deep and persistent price declines have"
+      ]
+    },
+    {
+      "url": "https://breakingdownfinance.com/finance-topics/performance-measurement/zephyr-pain-index/",
+      "title": "Zephyr Pain Index - Definition, Formula and Free Excel Sheet",
+      "publish_date": null,
+      "excerpts": [
+        "Pain Index = drawdown depth + drawdown Duration + drawdown Frequency. On this page we discuss the pain index formula."
+      ]
+    }
+  ],
+  "warnings": null
+}

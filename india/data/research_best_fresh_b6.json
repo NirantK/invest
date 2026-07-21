@@ -1,0 +1,75 @@
+{
+  "iter": 306,
+  "origin": "greedy",
+  "strategy": {
+    "lookbacks": [
+      126,
+      252,
+      504
+    ],
+    "weights": [
+      0.5,
+      0.3,
+      0.2
+    ],
+    "score_variant": "sortino_vnorm",
+    "n_positions": 4,
+    "rebal_trigger": "score_gap",
+    "rebal_min_hold": 30,
+    "rebal_max_hold": 35,
+    "score_gap_pct": 0.25,
+    "crash_p_mult": 0.5,
+    "regime_ma": 100,
+    "dd_stop_pct": 0.0,
+    "target_vol": 0.15,
+    "vol_lookback": 63,
+    "weight_mode": "equal",
+    "vol_state_mode": "defensive",
+    "hmm_states": 3,
+    "hmm_profile": "defensive",
+    "hmm_feature_window": 21,
+    "hmm_refit_days": 504,
+    "hmm_apply": "target_vol",
+    "skip_days": 21,
+    "rebal_jitter": 5,
+    "max_dd_cap": 0.5
+  },
+  "backtest": {
+    "sortino": 1.9798382784037143,
+    "calmar": 1.2870443870992245,
+    "max_dd": -0.19150907398137287,
+    "cagr": 0.2464806787462961,
+    "rebal_count": 156,
+    "avg_hold": 35.1219512195122,
+    "max_dd_dur_days": 329,
+    "max_dd_dur_months": 15.666666666666666,
+    "avg_dd_dur_days": 20.85972850678733,
+    "avg_dd_dur_months": 0.993320405085111,
+    "n_dd_episodes": 221,
+    "ulcer": 0.05296291319885205,
+    "martin": 4.653835370061148,
+    "pain_index": 0.03549004531690331,
+    "pain_ratio": 6.9450652019568295,
+    "nifty_win_rate": 0.8260869565217391,
+    "nifty_wins": 19,
+    "nifty_losses": 4
+  },
+  "mc12m": {
+    "p5": -0.34056734379634207,
+    "p25": -0.009186411244845621,
+    "p50": 0.0493167905265145,
+    "p75": 0.10262192089724564,
+    "p95": 0.19377680962535743,
+    "dd_wst": -0.35380888643712605,
+    "p_loss": 0.283,
+    "p_dd_30": 0.07,
+    "p_dd_50": 0.0395
+  },
+  "score": 4.867273079961422,
+  "picks": [
+    "SETFGOLD",
+    "GOLDBEES",
+    "MINDSPACE",
+    "MTARTECH"
+  ]
+}

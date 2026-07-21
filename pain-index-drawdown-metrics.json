@@ -1,0 +1,87 @@
+{
+  "search_id": "search_118379309bc9433999e9758ea2106f20",
+  "status": "ok",
+  "results": [
+    {
+      "url": "https://www.etftrends.com/2017/03/passive-aggressive-measuring-risks-of-passive-investing-using-the-pain-index/",
+      "title": "Measuring Risks of Passive Investing Using the Pain Index",
+      "publish_date": "2017-03-16",
+      "excerpts": [
+        "# Passive Aggressive \u2013 Measuring Risks of Passive Investing Using the Pain Index\nHow does one measure the risk of a passive manager? Traditional performance metrics like alpha, information ratio, beta, R-squared, and up/down capture are meaningless if the passive ETF or fund tracks its benchmark as intended. All those metrics measure performance on a relative basis. If one is concerned about volatility, then standard deviation and Sharpe ratio are suitable measures for passive managers as well as active managers. However, if one is primarily concerned with capital preservation, a relatively new metric called \u201cthe pain index\u201d is worth a closer look.\nDeveloped about a decade ago by Dr. Thomas Becker and Aaron Moore at Zephyr Associates [[1]]() , the pain index measures three things:\n1. The depth of losses\n2. The duration of losses\n3. The frequency of losses\nThe best way to illustrate the pain index is via the chart below.\n[<img src='http://www.etftrends.com/wp-content/uploads/2017/03/Drawdown-1024x585.png' alt='drawdown' width='728' height='416' />](https://www.etftrends.com/wp-content/uploads/2017/03/Drawdown.png)\nIn this chart we see the periods of drawdown for the S&P 500. We see major losses associated with the two great bear markets of the 2000\u2019s. We see how long it took to recover. We see smaller, secondary losses associated with the early 1980\u2019s recession, Black Monday in 1987, the 1990-91 recession, and a short, sharp spike in 1998 signifying the Long Term Credit Management debacle.\nIf one were to fill in all of this area in red between the break-even line and the drawdown line, the drawdown area is what we hope to minimize. **The pain index measures this area.** We don\u2019t want to experience steep losses. We don\u2019t want to remain underwater for extended periods of time. We don\u2019t want to go through multiple periods of loss. By using the pain index, we get a complete picture of historical losses. Investors tend to make poor decisions after losing money, investments with a low pain index should minimize the self-destructive temptation to \u201csell low, buy high.\u201d\nThe pain index is a vast improvement on maximum drawdown, which is a common measure of capital preservation. Maximum drawdown is defined as the peak-to-trough loss on an investment, but it only measures one dimension on the above graph. Maximum drawdown doesn\u2019t tell us how long it took to recover our losses. Maximum drawdown doesn\u2019t account for the smaller, secondary losses. An investment with an inception date post-March 2009 will have a very different maximum drawdown than one that experienced the financial crisis.\n\n...\n\nThere are many different ways to measure risk. For passive managers, benchmark-relative measures are useless, since a passive manager is essentially the benchmark. If one is concerned with volatility, then standard deviation and the Sharpe ratio are useful metrics. But if one believes that the real risk in any investment is capital preservation risk, then the pain index serves as a useful addition in the analyst\u2019s toolbox.\n_Marc Odo is the Director of Investment Solutions at **[Swan Global Investments](https://www.etftrends.com/etf-strategist-channel/swan/)** , a participant in the **[ETF Strategist Channel](https://www.etftrends.com/etf-strategist-channel/)** ._\n[[1]]() Full disclosure: From 2003 to 2014 I was the Director of Research at Zephyr Associates and had the pleasure of working alongside Dr. Becker and Aaron Moore.\n**Disclosure Information**\n\n...\n\n![Image](https://www.etftrends.com/wp-content/themes/smart-mag/images/newsletter-embeds/newsletter-first.jpg)"
+      ]
+    },
+    {
+      "url": "https://www.hec.usace.army.mil/confluence/hmsdocs/hmsguides/hms-modeling-applications/hec-hms-example-applications/incorporating-parameter-variability-when-creating-flow-frequency-curves-in-hec-hms/storm-parameter-variability/frequency-depth-duration-comparison",
+      "title": "Frequency Depth Duration Comparison",
+      "publish_date": null,
+      "excerpts": [
+        "# Frequency Depth Duration Comparison\n## Create Meteorologic Models for Each Duration\n1. Navigate back to the Meteorologic Model in the **Watershed Explorer** . Right click and copy the _1percentAEP-48hr_ .  Rename the model _1percentAEP-12hr_\n2. In the **Hypothetical Storm** **Component Editor** , change the **Storm Pattern** to **1998-12hr** , **Storm Duration** to **12** , and **Area Reduction Function** to **1998-12hr** .\n3. Confirm the _1percentAEP-12hr_ Meteorologic Model can work with the _UncertaintyBasinModel_\n4. Repeat Steps 1 and 2 for the remaining durations.\nThe Point Depth, Storm Pattern, and Area-Reduction Functions will be sampled from the Parameter Value Sample and so the actual Paired Data selection does not matter.  The Storm Duration does matter and must be changed to apply the Percentage Curve and Area-Reduction Functions correctly."
+      ]
+    },
+    {
+      "url": "https://www.linkedin.com/pulse/traders-dilemma-profit-pain-ulcer-index-christopher-adie-gc4pc",
+      "title": "The Trader's Dilemma: Profit, Pain, and the Ulcer Index",
+      "publish_date": null,
+      "excerpts": [
+        "A higher Ulcer Index indicates more significant and prolonged drawdowns , implying greater emotional stress or \"ulceration\" for the trader."
+      ]
+    },
+    {
+      "url": "https://directives.nrcs.usda.gov/sites/default/files2/1712930592/29495.pdf",
+      "title": "[PDF] NEH Part 640, Chapter 4, Storm Rainfall Depth and Distribution",
+      "publish_date": null,
+      "excerpts": [
+        "OOOO. Woodward, D.E. 1975. Discussion of estimation of rainfall erosion index by J.K.H.\nAteshian, Journal of the Irrigation and Drainage Division, American Society of Civil Engineers, Vol.\n100. No IR3, pp. 245-247."
+      ]
+    },
+    {
+      "url": "https://www.wallible.com/en/blog/2025-09-22-calmar-ratio-ulcer-index/",
+      "title": "Calmar Ratio and Ulcer Index",
+      "publish_date": null,
+      "excerpts": [
+        "Sep 22, 2025 \u2014 The Ulcer Index (UI) measures both the intensity and the duration of drawdowns . Unlike standard deviation, it concentrates solely on negative"
+      ]
+    },
+    {
+      "url": "https://breakingdownfinance.com/finance-topics/performance-measurement/zephyr-pain-index/",
+      "title": "Zephyr Pain Index - Definition, Formula and Free Excel Sheet",
+      "publish_date": null,
+      "excerpts": [
+        "Pain Index = drawdown depth + drawdown Duration + drawdown Frequency. On this page we discuss the pain index formula."
+      ]
+    },
+    {
+      "url": "https://pubs.usgs.gov/wri/wri994232/pdf/wri994232.pdf",
+      "title": "[PDF] DEPTH-DURATION FREQUENCY OF PRECIPITATION FOR ...",
+      "publish_date": null,
+      "excerpts": [
+        "L-moment statistics were used to summarize depth- duration data and to determine the appropriate statistical distribu- tions. ... standard deviation; RMSE"
+      ]
+    },
+    {
+      "url": "https://thetradinganalyst.com/ulcer-index/",
+      "title": "Complete Guide to Trading with the Ulcer Index (2025)",
+      "publish_date": "2025-01-28",
+      "excerpts": [
+        "# Trading with the Ulcer Index\n## [By Tyler Corvin](https://thetradinganalyst.com/author/tyler-corvin/)\nSenior Trader\nTyler Corvin is The Trading Analyst's senior trader. He's been actively trading options for more than 12 years. When away from his computer screen, Tyler enjoys playing tennis, sailing his Nonsuch 30, and spending time with his wife and two children.\n[See full bio](https://thetradinganalyst.com/author/tyler-corvin/)\n* [](http://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fthetradinganalyst.com%2Fulcer-index%2F&title=Trading+with+the+Ulcer+Index)\n* [](https://twitter.com/intent/tweet?text=Trading+with+the+Ulcer+Index&url=https%3A%2F%2Fthetradinganalyst.com%2Fulcer-index%2F)\nEver felt the sting of market downturns ever sting you? Is there a better way to weather the financial storms?\n\n...\n\n## The Mechanics Behind the Ulcer Index: Assessing Downside Risk\nIdentifying the drawdowns, which represent declines from recent peaks in asset price: this is the initial step to calculating Ulcer Index. Each period (day, week\u2013etc. ), we square percentage drawdowns; subsequently averaging them over a standard calculation timeframe\u2014usually ranging from 14-30 periods\u2014is crucial for Ulcer Index determination. This average\u2019s square root yields the Ulcer Index value. Emphasizing larger decline impacts through a squared drawdown approach, this makes the Ulcer Index sensitive to downturn depth and duration\u2014not merely their frequency.\n\n...\n\n## Mastering Ulcer Index Calculations: A Technical Overview\nDesigned as a unique tool in the trader\u2019s arsenal, the Ulcer Index (UI) measures\u2014 with precision\u2014a drawdown\u2019s depth and duration from recent peaks; consequently, it provides an intricate perspective of downside risk. Mastery of this calculation is not just crucial: it\u2019s imperative for any accurate assessment regarding market stress and investment risk. Shall we proceed with unveiling our step-by-step guide to calculating the Ulcers Index?\n1. Period Identification : You select the timeframe for analysis; typically, however, a consistent use of either a 14-day or 28-day period is employed in calculating the Ulcer Index over any given time frame.\n2. For each day within the designated period, calculate the percentage drawdown from its most recent peak; however, should a new peak be reached on that specific day\u2013then and only then\u2013the drawdown will register as zero.\n3. To square the drawdowns , you must square each daily percentage. This process accentuates larger drawdowns; these in turn, exert a more substantial influence on investor stress levels.\n4. Compute the average of the selected period\u2019s squared drawdowns to derive a mean for Ulcer Index calculation; this average represents the centrality in determining Ulcer Index.\n5.\nCalculate the square root of the average squared drawdown : this step concludes the Ulcer Index calculation by converting our metric back to a percentage basis for easier interpretation.\n\n...\n\n## Comparing Volatility Measures: Ulcer Index vs. Standard Deviation\nThe Ulcer Index (UI) and standard deviation, when compared, reveal their unique methods for evaluating market volatility and risk. The UI focuses specifically on downside risk: it measures the depth and duration of price drops from peaks; thus, offering a nuanced perspective of potential losses \u2013 even identifying periods marked by significant downturns. This approach proves particularly valuable to individuals cautious about major market plunges\u2019 effects on their portfolios as it provides understanding into an asset\u2019s experience during declines\u2013 essentially quantifying this as \u2018pain\u2019."
+      ]
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7592706/",
+      "title": "\n            Classifying Streamflow Duration: The Scientific Basis and an Operational Framework for Method Development - PMC\n        ",
+      "publish_date": "2011-09-20",
+      "excerpts": [
+        "# Classifying Streamflow Duration: The Scientific Basis and an Operational Framework for Method Development\n## 5. Operational Framework for SDAM Development\n### 5.3. Data Analysis\n#### 5.3.2. Assemble Interim SDAM\nA multimetric index was developed based on the plant, mollusk, and carabid beetle indicator species to predict classes for the inundation duration per year and mean depth of groundwater during the growing season of a German grassed floodplain  [119 ]. Each indicator species was assigned an indicator value as the abundance-weighted mean value for weeks of inundation per year and for growing season groundwater depth in meters from a subset of the samples. The multimetric index score was derived as the weighted mean indicator value of all recorded indicator species at a reach. Proponents of the multimetric approach consider redundancy among metrics to afford robustness to errors or variability that may affect a single metric. However, metric redundancy may compound error or inflate signals from indicators that are not singularly responsive to flow duration."
+      ]
+    },
+    {
+      "url": "https://www.scribd.com/document/102328181/Stat-Ratio",
+      "title": "How Sharp Is The Shape-Ratio? - Risk-Adjusted Performance ...",
+      "publish_date": null,
+      "excerpts": [
+        "... Pain index in discrete form as proposed by Thomas Becker in 2006 Pain Index = i =1. i =n. Di n. The Calmar ratio (derived from California Managed Account"
+      ]
+    }
+  ],
+  "warnings": null
+}

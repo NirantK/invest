@@ -687,9 +687,15 @@ def sell(
                     price = p
                     break
             if not price:
-                console.print(f"[red]Error: Could not get price for {symbol}[/red]")
-                console.print(f"[dim]Use --limit PRICE to specify a limit price[/dim]")
-                return
+                if shares:
+                    # No quote (e.g. pre-market) — explicit share count needs no
+                    # price to place a market order; use avg cost for display only.
+                    price = avg_cost
+                    console.print(f"[dim]No quote for {symbol}; estimates use avg cost[/dim]")
+                else:
+                    console.print(f"[red]Error: Could not get price for {symbol}[/red]")
+                    console.print(f"[dim]Use --limit PRICE to specify a limit price[/dim]")
+                    return
             order_type = "MARKET"
 
         # Determine shares to sell

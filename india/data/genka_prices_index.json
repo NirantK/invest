@@ -1,0 +1,1471 @@
+{
+  "as_of": "2026-05-09",
+  "n_tickers_total": 165,
+  "n_tickers_fetched": 162,
+  "n_tickers_missing": 3,
+  "missing": [
+    "EMBASSY",
+    "GMDC",
+    "MINDSPACE"
+  ],
+  "tickers": {
+    "ABB": {
+      "ticker": "ABB",
+      "first_date": "1995-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 7734,
+      "n_corp_actions": 26,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.23114048114048114
+    },
+    "ACC": {
+      "ticker": "ACC",
+      "first_date": "1995-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 7752,
+      "n_corp_actions": 33,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.15986394557823125
+    },
+    "ADANIENT": {
+      "ticker": "ADANIENT",
+      "first_date": "2006-09-20",
+      "last_date": "2026-05-07",
+      "n_bars": 4841,
+      "n_corp_actions": 31,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.2819698039611286
+    },
+    "ADANIGREEN": {
+      "ticker": "ADANIGREEN",
+      "first_date": "2018-06-18",
+      "last_date": "2026-05-07",
+      "n_bars": 1944,
+      "n_corp_actions": 7,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.2177152317880795
+    },
+    "ADANIPOWER": {
+      "ticker": "ADANIPOWER",
+      "first_date": "2009-08-20",
+      "last_date": "2026-05-07",
+      "n_bars": 4123,
+      "n_corp_actions": 16,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.2645631067961165
+    },
+    "AFFLE": {
+      "ticker": "AFFLE",
+      "first_date": "2019-08-08",
+      "last_date": "2026-05-07",
+      "n_bars": 1662,
+      "n_corp_actions": 1,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.14741984482121606
+    },
+    "AKSHOPTFBR": {
+      "ticker": "AKSHOPTFBR",
+      "first_date": "2000-08-23",
+      "last_date": "2026-05-07",
+      "n_bars": 6359,
+      "n_corp_actions": 19,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.20331950207468874
+    },
+    "ALPHA": {
+      "ticker": "ALPHA",
+      "first_date": "2024-03-20",
+      "last_date": "2026-05-07",
+      "n_bars": 523,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.048769574944071525
+    },
+    "ALPHAETF": {
+      "ticker": "ALPHAETF",
+      "first_date": "2023-10-27",
+      "last_date": "2026-05-07",
+      "n_bars": 620,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.08893789048144074
+    },
+    "AMBER": {
+      "ticker": "AMBER",
+      "first_date": "2018-01-30",
+      "last_date": "2026-05-07",
+      "n_bars": 2038,
+      "n_corp_actions": 9,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19998816375445705
+    },
+    "AMBUJACEM": {
+      "ticker": "AMBUJACEM",
+      "first_date": "2007-07-24",
+      "last_date": "2026-05-07",
+      "n_bars": 4634,
+      "n_corp_actions": 36,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.17329421990438942
+    },
+    "ANANTRAJ": {
+      "ticker": "ANANTRAJ",
+      "first_date": "2006-09-27",
+      "last_date": "2026-05-07",
+      "n_bars": 4835,
+      "n_corp_actions": 22,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.20034995625546803
+    },
+    "ANGELONE": {
+      "ticker": "ANGELONE",
+      "first_date": "2021-11-11",
+      "last_date": "2026-05-07",
+      "n_bars": 1106,
+      "n_corp_actions": 21,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.1841684875415437
+    },
+    "APARINDS": {
+      "ticker": "APARINDS",
+      "first_date": "2004-07-12",
+      "last_date": "2026-05-07",
+      "n_bars": 5387,
+      "n_corp_actions": 28,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.19999999999999996
+    },
+    "AUTOBEES": {
+      "ticker": "AUTOBEES",
+      "first_date": "2022-05-10",
+      "last_date": "2026-05-07",
+      "n_bars": 985,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.06899032696458551
+    },
+    "BANKBEES": {
+      "ticker": "BANKBEES",
+      "first_date": "2004-06-04",
+      "last_date": "2026-05-07",
+      "n_bars": 5068,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19685205725452892
+    },
+    "BBOX": {
+      "ticker": "BBOX",
+      "first_date": "2021-12-03",
+      "last_date": "2026-05-07",
+      "n_bars": 1091,
+      "n_corp_actions": 25,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.19979750253121842
+    },
+    "BHARATFORG": {
+      "ticker": "BHARATFORG",
+      "first_date": "1995-01-09",
+      "last_date": "2026-05-07",
+      "n_bars": 7716,
+      "n_corp_actions": 37,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.19018662193331948
+    },
+    "BHARTIARTL": {
+      "ticker": "BHARTIARTL",
+      "first_date": "2006-06-19",
+      "last_date": "2026-05-07",
+      "n_bars": 4907,
+      "n_corp_actions": 23,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.2542351690942053
+    },
+    "BHEL": {
+      "ticker": "BHEL",
+      "first_date": "1995-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 7685,
+      "n_corp_actions": 37,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.23720930232558146
+    },
+    "BLUESTARCO": {
+      "ticker": "BLUESTARCO",
+      "first_date": "2000-06-15",
+      "last_date": "2026-05-07",
+      "n_bars": 6408,
+      "n_corp_actions": 25,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.20014450867052025
+    },
+    "BPCL": {
+      "ticker": "BPCL",
+      "first_date": "1995-01-03",
+      "last_date": "2026-05-07",
+      "n_bars": 7693,
+      "n_corp_actions": 40,
+      "n_splits_bonuses": 4,
+      "max_daily_return_adj": 0.2015779092702169
+    },
+    "BSE": {
+      "ticker": "BSE",
+      "first_date": "2017-02-03",
+      "last_date": "2026-05-07",
+      "n_bars": 2283,
+      "n_corp_actions": 16,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.1859691221080273
+    },
+    "BSOFT": {
+      "ticker": "BSOFT",
+      "first_date": "2019-02-26",
+      "last_date": "2026-05-07",
+      "n_bars": 1772,
+      "n_corp_actions": 33,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.15349887133182838
+    },
+    "CAMS": {
+      "ticker": "CAMS",
+      "first_date": "2020-10-05",
+      "last_date": "2026-05-07",
+      "n_bars": 1379,
+      "n_corp_actions": 23,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.14762236833366527
+    },
+    "CDSL": {
+      "ticker": "CDSL",
+      "first_date": "2017-06-30",
+      "last_date": "2026-05-07",
+      "n_bars": 2184,
+      "n_corp_actions": 9,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.18993619778686077
+    },
+    "CGPOWER": {
+      "ticker": "CGPOWER",
+      "first_date": "2017-03-08",
+      "last_date": "2026-05-07",
+      "n_bars": 2261,
+      "n_corp_actions": 42,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.2198731501057083
+    },
+    "COALINDIA": {
+      "ticker": "COALINDIA",
+      "first_date": "2010-11-04",
+      "last_date": "2026-05-07",
+      "n_bars": 3824,
+      "n_corp_actions": 42,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.1482247500861773
+    },
+    "COFORGE": {
+      "ticker": "COFORGE",
+      "first_date": "2020-08-20",
+      "last_date": "2026-05-07",
+      "n_bars": 1410,
+      "n_corp_actions": 40,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.17402126004666862
+    },
+    "COMMOIETF": {
+      "ticker": "COMMOIETF",
+      "first_date": "2023-12-20",
+      "last_date": "2026-05-07",
+      "n_bars": 584,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.04647256438969771
+    },
+    "CONSUMBEES": {
+      "ticker": "CONSUMBEES",
+      "first_date": "2022-05-10",
+      "last_date": "2026-05-07",
+      "n_bars": 985,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.03571428571428581
+    },
+    "CPSEETF": {
+      "ticker": "CPSEETF",
+      "first_date": "2014-04-04",
+      "last_date": "2026-05-07",
+      "n_bars": 2977,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.11877977095368397
+    },
+    "CUMMINSIND": {
+      "ticker": "CUMMINSIND",
+      "first_date": "2005-06-17",
+      "last_date": "2026-05-07",
+      "n_bars": 5153,
+      "n_corp_actions": 43,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.14939926867490883
+    },
+    "CYIENT": {
+      "ticker": "CYIENT",
+      "first_date": "2014-05-22",
+      "last_date": "2026-05-07",
+      "n_bars": 2948,
+      "n_corp_actions": 42,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.23378436120210788
+    },
+    "CYIENTDLM": {
+      "ticker": "CYIENTDLM",
+      "first_date": "2023-07-10",
+      "last_date": "2026-05-07",
+      "n_bars": 695,
+      "n_corp_actions": 1,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.17261055634807398
+    },
+    "DALBHARAT": {
+      "ticker": "DALBHARAT",
+      "first_date": "2019-01-22",
+      "last_date": "2026-05-07",
+      "n_bars": 1797,
+      "n_corp_actions": 13,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19996086871453733
+    },
+    "DIXON": {
+      "ticker": "DIXON",
+      "first_date": "2017-09-18",
+      "last_date": "2026-05-07",
+      "n_bars": 2130,
+      "n_corp_actions": 10,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.19085557999881086
+    },
+    "E2E": {
+      "ticker": "E2E",
+      "first_date": "2018-05-29",
+      "last_date": "2026-05-07",
+      "n_bars": 1677,
+      "n_corp_actions": 2,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19999999999999996
+    },
+    "EBBETF0430": {
+      "ticker": "EBBETF0430",
+      "first_date": "2020-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 1567,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.01887524626375603
+    },
+    "EBBETF0433": {
+      "ticker": "EBBETF0433",
+      "first_date": "2022-12-16",
+      "last_date": "2026-05-07",
+      "n_bars": 833,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.041898636109759746
+    },
+    "EQUAL50ADD": {
+      "ticker": "EQUAL50ADD",
+      "first_date": "2024-02-15",
+      "last_date": "2026-05-07",
+      "n_bars": 546,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.054163009200559165
+    },
+    "ETERNAL": {
+      "ticker": "ETERNAL",
+      "first_date": "2025-04-09",
+      "last_date": "2026-05-07",
+      "n_bars": 264,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.10342289289657725
+    },
+    "FINCABLES": {
+      "ticker": "FINCABLES",
+      "first_date": "1995-01-03",
+      "last_date": "2026-05-07",
+      "n_bars": 7739,
+      "n_corp_actions": 22,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.19314079422382657
+    },
+    "FMCGIETF": {
+      "ticker": "FMCGIETF",
+      "first_date": "2023-12-20",
+      "last_date": "2026-05-07",
+      "n_bars": 584,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.04566683964711982
+    },
+    "GAIL": {
+      "ticker": "GAIL",
+      "first_date": "1997-04-02",
+      "last_date": "2026-05-07",
+      "n_bars": 7196,
+      "n_corp_actions": 47,
+      "n_splits_bonuses": 5,
+      "max_daily_return_adj": 0.32007797270955174
+    },
+    "GOLDBEES": {
+      "ticker": "GOLDBEES",
+      "first_date": "2007-03-19",
+      "last_date": "2026-05-07",
+      "n_bars": 4721,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.10516617757455804
+    },
+    "GOLDIETF": {
+      "ticker": "GOLDIETF",
+      "first_date": "2023-12-20",
+      "last_date": "2026-05-07",
+      "n_bars": 584,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.11015613808909908
+    },
+    "GPIL": {
+      "ticker": "GPIL",
+      "first_date": "2006-04-25",
+      "last_date": "2026-05-07",
+      "n_bars": 4945,
+      "n_corp_actions": 29,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.2001137009664582
+    },
+    "GRAPHITE": {
+      "ticker": "GRAPHITE",
+      "first_date": "2003-01-13",
+      "last_date": "2026-05-07",
+      "n_bars": 5763,
+      "n_corp_actions": 27,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.19988925802879298
+    },
+    "GUJGASLTD": {
+      "ticker": "GUJGASLTD",
+      "first_date": "2015-09-15",
+      "last_date": "2026-05-07",
+      "n_bars": 2623,
+      "n_corp_actions": 12,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.15177832919768408
+    },
+    "HAPPSTMNDS": {
+      "ticker": "HAPPSTMNDS",
+      "first_date": "2020-09-17",
+      "last_date": "2026-05-07",
+      "n_bars": 1390,
+      "n_corp_actions": 10,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19819038175508186
+    },
+    "HAVELLS": {
+      "ticker": "HAVELLS",
+      "first_date": "2001-03-21",
+      "last_date": "2026-05-07",
+      "n_bars": 6212,
+      "n_corp_actions": 33,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.36029411764705865
+    },
+    "HEG": {
+      "ticker": "HEG",
+      "first_date": "1995-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 7726,
+      "n_corp_actions": 28,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.24421593830334198
+    },
+    "HFCL": {
+      "ticker": "HFCL",
+      "first_date": "2011-03-09",
+      "last_date": "2026-05-07",
+      "n_bars": 3739,
+      "n_corp_actions": 16,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19999999999999996
+    },
+    "HINDALCO": {
+      "ticker": "HINDALCO",
+      "first_date": "2007-08-27",
+      "last_date": "2026-05-07",
+      "n_bars": 4611,
+      "n_corp_actions": 22,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.18242491657397086
+    },
+    "HINDZINC": {
+      "ticker": "HINDZINC",
+      "first_date": "1995-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 6800,
+      "n_corp_actions": 47,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 58.66438356164384
+    },
+    "HONAUT": {
+      "ticker": "HONAUT",
+      "first_date": "2005-03-24",
+      "last_date": "2026-05-07",
+      "n_bars": 5211,
+      "n_corp_actions": 20,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19999999999999996
+    },
+    "IGL": {
+      "ticker": "IGL",
+      "first_date": "2003-12-26",
+      "last_date": "2026-05-07",
+      "n_bars": 5524,
+      "n_corp_actions": 28,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.2885958107059736
+    },
+    "INDIAMART": {
+      "ticker": "INDIAMART",
+      "first_date": "2019-07-04",
+      "last_date": "2026-05-07",
+      "n_bars": 1687,
+      "n_corp_actions": 10,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.19164609537243837
+    },
+    "INFRABEES": {
+      "ticker": "INFRABEES",
+      "first_date": "2010-10-05",
+      "last_date": "2026-05-07",
+      "n_bars": 3837,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.11691304347826081
+    },
+    "IOC": {
+      "ticker": "IOC",
+      "first_date": "1995-10-19",
+      "last_date": "2026-05-07",
+      "n_bars": 7257,
+      "n_corp_actions": 40,
+      "n_splits_bonuses": 4,
+      "max_daily_return_adj": 0.2001343183344526
+    },
+    "ITBEES": {
+      "ticker": "ITBEES",
+      "first_date": "2022-05-10",
+      "last_date": "2026-05-07",
+      "n_bars": 985,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.06740702479338845
+    },
+    "ITI": {
+      "ticker": "ITI",
+      "first_date": "1995-01-06",
+      "last_date": "2026-05-07",
+      "n_bars": 7460,
+      "n_corp_actions": 19,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.29832935560859175
+    },
+    "JINDALSAW": {
+      "ticker": "JINDALSAW",
+      "first_date": "2005-02-18",
+      "last_date": "2026-05-07",
+      "n_bars": 5236,
+      "n_corp_actions": 27,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.19999999999999996
+    },
+    "JINDALSTEL": {
+      "ticker": "JINDALSTEL",
+      "first_date": "1999-09-22",
+      "last_date": "2026-05-07",
+      "n_bars": 6589,
+      "n_corp_actions": 25,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.28899445764053855
+    },
+    "JSL": {
+      "ticker": "JSL",
+      "first_date": "2008-10-23",
+      "last_date": "2026-05-07",
+      "n_bars": 4322,
+      "n_corp_actions": 28,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.1962110960757779
+    },
+    "JSWSTEEL": {
+      "ticker": "JSWSTEEL",
+      "first_date": "2005-09-16",
+      "last_date": "2026-05-07",
+      "n_bars": 5091,
+      "n_corp_actions": 23,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.3371080139372822
+    },
+    "JUNIORBEES": {
+      "ticker": "JUNIORBEES",
+      "first_date": "2003-03-06",
+      "last_date": "2026-05-07",
+      "n_bars": 5535,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19679672857386254
+    },
+    "KAYNES": {
+      "ticker": "KAYNES",
+      "first_date": "2022-11-22",
+      "last_date": "2026-05-07",
+      "n_bars": 851,
+      "n_corp_actions": 1,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19981693185580474
+    },
+    "KEC": {
+      "ticker": "KEC",
+      "first_date": "2006-03-10",
+      "last_date": "2026-05-07",
+      "n_bars": 4973,
+      "n_corp_actions": 23,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.20004970178926462
+    },
+    "KEI": {
+      "ticker": "KEI",
+      "first_date": "2006-03-23",
+      "last_date": "2026-05-07",
+      "n_bars": 4964,
+      "n_corp_actions": 27,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.2103295285490474
+    },
+    "KFINTECH": {
+      "ticker": "KFINTECH",
+      "first_date": "2022-12-29",
+      "last_date": "2026-05-07",
+      "n_bars": 824,
+      "n_corp_actions": 2,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.18300330033003287
+    },
+    "KIRLOSENG": {
+      "ticker": "KIRLOSENG",
+      "first_date": "2010-12-24",
+      "last_date": "2026-05-07",
+      "n_bars": 3790,
+      "n_corp_actions": 25,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.20000000000000018
+    },
+    "KPIL": {
+      "ticker": "KPIL",
+      "first_date": "2023-06-06",
+      "last_date": "2026-05-07",
+      "n_bars": 718,
+      "n_corp_actions": 25,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.12458091422029616
+    },
+    "KPITTECH": {
+      "ticker": "KPITTECH",
+      "first_date": "2019-04-22",
+      "last_date": "2026-05-07",
+      "n_bars": 1737,
+      "n_corp_actions": 13,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.17249240121580545
+    },
+    "KRN": {
+      "ticker": "KRN",
+      "first_date": "2024-10-03",
+      "last_date": "2026-05-07",
+      "n_bars": 392,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.1999107043196786
+    },
+    "LIQUIDBEES": {
+      "ticker": "LIQUIDBEES",
+      "first_date": "2003-07-16",
+      "last_date": "2026-05-07",
+      "n_bars": 5629,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.006540065400653994
+    },
+    "LOWVOLIETF": {
+      "ticker": "LOWVOLIETF",
+      "first_date": "2023-12-20",
+      "last_date": "2026-05-07",
+      "n_bars": 584,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.031909418425115854
+    },
+    "LT": {
+      "ticker": "LT",
+      "first_date": "2004-06-23",
+      "last_date": "2026-05-07",
+      "n_bars": 5402,
+      "n_corp_actions": 33,
+      "n_splits_bonuses": 4,
+      "max_daily_return_adj": 0.24534883720930267
+    },
+    "LTIM": {
+      "ticker": "LTIM",
+      "first_date": "2022-12-05",
+      "last_date": "2026-02-26",
+      "n_bars": 798,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.10717700299572952
+    },
+    "LTTS": {
+      "ticker": "LTTS",
+      "first_date": "2016-09-23",
+      "last_date": "2026-05-07",
+      "n_bars": 2373,
+      "n_corp_actions": 21,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19996039407891475
+    },
+    "MAITHANALL": {
+      "ticker": "MAITHANALL",
+      "first_date": "2011-07-05",
+      "last_date": "2026-05-07",
+      "n_bars": 3486,
+      "n_corp_actions": 19,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.20000000000000007
+    },
+    "MAKEINDIA": {
+      "ticker": "MAKEINDIA",
+      "first_date": "2023-09-01",
+      "last_date": "2026-05-07",
+      "n_bars": 657,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.06123449870384634
+    },
+    "MCX": {
+      "ticker": "MCX",
+      "first_date": "2012-03-09",
+      "last_date": "2026-05-07",
+      "n_bars": 3491,
+      "n_corp_actions": 18,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.19998041327979632
+    },
+    "MGL": {
+      "ticker": "MGL",
+      "first_date": "2016-07-01",
+      "last_date": "2026-05-07",
+      "n_bars": 2429,
+      "n_corp_actions": 20,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.15806104612074745
+    },
+    "MIDCAP": {
+      "ticker": "MIDCAP",
+      "first_date": "2024-03-20",
+      "last_date": "2026-05-07",
+      "n_bars": 523,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.056097560975609695
+    },
+    "MIDCAPIETF": {
+      "ticker": "MIDCAPIETF",
+      "first_date": "2023-12-20",
+      "last_date": "2026-05-07",
+      "n_bars": 584,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.05758906783796969
+    },
+    "MIDQ50ADD": {
+      "ticker": "MIDQ50ADD",
+      "first_date": "2024-02-15",
+      "last_date": "2026-05-07",
+      "n_bars": 546,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.055678717598908634
+    },
+    "MODEFENCE": {
+      "ticker": "MODEFENCE",
+      "first_date": "2024-08-27",
+      "last_date": "2026-05-07",
+      "n_bars": 418,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.07989727493223009
+    },
+    "MOGSEC": {
+      "ticker": "MOGSEC",
+      "first_date": "2021-06-16",
+      "last_date": "2026-05-07",
+      "n_bars": 1207,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.15482954545454541
+    },
+    "MOHEALTH": {
+      "ticker": "MOHEALTH",
+      "first_date": "2022-08-04",
+      "last_date": "2026-05-07",
+      "n_bars": 923,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.10217560217560218
+    },
+    "MOIL": {
+      "ticker": "MOIL",
+      "first_date": "2010-12-15",
+      "last_date": "2026-05-07",
+      "n_bars": 3796,
+      "n_corp_actions": 38,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.1999596855472685
+    },
+    "MOM100": {
+      "ticker": "MOM100",
+      "first_date": "2021-06-16",
+      "last_date": "2026-05-07",
+      "n_bars": 1207,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.04959832343695436
+    },
+    "MOM50": {
+      "ticker": "MOM50",
+      "first_date": "2021-06-16",
+      "last_date": "2026-05-07",
+      "n_bars": 1207,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.05132450331125815
+    },
+    "MOMOMENTUM": {
+      "ticker": "MOMOMENTUM",
+      "first_date": "2022-02-17",
+      "last_date": "2026-05-07",
+      "n_bars": 1038,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.1499426904240908
+    },
+    "MONIFTY500": {
+      "ticker": "MONIFTY500",
+      "first_date": "2023-10-06",
+      "last_date": "2026-05-07",
+      "n_bars": 634,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.0390625
+    },
+    "MONQ50": {
+      "ticker": "MONQ50",
+      "first_date": "2021-12-29",
+      "last_date": "2026-05-07",
+      "n_bars": 1073,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.08255006129955056
+    },
+    "MOREALTY": {
+      "ticker": "MOREALTY",
+      "first_date": "2024-03-21",
+      "last_date": "2026-05-07",
+      "n_bars": 522,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.07033156308310584
+    },
+    "MOSMALL250": {
+      "ticker": "MOSMALL250",
+      "first_date": "2024-03-21",
+      "last_date": "2026-05-07",
+      "n_bars": 522,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.046875
+    },
+    "MOVALUE": {
+      "ticker": "MOVALUE",
+      "first_date": "2022-08-26",
+      "last_date": "2026-05-07",
+      "n_bars": 905,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19987661937075885
+    },
+    "MPHASIS": {
+      "ticker": "MPHASIS",
+      "first_date": "2006-12-26",
+      "last_date": "2026-05-07",
+      "n_bars": 4776,
+      "n_corp_actions": 24,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.2808323329331732
+    },
+    "MTARTECH": {
+      "ticker": "MTARTECH",
+      "first_date": "2021-03-15",
+      "last_date": "2026-05-07",
+      "n_bars": 1269,
+      "n_corp_actions": 4,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.1508364886275142
+    },
+    "NATIONALUM": {
+      "ticker": "NATIONALUM",
+      "first_date": "1999-04-28",
+      "last_date": "2026-05-07",
+      "n_bars": 6693,
+      "n_corp_actions": 53,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.22059897735573408
+    },
+    "NAUKRI": {
+      "ticker": "NAUKRI",
+      "first_date": "2006-11-21",
+      "last_date": "2026-05-07",
+      "n_bars": 4799,
+      "n_corp_actions": 40,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.2000502796807242
+    },
+    "NCC": {
+      "ticker": "NCC",
+      "first_date": "2011-03-15",
+      "last_date": "2026-05-07",
+      "n_bars": 3735,
+      "n_corp_actions": 24,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.21153846153846168
+    },
+    "NETWEB": {
+      "ticker": "NETWEB",
+      "first_date": "2023-07-27",
+      "last_date": "2026-05-07",
+      "n_bars": 682,
+      "n_corp_actions": 3,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.16111760491685834
+    },
+    "NEWGEN": {
+      "ticker": "NEWGEN",
+      "first_date": "2018-01-29",
+      "last_date": "2026-05-07",
+      "n_bars": 2039,
+      "n_corp_actions": 9,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.19771634615384615
+    },
+    "NIF100BEES": {
+      "ticker": "NIF100BEES",
+      "first_date": "2022-05-10",
+      "last_date": "2026-05-07",
+      "n_bars": 985,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.04288335726823034
+    },
+    "NIF100IETF": {
+      "ticker": "NIF100IETF",
+      "first_date": "2023-12-20",
+      "last_date": "2026-05-07",
+      "n_bars": 584,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.06559139784946233
+    },
+    "NIFTYBEES": {
+      "ticker": "NIFTYBEES",
+      "first_date": "2002-01-08",
+      "last_date": "2026-05-07",
+      "n_bars": 6016,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.14626953700973155
+    },
+    "NMDC": {
+      "ticker": "NMDC",
+      "first_date": "2008-03-03",
+      "last_date": "2026-05-07",
+      "n_bars": 4479,
+      "n_corp_actions": 49,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.20229445506692167
+    },
+    "NV20BEES": {
+      "ticker": "NV20BEES",
+      "first_date": "2022-05-10",
+      "last_date": "2026-05-07",
+      "n_bars": 985,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.04278193816267506
+    },
+    "NV20IETF": {
+      "ticker": "NV20IETF",
+      "first_date": "2023-12-20",
+      "last_date": "2026-05-07",
+      "n_bars": 584,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.0382978723404257
+    },
+    "NYKAA": {
+      "ticker": "NYKAA",
+      "first_date": "2021-11-10",
+      "last_date": "2026-05-07",
+      "n_bars": 1107,
+      "n_corp_actions": 1,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.17202989171877392
+    },
+    "OIL": {
+      "ticker": "OIL",
+      "first_date": "2009-09-30",
+      "last_date": "2026-05-07",
+      "n_bars": 4096,
+      "n_corp_actions": 47,
+      "n_splits_bonuses": 4,
+      "max_daily_return_adj": 0.16352201257861654
+    },
+    "ONGC": {
+      "ticker": "ONGC",
+      "first_date": "1995-08-09",
+      "last_date": "2026-05-07",
+      "n_bars": 7589,
+      "n_corp_actions": 57,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.20007281995266712
+    },
+    "PAYTM": {
+      "ticker": "PAYTM",
+      "first_date": "2021-11-18",
+      "last_date": "2026-05-07",
+      "n_bars": 1101,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.20000000000000007
+    },
+    "PERSISTENT": {
+      "ticker": "PERSISTENT",
+      "first_date": "2010-04-06",
+      "last_date": "2026-05-07",
+      "n_bars": 3974,
+      "n_corp_actions": 37,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.1532874328516306
+    },
+    "PETRONET": {
+      "ticker": "PETRONET",
+      "first_date": "2004-03-26",
+      "last_date": "2026-05-07",
+      "n_bars": 5462,
+      "n_corp_actions": 32,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.2202556538839725
+    },
+    "PHARMABEES": {
+      "ticker": "PHARMABEES",
+      "first_date": "2022-05-10",
+      "last_date": "2026-05-07",
+      "n_bars": 985,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.03926940639269405
+    },
+    "POLICYBZR": {
+      "ticker": "POLICYBZR",
+      "first_date": "2021-11-15",
+      "last_date": "2026-05-07",
+      "n_bars": 1104,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.17394468704512378
+    },
+    "POLYCAB": {
+      "ticker": "POLYCAB",
+      "first_date": "2019-04-16",
+      "last_date": "2026-05-07",
+      "n_bars": 1739,
+      "n_corp_actions": 8,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.21038916090678672
+    },
+    "POWERINDIA": {
+      "ticker": "POWERINDIA",
+      "first_date": "2020-03-30",
+      "last_date": "2026-05-07",
+      "n_bars": 1507,
+      "n_corp_actions": 6,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19999999999999996
+    },
+    "PROTEAN": {
+      "ticker": "PROTEAN",
+      "first_date": "2025-02-06",
+      "last_date": "2026-05-07",
+      "n_bars": 305,
+      "n_corp_actions": 1,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19994401287703834
+    },
+    "PSUBNKBEES": {
+      "ticker": "PSUBNKBEES",
+      "first_date": "2007-11-01",
+      "last_date": "2026-05-07",
+      "n_bars": 4554,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19999999999999973
+    },
+    "QUAL30IETF": {
+      "ticker": "QUAL30IETF",
+      "first_date": "2023-12-20",
+      "last_date": "2026-05-07",
+      "n_bars": 584,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.07545483226417082
+    },
+    "QUICKHEAL": {
+      "ticker": "QUICKHEAL",
+      "first_date": "2016-02-18",
+      "last_date": "2026-05-07",
+      "n_bars": 2519,
+      "n_corp_actions": 13,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19999999999999996
+    },
+    "RAILTEL": {
+      "ticker": "RAILTEL",
+      "first_date": "2021-02-26",
+      "last_date": "2026-05-07",
+      "n_bars": 1279,
+      "n_corp_actions": 13,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19997404619776804
+    },
+    "RATEGAIN": {
+      "ticker": "RATEGAIN",
+      "first_date": "2021-12-17",
+      "last_date": "2026-05-07",
+      "n_bars": 1081,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.14083304882212366
+    },
+    "RATNAMANI": {
+      "ticker": "RATNAMANI",
+      "first_date": "2006-05-09",
+      "last_date": "2026-05-07",
+      "n_bars": 4926,
+      "n_corp_actions": 24,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.19995779255038504
+    },
+    "RELIANCE": {
+      "ticker": "RELIANCE",
+      "first_date": "1995-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 7751,
+      "n_corp_actions": 27,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.25288099084544957
+    },
+    "RRKABEL": {
+      "ticker": "RRKABEL",
+      "first_date": "2023-09-20",
+      "last_date": "2026-05-07",
+      "n_bars": 645,
+      "n_corp_actions": 6,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.1980639351643404
+    },
+    "SAIL": {
+      "ticker": "SAIL",
+      "first_date": "1995-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 7751,
+      "n_corp_actions": 39,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.3389830508474576
+    },
+    "SBIETFQLTY": {
+      "ticker": "SBIETFQLTY",
+      "first_date": "2018-12-17",
+      "last_date": "2026-05-07",
+      "n_bars": 1822,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.13348295393822807
+    },
+    "SETF10GILT": {
+      "ticker": "SETF10GILT",
+      "first_date": "2016-06-23",
+      "last_date": "2026-05-07",
+      "n_bars": 1974,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.26960963152134254
+    },
+    "SETFGOLD": {
+      "ticker": "SETFGOLD",
+      "first_date": "2015-11-24",
+      "last_date": "2026-05-07",
+      "n_bars": 2578,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.0975851802844856
+    },
+    "SHREECEM": {
+      "ticker": "SHREECEM",
+      "first_date": "1995-01-12",
+      "last_date": "2026-05-07",
+      "n_bars": 7727,
+      "n_corp_actions": 41,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.21999999999999997
+    },
+    "SIEMENS": {
+      "ticker": "SIEMENS",
+      "first_date": "1995-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 7719,
+      "n_corp_actions": 24,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.17377049180327875
+    },
+    "SILVERBEES": {
+      "ticker": "SILVERBEES",
+      "first_date": "2022-05-10",
+      "last_date": "2026-05-07",
+      "n_bars": 985,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.23226752303825748
+    },
+    "SKIPPER": {
+      "ticker": "SKIPPER",
+      "first_date": "2015-05-27",
+      "last_date": "2026-05-07",
+      "n_bars": 2702,
+      "n_corp_actions": 12,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.20000000000000018
+    },
+    "SMALLCAP": {
+      "ticker": "SMALLCAP",
+      "first_date": "2024-02-29",
+      "last_date": "2026-05-07",
+      "n_bars": 536,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.05362182502351842
+    },
+    "SONATSOFTW": {
+      "ticker": "SONATSOFTW",
+      "first_date": "1999-07-28",
+      "last_date": "2026-05-07",
+      "n_bars": 6627,
+      "n_corp_actions": 46,
+      "n_splits_bonuses": 2,
+      "max_daily_return_adj": 0.20127795527156556
+    },
+    "STLTECH": {
+      "ticker": "STLTECH",
+      "first_date": "2020-10-29",
+      "last_date": "2026-05-07",
+      "n_bars": 1361,
+      "n_corp_actions": 23,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.25204093365528346
+    },
+    "SWIGGY": {
+      "ticker": "SWIGGY",
+      "first_date": "2024-11-13",
+      "last_date": "2026-05-07",
+      "n_bars": 363,
+      "n_corp_actions": 0,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.12659679004258106
+    },
+    "SYRMA": {
+      "ticker": "SYRMA",
+      "first_date": "2022-08-26",
+      "last_date": "2026-05-07",
+      "n_bars": 909,
+      "n_corp_actions": 5,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19990497683810426
+    },
+    "TANLA": {
+      "ticker": "TANLA",
+      "first_date": "2007-01-05",
+      "last_date": "2026-05-07",
+      "n_bars": 4769,
+      "n_corp_actions": 32,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.20175438596491224
+    },
+    "TARIL": {
+      "ticker": "TARIL",
+      "first_date": "2024-08-26",
+      "last_date": "2026-05-07",
+      "n_bars": 419,
+      "n_corp_actions": 21,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.19992344985965804
+    },
+    "TATACOMM": {
+      "ticker": "TATACOMM",
+      "first_date": "2008-02-25",
+      "last_date": "2026-05-07",
+      "n_bars": 4484,
+      "n_corp_actions": 23,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.17949653411163835
+    },
+    "TATAELXSI": {
+      "ticker": "TATAELXSI",
+      "first_date": "1995-02-08",
+      "last_date": "2026-05-07",
+      "n_bars": 7725,
+      "n_corp_actions": 22,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.20005892751915155
+    },
+    "TATAPOWER": {
+      "ticker": "TATAPOWER",
+      "first_date": "1995-01-02",
+      "last_date": "2026-05-07",
+      "n_bars": 7751,
+      "n_corp_actions": 23,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.23223710921640284
+    },
+    "TATASTEEL": {
+      "ticker": "TATASTEEL",
+      "first_date": "2005-10-17",
+      "last_date": "2026-05-07",
+      "n_bars": 5071,
+      "n_corp_actions": 24,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.17003676470588225
+    },
+    "TATATECH": {
+      "ticker": "TATATECH",
+      "first_date": "2023-11-30",
+      "last_date": "2026-05-07",
+      "n_bars": 598,
+      "n_corp_actions": 2,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.07037319116527041
+    },
+    "TCS": {
+      "ticker": "TCS",
+      "first_date": "2004-08-25",
+      "last_date": "2026-05-07",
+      "n_bars": 5357,
+      "n_corp_actions": 88,
+      "n_splits_bonuses": 3,
+      "max_daily_return_adj": 0.15495691328313033
+    },
+    "TEJASNET": {
+      "ticker": "TEJASNET",
+      "first_date": "2017-06-27",
+      "last_date": "2026-05-07",
+      "n_bars": 2187,
+      "n_corp_actions": 9,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.20000000000000018
+    },
+    "THERMAX": {
+      "ticker": "THERMAX",
+      "first_date": "1995-06-14",
+      "last_date": "2026-05-07",
+      "n_bars": 7640,
+      "n_corp_actions": 22,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19458239277652378
+    },
+    "TRITURBINE": {
+      "ticker": "TRITURBINE",
+      "first_date": "2011-10-28",
+      "last_date": "2026-05-07",
+      "n_bars": 3580,
+      "n_corp_actions": 27,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.19999999999999996
+    },
+    "ULTRACEMCO": {
+      "ticker": "ULTRACEMCO",
+      "first_date": "2004-08-24",
+      "last_date": "2026-05-07",
+      "n_bars": 5358,
+      "n_corp_actions": 22,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.1464188177253105
+    },
+    "VEDL": {
+      "ticker": "VEDL",
+      "first_date": "2015-05-07",
+      "last_date": "2026-05-07",
+      "n_bars": 2716,
+      "n_corp_actions": 52,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.20434961017644637
+    },
+    "VOLTAMP": {
+      "ticker": "VOLTAMP",
+      "first_date": "2006-09-20",
+      "last_date": "2026-05-07",
+      "n_bars": 4841,
+      "n_corp_actions": 20,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.2000130855796911
+    },
+    "VOLTAS": {
+      "ticker": "VOLTAS",
+      "first_date": "1995-01-06",
+      "last_date": "2026-05-07",
+      "n_bars": 7736,
+      "n_corp_actions": 22,
+      "n_splits_bonuses": 1,
+      "max_daily_return_adj": 0.24418604651162812
+    },
+    "WELCORP": {
+      "ticker": "WELCORP",
+      "first_date": "2010-05-17",
+      "last_date": "2026-05-07",
+      "n_bars": 3946,
+      "n_corp_actions": 24,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.2698268003646309
+    },
+    "ZENTEC": {
+      "ticker": "ZENTEC",
+      "first_date": "2015-03-30",
+      "last_date": "2026-05-07",
+      "n_bars": 2740,
+      "n_corp_actions": 12,
+      "n_splits_bonuses": 0,
+      "max_daily_return_adj": 0.20000000000000018
+    }
+  }
+}
