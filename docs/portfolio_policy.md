@@ -10,6 +10,7 @@ screener run.
 | Sleeve | Budget | Contents | Managed by |
 |--------|--------|----------|------------|
 | Thesis / Value | ≤28% | URNM, SRUUF (uranium — supply-deficit value buy), AEM (gold) | Manual. Quarterly fundamental review. NEVER momentum-scored. |
+| Savings (Rule "Talmud Real") | ~$5.7k target | FNV, WPM — royalty/streamers, 3y+ hold | Manual. Annual review. No stop-loss. Adds capped at $10k lifetime without a new decision-log entry. |
 | Core | ~30% | MSFT, META (+ SPY/AVUV if grown) | Buy-and-hold, annual review |
 | Momentum satellite | ~25% | 5–6 positions × ~$2k | Screener, monthly |
 | Cash (SGOV) | $10k floor | SGOV — **untouchable** (owner instruction 2026-07-21) | Never sold to fund trades |

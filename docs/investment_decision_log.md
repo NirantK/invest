@@ -1096,3 +1096,25 @@ per Jul 6 entry — MSFT accrues to Core, AEM to Thesis.
 SGOV $10k · free cash ~$36k.
 
 **Benchmark from here:** log every rebalance vs SPY.
+
+## Jul 21, 2026 — Savings sleeve: FNV + WPM DCA (Rick Rule "Talmud Real", 3y hold)
+
+**Decision:** New savings sleeve per Rule's royalty/streamer "wealth preservation" bucket.
+FNV $3.2k + WPM $2.5k ≈ $5.7k from free cash. 3-year hold, no stop-loss, annual review.
+
+**Sizing rationale (measured 3y data):**
+- FNV vol 32% / maxDD -30%; WPM vol 37% / maxDD -37%; corr(FNV,WPM)=0.83, both ~0.85-0.90
+  vs AEM — so sized as ONE precious-complex position, not two diversifiers.
+- Precious complex after AEM DCA completes: AEM $5.3k + $5.7k sleeve ≈ $11k ≈ 13% NetLiq.
+  Bad-case 3y (2013-15 analogue, -45%) ≈ -$5k ≈ 6% of NetLiq — survivable without capitulation.
+- Split inverse-vol with savings tilt to FNV (lower vol/dd, diversified royalties);
+  WPM's 50% silver stream supplies the sleeve's beta.
+- Entry: -28% (FNV) / -37% (WPM) off highs; 4 weekly tranches (Jul 21 open, then GAT
+  Mon 09:35 ET Jul 27 / Aug 3 / Aug 10) — 3y horizon makes vol an entry-timing problem,
+  answered by tranching, not by shrinking the position.
+
+**Orders:** FNV 4 sh × 4 tranches LMT $204.20 (no pre-market quote; +2% over $200.17 close —
+if FNV runs past the limit, later tranches won't fill: review unfilled at Aug rebalance).
+WPM 6 sh × 4 tranches MKT. IDs 608-639. Added --good-after (GAT) support to us/scripts/ibkr.py.
+
+**Cash after all DCAs complete:** ~$28k free + $10k SGOV (untouched).
