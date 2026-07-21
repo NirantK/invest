@@ -569,6 +569,7 @@ def buy(
     client_id: int = typer.Option(DEFAULT_CLIENT_ID, "--client-id", "-c", help="Client ID"),
     dry_run: bool = typer.Option(True, "--dry-run/--execute", help="Dry run (default) or execute"),
     limit_price: Optional[float] = typer.Option(None, "--limit", "-l", help="Limit price (uses market if not set)"),
+    good_after: Optional[str] = typer.Option(None, "--good-after", help="GAT: rest on IB servers until 'YYYYMMDD HH:MM:SS US/Eastern'"),
 ):
     """Buy shares of a stock with a dollar amount (market or limit order)."""
     from ib_async import Stock, MarketOrder, LimitOrder, util
@@ -627,6 +628,9 @@ def buy(
             order = LimitOrder("BUY", shares, limit_price)
         else:
             order = MarketOrder("BUY", shares)
+        if good_after:
+            order.goodAfterTime = good_after
+            order.tif = "GTC"
         trade = ib.placeOrder(contract, order)
         util.sleep(1)
 
